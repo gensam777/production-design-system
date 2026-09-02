@@ -1,0 +1,54 @@
+{
+  "name": "production-design-system",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Production-style React design system: tokens, components, and documentation.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "tokens:build": "style-dictionary build --config style-dictionary.config.mjs",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@storybook/addon-a11y": "^10.5.10",
+    "@storybook/react-vite": "^10.5.10",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "@typescript-eslint/parser": "^8.69.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "prettier": "^3.9.6",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "storybook": "^10.5.10",
+    "style-dictionary": "^5.5.2",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.2.2"
+  }
+}

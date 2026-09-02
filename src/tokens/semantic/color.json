@@ -1,0 +1,11 @@
+{
+  "color": {
+    "background": {
+      "placeholder": {
+        "$value": "{color.placeholder}",
+        "$type": "color",
+        "$description": "Placeholder semantic alias referencing color.placeholder. Real semantic mappings (e.g. color.background.brand) are defined during the Color foundation work."
+      }
+    }
+  }
+}
