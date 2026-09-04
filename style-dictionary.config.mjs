@@ -1,13 +1,13 @@
 /**
  * Style Dictionary config.
  *
- * Source of truth for token *values* is this directory (src/tokens/core, src/tokens/semantic).
+ * Source of truth for token *values* is this directory (src/tokens/primitive, src/tokens/semantic).
  * Figma mirrors these values for design intent; this pipeline is what actually ships.
  *
  * Output in src/tokens/build/ is generated — never hand-edit it.
  */
 export default {
-  source: ['src/tokens/core/**/*.json', 'src/tokens/semantic/**/*.json'],
+  source: ['src/tokens/primitive/**/*.json', 'src/tokens/semantic/**/*.json'],
   platforms: {
     css: {
       transformGroup: 'css',

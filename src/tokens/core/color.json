@@ -1,9 +1,0 @@
-{
-  "color": {
-    "placeholder": {
-      "$value": "#000000",
-      "$type": "color",
-      "$description": "Placeholder core token proving the token pipeline works. Real color foundation values are defined in a future task, not here."
-    }
-  }
-}

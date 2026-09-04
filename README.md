@@ -11,7 +11,7 @@ for the current architectural decisions and what's deliberately deferred.
 ## Structure
 
 - `src/components/` — React components
-- `src/tokens/` — design token source (`core/`, `semantic/`, `themes/`) and generated
+- `src/tokens/` — design token source (`primitive/`, `semantic/`, `themes/`) and generated
   output (`build/`, gitignored)
 - `.storybook/` — Storybook configuration
 - `docs/` — `design-to-code-mappings.md` and foundation documentation
@@ -35,7 +35,7 @@ npm run lint
 | Concern | Source of truth |
 | --- | --- |
 | Design intent | Figma |
-| Shipped token values | `src/tokens/{core,semantic}/*.json` |
+| Shipped token values | `src/tokens/{primitive,semantic}/*.json` |
 | Component behavior/API | React (`src/components/`) |
 | Component documentation | Storybook |
 | Figma ↔ component mapping | `docs/design-to-code-mappings.md` (manual) |

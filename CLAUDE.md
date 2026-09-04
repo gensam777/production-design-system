@@ -13,7 +13,7 @@ app projects.
 ```
 src/
   components/   # React components (none yet)
-  tokens/       # token source (core/, semantic/, themes/) + generated build/ output
+  tokens/       # token source (primitive/, semantic/, themes/) + generated build/ output
   index.ts      # public entry point / barrel export
 .storybook/     # Storybook config
 docs/           # design-to-code-mappings.md + foundations documentation
@@ -24,7 +24,7 @@ governance/     # accessibility, lifecycle, versioning rules + ADRs (decisions/)
 ## Source of truth
 
 - **Figma** = design intent (what something should look like).
-- **`src/tokens/{core,semantic}/*.json`** = shipped token values. Figma should mirror
+- **`src/tokens/{primitive,semantic}/*.json`** = shipped token values. Figma should mirror
   these; if they disagree, code wins for anything already released.
 - **React (`src/components/`)** = component behavior and public API.
 - **Storybook** = the coded documentation of how components actually behave — treat a
@@ -39,7 +39,7 @@ governance/     # accessibility, lifecycle, versioning rules + ADRs (decisions/)
 - `npm run typecheck` — `tsc --noEmit`
 - `npm run lint` — ESLint (includes `eslint-plugin-jsx-a11y`)
 - `npm run format` / `npm run format:check` — Prettier
-- `npm run tokens:build` — Style Dictionary: `src/tokens/{core,semantic}` → `src/tokens/build/`
+- `npm run tokens:build` — Style Dictionary: `src/tokens/{primitive,semantic}` → `src/tokens/build/`
 - `npm run storybook` — Storybook dev server
 - `npm run build-storybook` — static Storybook build
 

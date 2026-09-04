@@ -1,11 +1,83 @@
 {
   "color": {
-    "background": {
-      "placeholder": {
-        "$value": "{color.placeholder}",
-        "$type": "color",
-        "$description": "Placeholder semantic alias referencing color.placeholder. Real semantic mappings (e.g. color.background.brand) are defined during the Color foundation work."
+    "surface": {
+      "canvas": { "$value": "{color.gray.50}", "$type": "color", "$description": "App page background." },
+      "default": { "$value": "{color.white}", "$type": "color", "$description": "Default component surface (cards, panels)." },
+      "raised": { "$value": "{color.white}", "$type": "color", "$description": "Elevated surfaces (modals, popovers). Differentiated from `default` by shadow/elevation, not color, until proven otherwise." },
+      "sunken": { "$value": "{color.gray.100}", "$type": "color", "$description": "Recessed areas (input wells, code blocks)." },
+      "inverse": { "$value": "{color.gray.900}", "$type": "color", "$description": "Dark surface used in light mode (tooltips, dark banners)." },
+      "disabled": { "$value": "{color.gray.100}", "$type": "color", "$description": "Disabled component fill." }
+    },
+    "text": {
+      "primary": { "$value": "{color.gray.900}", "$type": "color", "$description": "17.74:1 on surface.default. Body/heading text." },
+      "secondary": { "$value": "{color.gray.700}", "$type": "color", "$description": "10.31:1 on surface.default. De-emphasized text." },
+      "tertiary": { "$value": "{color.gray.500}", "$type": "color", "$description": "4.83:1 on surface.default. Helper/placeholder text." },
+      "disabled": { "$value": "{color.gray.400}", "$type": "color", "$description": "2.54:1 on surface.default — below AA, exempt per WCAG for disabled content." },
+      "inverse": { "$value": "{color.white}", "$type": "color", "$description": "Text on surface.inverse (dark surfaces)." },
+      "link": { "$value": "{color.blue.600}", "$type": "color", "$description": "5.17:1 on surface.default." },
+      "link-hover": { "$value": "{color.blue.700}", "$type": "color", "$description": "6.70:1 on surface.default." },
+      "danger": { "$value": "{color.red.700}", "$type": "color", "$description": "6.47:1 on surface.default." },
+      "success": { "$value": "{color.green.700}", "$type": "color", "$description": "5.02:1 on surface.default." },
+      "warning": { "$value": "{color.amber.800}", "$type": "color", "$description": "7.09:1 on surface.default." }
+    },
+    "border": {
+      "subtle": { "$value": "{color.gray.200}", "$type": "color", "$description": "Decorative/structural divider only — does not meet 3:1 non-text contrast on its own." },
+      "default": { "$value": "{color.gray.300}", "$type": "color", "$description": "1.47:1 on surface.default. Decorative/structural only, e.g. default resting-state input outline where the input has other affordances (fill, label). Not sufficient alone to satisfy WCAG 1.4.11 for a component whose ONLY boundary cue is its border — use border.strong for that." },
+      "strong": { "$value": "{color.gray.500}", "$type": "color", "$description": "4.83:1 on surface.default — clears the 3:1 non-text minimum. Use where a border is the sole indicator of an interactive element's boundary or state." },
+      "danger": { "$value": "{color.red.600}", "$type": "color" },
+      "success": { "$value": "{color.green.600}", "$type": "color" },
+      "warning": { "$value": "{color.amber.600}", "$type": "color" }
+    },
+    "action": {
+      "primary": {
+        "default": { "$value": "{color.blue.600}", "$type": "color" },
+        "hover": { "$value": "{color.blue.700}", "$type": "color" },
+        "active": { "$value": "{color.blue.800}", "$type": "color" },
+        "disabled": { "$value": "{color.gray.300}", "$type": "color" },
+        "on-color": { "$value": "{color.white}", "$type": "color", "$description": "5.17:1 on action.primary.default, improves through hover/active." }
+      },
+      "secondary": {
+        "default": { "$value": "{color.white}", "$type": "color", "$description": "Paired with border.default as an outline button; no separate fill token needed." },
+        "hover": { "$value": "{color.gray.100}", "$type": "color" }
+      },
+      "tertiary": {
+        "hover": { "$value": "{color.gray.100}", "$type": "color", "$description": "Ghost/text button resting state has no background — 'transparent' isn't tokenized as a color. Only the hover fill needs a token." }
+      },
+      "danger": {
+        "default": { "$value": "{color.red.600}", "$type": "color" },
+        "hover": { "$value": "{color.red.700}", "$type": "color" },
+        "on-color": { "$value": "{color.white}", "$type": "color", "$description": "4.83:1 on action.danger.default." }
       }
+    },
+    "feedback": {
+      "success": {
+        "subtle": { "$value": "{color.green.50}", "$type": "color" },
+        "default": { "$value": "{color.green.600}", "$type": "color", "$description": "Icon/accent use; 3.30:1 vs white meets non-text minimum only." },
+        "emphasis": { "$value": "{color.green.700}", "$type": "color" },
+        "on-color": { "$value": "{color.white}", "$type": "color", "$description": "5.02:1 on emphasis — on-color tokens are validated against `emphasis`, not `default`." }
+      },
+      "warning": {
+        "subtle": { "$value": "{color.amber.50}", "$type": "color" },
+        "default": { "$value": "{color.amber.600}", "$type": "color", "$description": "Icon/accent use; 3.19:1 vs white meets non-text minimum only." },
+        "emphasis": { "$value": "{color.amber.700}", "$type": "color" },
+        "on-color": { "$value": "{color.white}", "$type": "color", "$description": "5.02:1 on emphasis." }
+      },
+      "danger": {
+        "subtle": { "$value": "{color.red.50}", "$type": "color" },
+        "default": { "$value": "{color.red.600}", "$type": "color" },
+        "emphasis": { "$value": "{color.red.700}", "$type": "color" },
+        "on-color": { "$value": "{color.white}", "$type": "color", "$description": "6.47:1 on emphasis." }
+      },
+      "info": {
+        "subtle": { "$value": "{color.cyan.50}", "$type": "color" },
+        "default": { "$value": "{color.cyan.600}", "$type": "color", "$description": "Icon/accent use; 3.68:1 vs white meets non-text minimum only." },
+        "emphasis": { "$value": "{color.cyan.700}", "$type": "color" },
+        "on-color": { "$value": "{color.white}", "$type": "color", "$description": "5.36:1 on emphasis." }
+      }
+    },
+    "focus": {
+      "ring": { "$value": "{color.blue.600}", "$type": "color", "$description": "4.95:1 vs surface.canvas, 5.17:1 vs surface.raised — clears WCAG 2.4.11 3:1 minimum against both." },
+      "ring-offset": { "$value": "{color.gray.50}", "$type": "color", "$description": "Separation gap between an element and its focus ring." }
     }
   }
 }

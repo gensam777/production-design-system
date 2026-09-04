@@ -16,7 +16,7 @@ automated design-to-code mapping.
   to version/publish tokens and components independently.
 - Do **not** adopt Figma Code Connect. Design-to-code mapping is a manually maintained
   file: `docs/design-to-code-mappings.md`.
-- Token pipeline: **Style Dictionary**, source files in `src/tokens/{core,semantic,themes}`,
+- Token pipeline: **Style Dictionary**, source files in `src/tokens/{primitive,semantic,themes}`,
   generated output in `src/tokens/build/` (gitignored).
 - Defer: Vitest/Testing Library, Changesets, CI/CD, npm publishing, dark mode/theming
   implementation, and custom Claude Code skills — none of these are needed to start the
