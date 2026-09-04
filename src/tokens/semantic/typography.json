@@ -1,0 +1,427 @@
+{
+  "text": {
+    "heading": {
+      "xl": {
+        "semibold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.4xl}",
+            "fontWeight": "{font.weight.semibold}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.tight}"
+          },
+          "$description": "Largest heading step — hero/display headings. Semibold weight."
+        },
+        "bold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.4xl}",
+            "fontWeight": "{font.weight.bold}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.tight}"
+          },
+          "$description": "Largest heading step — hero/display headings. Bold weight."
+        }
+      },
+      "lg": {
+        "semibold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.3xl}",
+            "fontWeight": "{font.weight.semibold}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.tight}"
+          },
+          "$description": "Page title. Semibold weight."
+        },
+        "bold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.3xl}",
+            "fontWeight": "{font.weight.bold}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.tight}"
+          },
+          "$description": "Page title. Bold weight."
+        }
+      },
+      "md": {
+        "semibold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.2xl}",
+            "fontWeight": "{font.weight.semibold}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.tight}"
+          },
+          "$description": "Section title. Semibold weight."
+        },
+        "bold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.2xl}",
+            "fontWeight": "{font.weight.bold}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.tight}"
+          },
+          "$description": "Section title. Bold weight."
+        }
+      },
+      "sm": {
+        "semibold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.xl}",
+            "fontWeight": "{font.weight.semibold}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Card/dialog title. Semibold weight."
+        },
+        "bold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.xl}",
+            "fontWeight": "{font.weight.bold}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Card/dialog title. Bold weight."
+        }
+      }
+    },
+    "body": {
+      "lg": {
+        "regular": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.lg}",
+            "fontWeight": "{font.weight.regular}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Emphasized body text — intros, lead paragraphs. Regular weight."
+        },
+        "medium": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.lg}",
+            "fontWeight": "{font.weight.medium}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Emphasized body text — intros, lead paragraphs. Medium weight."
+        },
+        "semibold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.lg}",
+            "fontWeight": "{font.weight.semibold}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Emphasized body text — intros, lead paragraphs. Semibold weight."
+        },
+        "bold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.lg}",
+            "fontWeight": "{font.weight.bold}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Emphasized body text — intros, lead paragraphs. Bold weight."
+        }
+      },
+      "md": {
+        "regular": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.md}",
+            "fontWeight": "{font.weight.regular}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Default body/UI text. Regular weight."
+        },
+        "medium": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.md}",
+            "fontWeight": "{font.weight.medium}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Default body/UI text. Medium weight."
+        },
+        "semibold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.md}",
+            "fontWeight": "{font.weight.semibold}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Default body/UI text. Semibold weight."
+        },
+        "bold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.md}",
+            "fontWeight": "{font.weight.bold}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Default body/UI text. Bold weight."
+        }
+      },
+      "sm": {
+        "regular": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.sm}",
+            "fontWeight": "{font.weight.regular}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Secondary/dense UI text. Regular weight."
+        },
+        "medium": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.sm}",
+            "fontWeight": "{font.weight.medium}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Secondary/dense UI text. Medium weight."
+        },
+        "semibold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.sm}",
+            "fontWeight": "{font.weight.semibold}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Secondary/dense UI text. Semibold weight."
+        },
+        "bold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.sm}",
+            "fontWeight": "{font.weight.bold}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Secondary/dense UI text. Bold weight."
+        }
+      }
+    },
+    "label": {
+      "lg": {
+        "medium": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.md}",
+            "fontWeight": "{font.weight.medium}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Form labels, buttons, tabs — larger UI text contexts. Medium weight."
+        },
+        "semibold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.md}",
+            "fontWeight": "{font.weight.semibold}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Form labels, buttons, tabs — larger UI text contexts. Semibold weight."
+        },
+        "bold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.md}",
+            "fontWeight": "{font.weight.bold}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Form labels, buttons, tabs — larger UI text contexts. Bold weight."
+        }
+      },
+      "md": {
+        "medium": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.sm}",
+            "fontWeight": "{font.weight.medium}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Form labels, buttons, tabs — default size. Medium weight."
+        },
+        "semibold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.sm}",
+            "fontWeight": "{font.weight.semibold}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Form labels, buttons, tabs — default size. Semibold weight."
+        },
+        "bold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.sm}",
+            "fontWeight": "{font.weight.bold}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Form labels, buttons, tabs — default size. Bold weight."
+        }
+      },
+      "sm": {
+        "medium": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.xs}",
+            "fontWeight": "{font.weight.medium}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Form labels, buttons, tabs — compact UI. Medium weight."
+        },
+        "semibold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.xs}",
+            "fontWeight": "{font.weight.semibold}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Form labels, buttons, tabs — compact UI. Semibold weight."
+        },
+        "bold": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.xs}",
+            "fontWeight": "{font.weight.bold}",
+            "lineHeight": "{font.lineHeight.tight}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Form labels, buttons, tabs — compact UI. Bold weight."
+        }
+      }
+    },
+    "caption": {
+      "md": {
+        "regular": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.sm}",
+            "fontWeight": "{font.weight.regular}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Helper text, metadata, timestamps — default size. Regular weight."
+        },
+        "medium": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.sm}",
+            "fontWeight": "{font.weight.medium}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Helper text, metadata, timestamps — default size. Medium weight."
+        }
+      },
+      "sm": {
+        "regular": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.xs}",
+            "fontWeight": "{font.weight.regular}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Helper text, metadata, timestamps — compact. Regular weight."
+        },
+        "medium": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.sans}",
+            "fontSize": "{font.size.xs}",
+            "fontWeight": "{font.weight.medium}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Helper text, metadata, timestamps — compact. Medium weight."
+        }
+      }
+    },
+    "code": {
+      "md": {
+        "regular": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.mono}",
+            "fontSize": "{font.size.sm}",
+            "fontWeight": "{font.weight.regular}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Inline code, IDs — default size. Regular weight."
+        }
+      },
+      "sm": {
+        "regular": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{font.family.mono}",
+            "fontSize": "{font.size.xs}",
+            "fontWeight": "{font.weight.regular}",
+            "lineHeight": "{font.lineHeight.normal}",
+            "letterSpacing": "{font.letterSpacing.normal}"
+          },
+          "$description": "Inline code, IDs — compact. Regular weight."
+        }
+      }
+    }
+  }
+}

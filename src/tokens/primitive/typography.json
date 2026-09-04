@@ -1,0 +1,40 @@
+{
+  "font": {
+    "family": {
+      "sans": {
+        "$value": ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+        "$type": "fontFamily",
+        "$description": "Default working UI typeface for this template. Inter is a placeholder, same status as blue for color — a future consuming product may swap this stack and remap semantic text roles without touching component code."
+      },
+      "mono": {
+        "$value": ["Roboto Mono", "SFMono-Regular", "Consolas", "monospace"],
+        "$type": "fontFamily",
+        "$description": "Code/data typeface — inline code, IDs, tabular/numeric values."
+      }
+    },
+    "size": {
+      "xs": { "$value": "0.75rem", "$type": "dimension", "$description": "12px. Captions/labels only — never primary reading content." },
+      "sm": { "$value": "0.875rem", "$type": "dimension", "$description": "14px." },
+      "md": { "$value": "1rem", "$type": "dimension", "$description": "16px. Base body size — the floor for primary reading content." },
+      "lg": { "$value": "1.125rem", "$type": "dimension", "$description": "18px." },
+      "xl": { "$value": "1.25rem", "$type": "dimension", "$description": "20px." },
+      "2xl": { "$value": "1.5rem", "$type": "dimension", "$description": "24px." },
+      "3xl": { "$value": "1.875rem", "$type": "dimension", "$description": "30px." },
+      "4xl": { "$value": "2.25rem", "$type": "dimension", "$description": "36px. Largest step in this scale — no editorial/marketing display sizes." }
+    },
+    "weight": {
+      "regular": { "$value": 400, "$type": "fontWeight" },
+      "medium": { "$value": 500, "$type": "fontWeight" },
+      "semibold": { "$value": 600, "$type": "fontWeight" },
+      "bold": { "$value": 700, "$type": "fontWeight" }
+    },
+    "lineHeight": {
+      "tight": { "$value": 1.25, "$type": "number", "$description": "Unitless ratio. Headings." },
+      "normal": { "$value": 1.5, "$type": "number", "$description": "Unitless ratio. Body/UI text — matches WCAG 1.4.8's recommended paragraph line-height." }
+    },
+    "letterSpacing": {
+      "tight": { "$value": "-0.01em", "$type": "dimension", "$description": "Large headings only — modest by design, never applied to body/label/caption sizes." },
+      "normal": { "$value": "0em", "$type": "dimension" }
+    }
+  }
+}
