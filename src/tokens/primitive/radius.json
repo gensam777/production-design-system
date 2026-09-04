@@ -1,0 +1,10 @@
+{
+  "radius": {
+    "none": { "$value": 0, "$type": "dimension", "$description": "Raw scale, no meaning attached. Explicit zero — flat/square corners." },
+    "sm": { "$value": 4, "$type": "dimension" },
+    "md": { "$value": 8, "$type": "dimension" },
+    "lg": { "$value": 12, "$type": "dimension" },
+    "xl": { "$value": 16, "$type": "dimension" },
+    "max": { "$value": 9999, "$type": "dimension", "$description": "Figma variable name: radius/full. Renamed to `max` in this file only — Style Dictionary merges all token files into one flat path tree (unlike Figma's collection-scoped namespacing), so this primitive can't share the exact path `radius.full` with the semantic radius.full role below, which deliberately reuses the same name as its Figma counterpart. See governance/decisions/0006-radius-token-architecture.md. Deliberately oversized so it always resolves to a full capsule/circle regardless of element size — not a real measurement." }
+  }
+}

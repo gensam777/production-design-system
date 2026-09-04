@@ -96,10 +96,20 @@ below were created and approved in Figma before any code existed, then mirrored 
 
 - **`Primitive` collection**, single `Value` mode, variables grouped by `/`:
   `space/none` … `space/5xl`, `FLOAT` type, scope `["GAP"]`.
-- **`Semantic` collection**, single `Light` mode, variables under `space/inset/*`,
-  `space/stack/*`, `space/inline/*`, `space/layout/*`, each an **alias** to a
-  `Primitive` Variable, scope `["GAP"]`.
+- **`Semantic Space` collection**, single `Default` mode, variables under `inset/*`,
+  `stack/*`, `inline/*`, `layout/*`, each an **alias** to a `Primitive` Variable,
+  scope `["GAP"]`.
 - A "Spacing Specimen — V1" frame in the Figma file demonstrates every primitive step
   and semantic category with bound padding/gap values and px labels.
-- Components in Figma bind padding/gap to **Semantic** variables only, mirroring the
-  code rule.
+- Components in Figma bind padding/gap to **Semantic Space** variables only, mirroring
+  the code rule.
+- Collection note: spacing semantics originally lived in a single `Semantic` collection
+  shared with color, named `space/inset/*` etc. (category-prefixed). That collection was
+  later split into `Semantic Color`/`Semantic Space`/`Semantic Radius` (one per concern,
+  so each can gain independent Figma modes later — e.g. `Default`/`Compact`/`Spacious`
+  for space, without affecting color or radius); the `space/` prefix was dropped from
+  variable names at the same time, since the collection name now carries that category.
+  All 45 live node bindings in the Spacing Specimen frame were repointed to the new
+  variables as part of the migration — see
+  `governance/decisions/0005-semantic-collection-split.md`. Code required no change —
+  `src/tokens/semantic/spacing.json` was already its own file with unprefixed paths.

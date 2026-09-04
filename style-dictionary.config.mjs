@@ -42,16 +42,46 @@ StyleDictionary.registerFormat({
  * a "Nrem" string; 'size/rem' then sees an already-unitted value and passes it through
  * unchanged, same as it does for typography. Typography tokens are untouched by this —
  * their source values are already strings, never bare numbers.
+ *
+ * Scoped to `space.*` only (checked via `token.path[0] === 'space'`), not to every bare-
+ * number dimension token. Radius (governance/decisions/0006-radius-token-architecture.md)
+ * is also a bare-number `dimension` token in source, but must stay px in CSS output — it's
+ * visual geometry, not something that should scale with the user's root font size. Without
+ * this scoping, radius would get silently swept into the same rem conversion as spacing.
  */
 StyleDictionary.registerTransform({
   name: 'size/px-to-rem',
   type: 'value',
   transitive: true,
-  filter: (token) => token.$type === 'dimension' && typeof token.original.$value === 'number',
+  filter: (token) =>
+    token.$type === 'dimension' && typeof token.original.$value === 'number' && token.path[0] === 'space',
   transform: (token, config) => {
     const base = (config && config.basePxFontSize) || 16;
     const px = token.original.$value;
     return px === 0 ? '0' : `${px / base}rem`;
+  },
+});
+
+/**
+ * Radius is visual geometry, not something that should scale with the user's root font
+ * size — per governance/decisions/0006-radius-token-architecture.md it stays px in both
+ * source and CSS output, unlike spacing. Scoping 'size/px-to-rem' away from radius isn't
+ * enough on its own: without a replacement, the built-in 'size/rem' transform would still
+ * run on radius's bare-number dimension tokens next and corrupt them the same way spacing
+ * would have been corrupted (appending "rem" without scaling, e.g. `4` -> "4rem"). This
+ * transform pre-formats radius values as an explicit "Npx" string (or "0") before
+ * 'size/rem' runs, so 'size/rem' sees an already-unitted value and passes it through
+ * unchanged — same pass-through mechanism typography and spacing rely on.
+ */
+StyleDictionary.registerTransform({
+  name: 'size/radius-px',
+  type: 'value',
+  transitive: true,
+  filter: (token) =>
+    token.$type === 'dimension' && typeof token.original.$value === 'number' && token.path[0] === 'radius',
+  transform: (token) => {
+    const px = token.original.$value;
+    return px === 0 ? '0' : `${px}px`;
   },
 });
 
@@ -73,12 +103,15 @@ export default {
       // corrupt the value our custom 'css/typography-expanded' format depends on.
       // 'size/px-to-rem' (custom, see above) runs before the built-in 'size/rem' so bare
       // px-number spacing tokens are actually scaled, not just unit-suffixed.
+      // 'size/radius-px' (custom, see above) runs the same way for radius, but formats to
+      // px instead of rem — radius stays fixed geometry, not font-size-relative.
       transforms: [
         'attribute/cti',
         'name/kebab',
         'time/seconds',
         'html/icon',
         'size/px-to-rem',
+        'size/radius-px',
         'size/rem',
         'color/css',
         'asset/url',

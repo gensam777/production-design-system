@@ -1,0 +1,8 @@
+{
+  "radius": {
+    "flat": { "$value": "{radius.none}", "$type": "dimension", "$description": "Tables, dividers, code blocks — explicit square corners." },
+    "control": { "$value": "{radius.sm}", "$type": "dimension", "$description": "Buttons, inputs, checkboxes, tags/chips." },
+    "container": { "$value": "{radius.lg}", "$type": "dimension", "$description": "Cards, panels, modals, popovers, dialogs." },
+    "full": { "$value": "{radius.max}", "$type": "dimension", "$description": "Pills, avatars, circular icons/status dots. Aliases the `radius.max` primitive (Figma name: radius/full — see radius.max's description for why the code-side primitive name differs)." }
+  }
+}

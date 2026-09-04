@@ -174,14 +174,23 @@ categories in this document stay the same.
 
 - **`Primitive` collection**, single `Value` mode, variables grouped by "/" to match the
   token path, **category-first** (`color/gray/500`, `color/blue/600`, `color/white`).
-- **`Semantic` collection**, single `Light` mode, variables like `color/surface/canvas`,
-  `color/action/primary/default`, each bound as a Figma **alias** to a Primitive
+- **`Semantic Color` collection**, single `Light` mode, variables like `surface/canvas`,
+  `action/primary/default`, each bound as a Figma **alias** to a Primitive
   variable — the direct equivalent of the `{color.gray.900}` reference in code.
-- Components in Figma bind fills/strokes/text to **Semantic** variables only, mirroring
-  the code rule.
+- Components in Figma bind fills/strokes/text to **Semantic Color** variables only,
+  mirroring the code rule.
 - Naming note: Figma variables were originally created without the `color/` prefix
-  (`gray/500`, `surface/canvas`) and later renamed to the category-first form above for
-  scalability alongside the Spacing Foundation — see
-  `governance/decisions/0004-spacing-token-architecture.md`. Code paths
+  (`gray/500`, `surface/canvas`), then renamed to a category-first form
+  (`color/gray/500`, `color/surface/canvas`) for scalability alongside the Spacing
+  Foundation — see `governance/decisions/0004-spacing-token-architecture.md`. Code paths
   (`color.gray.500`, `color.surface.canvas`) were already category-first from the start
-  (the JSON source files are rooted under a `color` key) and needed no migration.
+  (the JSON source files are rooted under a `color` key) and needed no migration either
+  time.
+- Collection note: the original single `Semantic` collection (which held color, spacing,
+  and now radius semantics together) was later split into one collection per concern —
+  `Semantic Color`, `Semantic Space`, `Semantic Radius` — so each can gain independent
+  Figma modes later (e.g. `Light`/`Dark` for color) without forcing every other concern
+  to share the same mode set. The `color/` prefix was dropped from variable names inside
+  this collection at the same time, since the collection name itself now carries the
+  category. See `governance/decisions/0005-semantic-collection-split.md`. Code required
+  no change for this split — `src/tokens/semantic/color.json` was already its own file.
