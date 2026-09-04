@@ -40,9 +40,12 @@ governance/     # accessibility, lifecycle, versioning rules + ADRs (decisions/)
 - `npm run lint` — ESLint (includes `eslint-plugin-jsx-a11y`)
 - `npm run format` / `npm run format:check` — Prettier
 - `npm run tokens:build` — Style Dictionary: `src/tokens/{primitive,semantic}` → `src/tokens/build/`
-  (CSS output is split: `css/variables.css` for colors + typography primitives,
-  `css/typography.css` for the expanded composite typography roles — see
-  `governance/decisions/0003-typography-token-architecture.md`)
+  (CSS output is split across three files: `css/variables.css` for most tokens
+  (colors, typography primitives, spacing, radius, elevation, motion),
+  `css/typography.css` for the expanded composite typography roles (see
+  `governance/decisions/0003-typography-token-architecture.md`), and
+  `css/motion-reduced-motion.css` for the `prefers-reduced-motion` override (see
+  `governance/decisions/0008-motion-token-architecture.md`))
 - `npm run storybook` — Storybook dev server
 - `npm run build-storybook` — static Storybook build
 

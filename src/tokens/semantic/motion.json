@@ -1,0 +1,49 @@
+{
+  "motion": {
+    "micro": {
+      "$type": "transition",
+      "$value": {
+        "duration": "{motion.duration.fast}",
+        "delay": "0ms",
+        "timingFunction": "{motion.easing.standard}"
+      },
+      "$description": "Hover, press/active, focus-ring appearance. Shared across all three for V1 — split only if a real component proves different timing is needed."
+    },
+    "overlay-enter": {
+      "$type": "transition",
+      "$value": {
+        "duration": "{motion.duration.base}",
+        "delay": "0ms",
+        "timingFunction": "{motion.easing.decelerate}"
+      },
+      "$description": "Menu/popover/tooltip opening."
+    },
+    "overlay-exit": {
+      "$type": "transition",
+      "$value": {
+        "duration": "{motion.duration.fast}",
+        "delay": "0ms",
+        "timingFunction": "{motion.easing.accelerate}"
+      },
+      "$description": "Menu/popover/tooltip closing. Faster than its matching enter — standard UX practice."
+    },
+    "modal-enter": {
+      "$type": "transition",
+      "$value": {
+        "duration": "{motion.duration.slow}",
+        "delay": "0ms",
+        "timingFunction": "{motion.easing.decelerate}"
+      },
+      "$description": "Dialog/modal/drawer opening."
+    },
+    "modal-exit": {
+      "$type": "transition",
+      "$value": {
+        "duration": "{motion.duration.base}",
+        "delay": "0ms",
+        "timingFunction": "{motion.easing.accelerate}"
+      },
+      "$description": "Dialog/modal/drawer closing. Faster than its matching enter — standard UX practice."
+    }
+  }
+}

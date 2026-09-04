@@ -1,0 +1,16 @@
+{
+  "motion": {
+    "duration": {
+      "instant": { "$value": 0, "$type": "duration" },
+      "fast": { "$value": 100, "$type": "duration" },
+      "base": { "$value": 200, "$type": "duration" },
+      "slow": { "$value": 300, "$type": "duration" },
+      "slower": { "$value": 400, "$type": "duration", "$description": "Headroom — no semantic role aliases this step in V1." }
+    },
+    "easing": {
+      "standard": { "$value": [0.4, 0, 0.2, 1], "$type": "cubicBezier", "$description": "Default for most state changes — eases in and out." },
+      "decelerate": { "$value": [0, 0, 0.2, 1], "$type": "cubicBezier", "$description": "Starts fast, settles slow — for things entering/appearing." },
+      "accelerate": { "$value": [0.4, 0, 1, 1], "$type": "cubicBezier", "$description": "Starts slow, speeds up — for things exiting/disappearing." }
+    }
+  }
+}

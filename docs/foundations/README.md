@@ -8,5 +8,6 @@ here as MDX/Markdown, one file per foundation.
 - [`spacing.md`](./spacing.md) — Spacing Foundation V1
 - [`radius.md`](./radius.md) — Radius Foundation V1
 - [`elevation.md`](./elevation.md) — Elevation / Shadow Foundation V1
+- [`motion.md`](./motion.md) — Motion Foundation V1
 
 All planned foundations are now implemented.

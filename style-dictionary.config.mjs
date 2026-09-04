@@ -114,6 +114,58 @@ StyleDictionary.registerTransform({
 });
 
 /**
+ * Motion durations use `$type: "duration"` (not the built-in `time/seconds` transform's
+ * `$type: "time"`, which converts to *seconds* — the opposite of what's required here;
+ * see governance/decisions/0008-motion-token-architecture.md). No spacing/radius/shadow
+ * transform touches these tokens either, since none of them filter on `$type ===
+ * "duration"` — motion needed no `path[0]` scoping the way radius/shadow did, because it
+ * doesn't share the "dimension" `$type` with spacing at all.
+ *
+ * The built-in `transition/css/shorthand` transform (used for the semantic `motion.*`
+ * composites below) does zero unit normalization — worse than `shadow/css/shorthand`,
+ * which at least preserves an existing unit. It just string-interpolates
+ * `${duration} ${timingFunction} ${delay}` directly. So primitive durations must already
+ * be an explicit "Nms" string by the time a semantic token's alias reference resolves,
+ * or the generated CSS `transition` value would have no unit on the duration at all.
+ *
+ * Always emits a unit, even for 0 — CSS `<time>` values (unlike `<length>`) are not
+ * guaranteed valid unitless at zero in all engines; `0ms` is the safe, always-valid form.
+ */
+StyleDictionary.registerTransform({
+  name: 'time/duration-ms',
+  type: 'value',
+  transitive: true,
+  filter: (token) => token.$type === 'duration' && typeof token.original.$value === 'number',
+  transform: (token) => `${token.original.$value}ms`,
+});
+
+/**
+ * Accessibility requirement: `prefers-reduced-motion: reduce` must force every
+ * `--motion-*` custom property to an effectively-instant value, with zero
+ * component-level special-casing.
+ *
+ * This can't be done by overriding only the primitive `--motion-duration-*` custom
+ * properties: Style Dictionary's alias references (`{motion.duration.base}` inside a
+ * semantic `motion.overlay-enter` token) are resolved at BUILD time, not preserved as
+ * live `var(--motion-duration-base)` chains in the generated CSS. The semantic
+ * `--motion-overlay-enter` custom property ships as a fully baked string
+ * (`"200ms cubic-bezier(...) 0ms"`), with no runtime reference back to
+ * `--motion-duration-base` at all. So a reduced-motion override has to target BOTH tiers
+ * independently — whichever one a given component actually consumes — not just the
+ * primitive "source of truth". Easing primitives are deliberately left alone: at 0ms
+ * duration, a timing-function curve has no visible effect anyway.
+ */
+StyleDictionary.registerFormat({
+  name: 'css/reduced-motion',
+  format: ({ dictionary }) => {
+    const lines = dictionary.allTokens
+      .filter((token) => token.$type === 'duration' || token.$type === 'transition')
+      .map((token) => `    --${token.name}: ${token.$type === 'duration' ? '0ms' : '0ms linear 0ms'};`);
+    return `/**\n * Do not edit directly, this file was auto-generated.\n *\n * Forces every motion duration/transition custom property to an effectively-instant\n * value under prefers-reduced-motion. Components that consume any --motion-* custom\n * property (primitive or semantic) automatically respect reduced-motion, as long as\n * they use var(--motion-*) rather than a hardcoded duration.\n */\n\n@media (prefers-reduced-motion: reduce) {\n  :root {\n${lines.join('\n')}\n  }\n}\n`;
+  },
+});
+
+/**
  * Style Dictionary config.
  *
  * Source of truth for token *values* is this directory (src/tokens/primitive, src/tokens/semantic).
@@ -135,6 +187,9 @@ export default {
       // px instead of rem — radius stays fixed geometry, not font-size-relative.
       // 'size/shadow-px' (custom, see above) does the same for shadow geometry, and also
       // makes sure 'shadow/css/shorthand' below sees already-unitted values.
+      // 'time/duration-ms' (custom, see above) does the analogous thing for motion
+      // durations — 'ms' instead of 'px' — and also makes sure 'transition/css/shorthand'
+      // below (dormant until motion) sees already-unitted duration values.
       transforms: [
         'attribute/cti',
         'name/kebab',
@@ -143,6 +198,7 @@ export default {
         'size/px-to-rem',
         'size/radius-px',
         'size/shadow-px',
+        'time/duration-ms',
         'size/rem',
         'color/css',
         'asset/url',
@@ -164,6 +220,10 @@ export default {
           destination: 'typography.css',
           format: 'css/typography-expanded',
           filter: (token) => token.$type === 'typography',
+        },
+        {
+          destination: 'motion-reduced-motion.css',
+          format: 'css/reduced-motion',
         },
       ],
     },
