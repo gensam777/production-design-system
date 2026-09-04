@@ -54,6 +54,11 @@
       "700": { "$value": "#0E7490", "$type": "color" }
     },
     "white": { "$value": "#FFFFFF", "$type": "color", "$description": "Fixed primitive, no scale." },
-    "black": { "$value": "#000000", "$type": "color", "$description": "Fixed primitive, no scale." }
+    "black": { "$value": "#000000", "$type": "color", "$description": "Fixed primitive, no scale." },
+    "overlay": {
+      "subtle": { "$value": "rgba(0, 0, 0, 0.05)", "$type": "color", "$description": "Alpha-blended black. Named generically (not shadow-specific) so a future surface.overlay/scrim token can reuse it — see governance/decisions/0007-elevation-token-architecture.md." },
+      "default": { "$value": "rgba(0, 0, 0, 0.08)", "$type": "color" },
+      "strong": { "$value": "rgba(0, 0, 0, 0.12)", "$type": "color" }
+    }
   }
 }

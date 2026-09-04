@@ -1,0 +1,42 @@
+{
+  "elevation": {
+    "flat": {
+      "$type": "shadow",
+      "$value": "none",
+      "$description": "Resting/inline elements — table rows, default buttons, flush surfaces. No shadow (matches the Figma Elevation/Flat Effect Style, which has an empty effects array rather than a zero-value shadow)."
+    },
+    "raised": {
+      "$type": "shadow",
+      "$value": {
+        "offsetX": "{shadow.sm.offset-x}",
+        "offsetY": "{shadow.sm.offset-y}",
+        "blur": "{shadow.sm.blur}",
+        "spread": "{shadow.sm.spread}",
+        "color": "{color.shadow.subtle}"
+      },
+      "$description": "Cards, panels — subtly above canvas."
+    },
+    "overlay": {
+      "$type": "shadow",
+      "$value": {
+        "offsetX": "{shadow.md.offset-x}",
+        "offsetY": "{shadow.md.offset-y}",
+        "blur": "{shadow.md.blur}",
+        "spread": "{shadow.md.spread}",
+        "color": "{color.shadow.default}"
+      },
+      "$description": "Dropdowns, popovers, tooltips."
+    },
+    "modal": {
+      "$type": "shadow",
+      "$value": {
+        "offsetX": "{shadow.lg.offset-x}",
+        "offsetY": "{shadow.lg.offset-y}",
+        "blur": "{shadow.lg.blur}",
+        "spread": "{shadow.lg.spread}",
+        "color": "{color.shadow.strong}"
+      },
+      "$description": "Dialogs, modals, drawers."
+    }
+  }
+}

@@ -7,5 +7,6 @@ here as MDX/Markdown, one file per foundation.
 - [`typography.md`](./typography.md) — Typography Foundation V1
 - [`spacing.md`](./spacing.md) — Spacing Foundation V1
 - [`radius.md`](./radius.md) — Radius Foundation V1
+- [`elevation.md`](./elevation.md) — Elevation / Shadow Foundation V1
 
-Remaining foundations (elevation, etc.) are not started yet.
+All planned foundations are now implemented.

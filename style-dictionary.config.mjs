@@ -86,6 +86,34 @@ StyleDictionary.registerTransform({
 });
 
 /**
+ * Shadow geometry (offset-x/offset-y/blur/spread) is visual geometry like radius, not
+ * something that should scale with the user's root font size — per
+ * governance/decisions/0007-elevation-token-architecture.md it stays px in both source
+ * and CSS output. Same pass-through mechanism as 'size/radius-px': pre-format the bare
+ * number as an explicit "Npx" string before 'size/rem' runs, so 'size/rem' passes it
+ * through unchanged instead of appending "rem" unscaled.
+ *
+ * This also matters for the semantic `elevation.*` composite `$type: "shadow"` tokens:
+ * the built-in `shadow/css/shorthand` transform (already present below, previously
+ * unused) calls a DTCG dimension normalizer on each resolved offset/blur/spread value
+ * that preserves a unit if one is already present, but does NOT add one to a bare
+ * number — so primitive shadow geometry must already be "Npx" by the time a semantic
+ * token's alias reference resolves, or the generated `box-shadow` would be missing
+ * units (e.g. `0 1 2 0 rgba(...)` instead of `0 1px 2px 0 rgba(...)`).
+ */
+StyleDictionary.registerTransform({
+  name: 'size/shadow-px',
+  type: 'value',
+  transitive: true,
+  filter: (token) =>
+    token.$type === 'dimension' && typeof token.original.$value === 'number' && token.path[0] === 'shadow',
+  transform: (token) => {
+    const px = token.original.$value;
+    return px === 0 ? '0' : `${px}px`;
+  },
+});
+
+/**
  * Style Dictionary config.
  *
  * Source of truth for token *values* is this directory (src/tokens/primitive, src/tokens/semantic).
@@ -105,6 +133,8 @@ export default {
       // px-number spacing tokens are actually scaled, not just unit-suffixed.
       // 'size/radius-px' (custom, see above) runs the same way for radius, but formats to
       // px instead of rem — radius stays fixed geometry, not font-size-relative.
+      // 'size/shadow-px' (custom, see above) does the same for shadow geometry, and also
+      // makes sure 'shadow/css/shorthand' below sees already-unitted values.
       transforms: [
         'attribute/cti',
         'name/kebab',
@@ -112,6 +142,7 @@ export default {
         'html/icon',
         'size/px-to-rem',
         'size/radius-px',
+        'size/shadow-px',
         'size/rem',
         'color/css',
         'asset/url',
