@@ -1,0 +1,36 @@
+{
+  "space": {
+    "inset": {
+      "none": { "$value": "{space.none}", "$type": "dimension", "$description": "Explicit zero-padding override (flush variant)." },
+      "xs": { "$value": "{space.2xs}", "$type": "dimension", "$description": "Badges, tags, chips." },
+      "sm": { "$value": "{space.xs}", "$type": "dimension", "$description": "Compact controls (small button, dense input)." },
+      "md": { "$value": "{space.sm}", "$type": "dimension", "$description": "Default control padding (button, input, list item)." },
+      "lg": { "$value": "{space.md}", "$type": "dimension", "$description": "Default card/panel padding." },
+      "xl": { "$value": "{space.lg}", "$type": "dimension", "$description": "Spacious card/panel." },
+      "2xl": { "$value": "{space.xl}", "$type": "dimension", "$description": "Large surfaces (modal, drawer)." }
+    },
+    "stack": {
+      "none": { "$value": "{space.none}", "$type": "dimension", "$description": "Explicit zero-gap override." },
+      "xs": { "$value": "{space.2xs}", "$type": "dimension", "$description": "Icon+label stacked, tightly coupled pairs." },
+      "sm": { "$value": "{space.xs}", "$type": "dimension", "$description": "Label → input, field → helper text." },
+      "md": { "$value": "{space.sm}", "$type": "dimension", "$description": "Items within a group (form fields, list items)." },
+      "lg": { "$value": "{space.md}", "$type": "dimension", "$description": "Default spacing between components." },
+      "xl": { "$value": "{space.xl}", "$type": "dimension", "$description": "Spacing between sub-sections within a component group." },
+      "2xl": { "$value": "{space.2xl}", "$type": "dimension", "$description": "Spacing between distinct content blocks." }
+    },
+    "inline": {
+      "none": { "$value": "{space.none}", "$type": "dimension", "$description": "Explicit zero-gap override." },
+      "xs": { "$value": "{space.2xs}", "$type": "dimension", "$description": "Icon-to-text gap." },
+      "sm": { "$value": "{space.xs}", "$type": "dimension", "$description": "Tightly grouped controls (button group, tag list)." },
+      "md": { "$value": "{space.sm}", "$type": "dimension", "$description": "Default gap between inline elements." },
+      "lg": { "$value": "{space.md}", "$type": "dimension", "$description": "Loosely grouped controls, nav items." }
+    },
+    "layout": {
+      "sm": { "$value": "{space.xl}", "$type": "dimension", "$description": "Section padding, compact/mobile layout." },
+      "md": { "$value": "{space.2xl}", "$type": "dimension", "$description": "Default section padding/margin." },
+      "lg": { "$value": "{space.3xl}", "$type": "dimension", "$description": "Generous section spacing." },
+      "xl": { "$value": "{space.4xl}", "$type": "dimension", "$description": "Major section separation." },
+      "2xl": { "$value": "{space.5xl}", "$type": "dimension", "$description": "Page-level region separation." }
+    }
+  }
+}

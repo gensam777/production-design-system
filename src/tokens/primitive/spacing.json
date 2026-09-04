@@ -1,0 +1,15 @@
+{
+  "space": {
+    "none": { "$value": 0, "$type": "dimension", "$description": "Hybrid 4/8px rhythm — raw scale, no meaning attached. Explicit zero, used by semantic overrides (flush/collapsed variants)." },
+    "2xs": { "$value": 4, "$type": "dimension" },
+    "xs": { "$value": 8, "$type": "dimension" },
+    "sm": { "$value": 12, "$type": "dimension" },
+    "md": { "$value": 16, "$type": "dimension" },
+    "lg": { "$value": 20, "$type": "dimension" },
+    "xl": { "$value": 24, "$type": "dimension" },
+    "2xl": { "$value": 32, "$type": "dimension" },
+    "3xl": { "$value": 40, "$type": "dimension" },
+    "4xl": { "$value": 48, "$type": "dimension" },
+    "5xl": { "$value": 64, "$type": "dimension", "$description": "Largest step in this scale — no 80/96px in V1." }
+  }
+}

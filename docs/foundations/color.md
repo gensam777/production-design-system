@@ -170,16 +170,18 @@ up: a `Dark` mode is added to the Figma semantic variable collection and a
 introduces dark-specific primitive steps/ramps) — the semantic token names and the
 categories in this document stay the same.
 
-## Figma Variables (not yet created)
+## Figma Variables (implemented)
 
-This document describes the target mapping for when Figma Variables are set up —
-no Figma changes have been made yet.
-
-- **`Primitives` collection**, single mode, variables grouped by "/" to match the
-  token path (`gray/500`, `blue/600`).
-- **`Semantic` collection**, single `Light` mode for now, variables like
-  `surface/canvas`, `action/primary/default`, each bound as a Figma **alias** to a
-  Primitives variable — the direct equivalent of the `{color.gray.900}` reference in
-  code.
+- **`Primitive` collection**, single `Value` mode, variables grouped by "/" to match the
+  token path, **category-first** (`color/gray/500`, `color/blue/600`, `color/white`).
+- **`Semantic` collection**, single `Light` mode, variables like `color/surface/canvas`,
+  `color/action/primary/default`, each bound as a Figma **alias** to a Primitive
+  variable — the direct equivalent of the `{color.gray.900}` reference in code.
 - Components in Figma bind fills/strokes/text to **Semantic** variables only, mirroring
   the code rule.
+- Naming note: Figma variables were originally created without the `color/` prefix
+  (`gray/500`, `surface/canvas`) and later renamed to the category-first form above for
+  scalability alongside the Spacing Foundation — see
+  `governance/decisions/0004-spacing-token-architecture.md`. Code paths
+  (`color.gray.500`, `color.surface.canvas`) were already category-first from the start
+  (the JSON source files are rooted under a `color` key) and needed no migration.
