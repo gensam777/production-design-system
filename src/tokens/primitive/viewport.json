@@ -1,0 +1,7 @@
+{
+  "viewport": {
+    "md": { "$value": 768, "$type": "dimension", "$description": "Mobile-first breakpoint threshold (min-width). Raw scale value, no meaning attached — see governance/decisions/0009-responsive-token-architecture.md." },
+    "lg": { "$value": 1024, "$type": "dimension" },
+    "xl": { "$value": 1280, "$type": "dimension", "$description": "Also referenced by layout.container.maxWidth — the container cap equals the widest V1 breakpoint threshold, not a separately chosen number." }
+  }
+}

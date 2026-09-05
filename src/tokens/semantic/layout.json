@@ -1,0 +1,11 @@
+{
+  "layout": {
+    "container": {
+      "maxWidth": {
+        "$value": "{viewport.xl}",
+        "$type": "dimension",
+        "$description": "Page/app-shell container cap. A single value, not one per breakpoint: CSS `max-width` is fluid (100%) below this width and capped above it — the same token produces both behaviors. Page gutters are a separate, already-existing concern — see space.layout.* (governance/decisions/0004-spacing-token-architecture.md), not duplicated here."
+      }
+    }
+  }
+}

@@ -114,6 +114,38 @@ StyleDictionary.registerTransform({
 });
 
 /**
+ * Breakpoint/layout geometry (`viewport.*`, `layout.container.maxWidth`) is a comparison
+ * against the actual device viewport width, not something that should scale with the
+ * user's root font size — per governance/decisions/0009-responsive-token-architecture.md
+ * it stays px in both source and CSS output, the same reasoning as radius (0006) and
+ * shadow (0007). Same pass-through mechanism: pre-format the bare number as an explicit
+ * "Npx" string before the built-in 'size/rem' transform runs, so 'size/rem' passes it
+ * through unchanged instead of appending "rem" unscaled.
+ *
+ * Filtered on `token.path[0] === 'viewport'` only — NOT 'layout' — yet this also
+ * correctly formats `layout.container.maxWidth`, which lives under a different root key
+ * and aliases `{viewport.xl}`. This is the first foundation in this codebase where a
+ * semantic token's root key differs from the primitive it aliases (every prior semantic
+ * token shares its primitive's root key, e.g. `radius.control` -> `radius.sm`, both
+ * `radius.*`). `transitive: true` transforms in Style Dictionary resolve by walking the
+ * reference chain and matching the filter against whichever node in that chain actually
+ * carries the raw authored number — the alias's own root key is irrelevant to that
+ * match. Verified against the actual generated CSS (not just assumed from the
+ * radius/shadow precedent) when this foundation was mirrored into code — see ADR 0009.
+ */
+StyleDictionary.registerTransform({
+  name: 'size/viewport-px',
+  type: 'value',
+  transitive: true,
+  filter: (token) =>
+    token.$type === 'dimension' && typeof token.original.$value === 'number' && token.path[0] === 'viewport',
+  transform: (token) => {
+    const px = token.original.$value;
+    return px === 0 ? '0' : `${px}px`;
+  },
+});
+
+/**
  * Motion durations use `$type: "duration"` (not the built-in `time/seconds` transform's
  * `$type: "time"`, which converts to *seconds* — the opposite of what's required here;
  * see governance/decisions/0008-motion-token-architecture.md). No spacing/radius/shadow
@@ -190,6 +222,8 @@ export default {
       // 'time/duration-ms' (custom, see above) does the analogous thing for motion
       // durations — 'ms' instead of 'px' — and also makes sure 'transition/css/shorthand'
       // below (dormant until motion) sees already-unitted duration values.
+      // 'size/viewport-px' (custom, see above) does the same for viewport/layout
+      // breakpoint geometry — px, never rem, matching radius/shadow's reasoning.
       transforms: [
         'attribute/cti',
         'name/kebab',
@@ -198,6 +232,7 @@ export default {
         'size/px-to-rem',
         'size/radius-px',
         'size/shadow-px',
+        'size/viewport-px',
         'time/duration-ms',
         'size/rem',
         'color/css',

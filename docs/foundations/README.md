@@ -9,5 +9,6 @@ here as MDX/Markdown, one file per foundation.
 - [`radius.md`](./radius.md) — Radius Foundation V1
 - [`elevation.md`](./elevation.md) — Elevation / Shadow Foundation V1
 - [`motion.md`](./motion.md) — Motion Foundation V1
+- [`responsive.md`](./responsive.md) — Responsive / Breakpoint Foundation V1
 
 All planned foundations are now implemented.
