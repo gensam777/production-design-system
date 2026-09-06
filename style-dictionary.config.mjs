@@ -146,6 +146,35 @@ StyleDictionary.registerTransform({
 });
 
 /**
+ * Icon size is a fixed visual dimension paired with a fixed-px control (Button Sm/Md/Lg
+ * are 32/40/48px, not rem-scaled), the same reasoning as radius (0006), shadow (0007),
+ * and viewport (0009) — it stays px in both source and CSS output rather than scaling
+ * with the user's root font-size. See governance/decisions/0010-icon-token-architecture.md.
+ *
+ * Primitive root is `size.icon.*` (not `icon.*`) specifically so it doesn't collide with
+ * the semantic `icon.*` role names in Style Dictionary's flat merged token tree — the
+ * same collision class documented in ADR 0006, avoided here by giving the two tiers
+ * different root keys up front (mirroring Figma, where `size/icon/sm` is the Primitive
+ * variable and `icon/sm` is the Semantic Icon variable) rather than needing a one-off
+ * rename after the fact. Filtered on `path[0] === 'size' && path[1] === 'icon'` so a
+ * future unrelated `size.*` token category wouldn't be swept in unintentionally.
+ */
+StyleDictionary.registerTransform({
+  name: 'size/icon-px',
+  type: 'value',
+  transitive: true,
+  filter: (token) =>
+    token.$type === 'dimension' &&
+    typeof token.original.$value === 'number' &&
+    token.path[0] === 'size' &&
+    token.path[1] === 'icon',
+  transform: (token) => {
+    const px = token.original.$value;
+    return px === 0 ? '0' : `${px}px`;
+  },
+});
+
+/**
  * Motion durations use `$type: "duration"` (not the built-in `time/seconds` transform's
  * `$type: "time"`, which converts to *seconds* — the opposite of what's required here;
  * see governance/decisions/0008-motion-token-architecture.md). No spacing/radius/shadow
@@ -224,6 +253,8 @@ export default {
       // below (dormant until motion) sees already-unitted duration values.
       // 'size/viewport-px' (custom, see above) does the same for viewport/layout
       // breakpoint geometry — px, never rem, matching radius/shadow's reasoning.
+      // 'size/icon-px' (custom, see above) does the same for icon size geometry — px,
+      // never rem, matching radius/shadow/viewport's reasoning.
       transforms: [
         'attribute/cti',
         'name/kebab',
@@ -233,6 +264,7 @@ export default {
         'size/radius-px',
         'size/shadow-px',
         'size/viewport-px',
+        'size/icon-px',
         'time/duration-ms',
         'size/rem',
         'color/css',

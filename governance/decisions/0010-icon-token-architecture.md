@@ -1,0 +1,102 @@
+# 0010: Icon foundation — provider-neutral catalog, px-only size tokens
+
+- **Status**: Accepted
+- **Date**: 2026-09-06
+
+## Context
+
+Unlike every prior foundation (color, typography, spacing, radius, elevation, motion,
+responsive), icons are not fully owned by this design system — the actual artwork comes
+from a third-party icon library. The Figma side of this foundation already established
+the shape of the problem: the design system owns a small set of approved display sizes
+and a provider-neutral usage contract, while an external library (Lucide, connected as
+`Lucide Icons (Community)`) owns the icon catalog and drawing style. Code needs the same
+split, so that switching from Lucide to Phosphor (or another approved provider) later is
+a one-file change, not a rewrite of every component that renders an icon.
+
+Icon _size_ is a second, smaller decision folded into this same ADR: whether it deserves
+real tokens at all, and if so, whether it fits the existing primitive → semantic
+architecture without forcing a workaround.
+
+## Decision
+
+### Provider-neutral catalog (`src/icons/`)
+
+- **Stable DS names, not provider names.** `IconName` (`src/icons/types.ts`) is a closed
+  union of 14 starter names — `plus`, `minus`, `check`, `close`, `search`, `arrow-left`,
+  `arrow-right`, `chevron-down`, `chevron-up`, `info`, `warning`, `trash`, `edit`,
+  `settings`. These are the only names any consumer (including a future Button) may
+  reference. None of them are Lucide component names — `close` maps to Lucide's `X`,
+  `warning` maps to `TriangleAlert`, `edit` maps to `Pencil`, deliberately choosing the
+  more universally-legible DS name over whatever the provider happens to call it.
+- **One file owns the provider mapping.** `src/icons/providers/lucide.ts` is the only
+  file in this codebase that imports from `lucide-react`. It exports a single
+  `Record<IconName, LucideIconComponent>`, exhaustively type-checked against `IconName`
+  so an unmapped DS name is a compile error, not a silent runtime gap.
+- **`Icon.tsx` is the only consumer of the provider map.** It resolves `name` through
+  `lucideIconMap` and renders the result — nothing else in this codebase (and, once
+  built, nothing in Button) should import `lucide-react` directly. See
+  `docs/foundations/icons.md` for the full consumption contract, including why Button
+  will stay on `leadingIcon?: React.ReactNode` / `trailingIcon?: React.ReactNode` rather
+  than an `iconName` prop.
+- **Adding Phosphor later is `providers/phosphor.ts` plus a one-line swap of which map
+  `Icon.tsx` imports** — not a rewrite, and not a runtime provider-switch mechanism. A
+  runtime switch (context/config driven) is explicitly deferred until a real product
+  need for it exists; building it speculatively now would be exactly the kind of
+  premature abstraction this system's conventions warn against.
+
+### Size tokens: primitive → semantic, px-only
+
+- **Two new token files**, matching every prior foundation's shape exactly:
+  `src/tokens/primitive/icon.json` (raw scale, root key `size.icon.*`) and
+  `src/tokens/semantic/icon.json` (contextual roles, root key `icon.*`, alias-only).
+- **Root keys deliberately differ (`size.icon.*` vs `icon.*`)**, avoiding the
+  primitive/semantic name-collision Style Dictionary would otherwise hit (the same class
+  of problem radius hit and solved by renaming one tier — see 0006). Icons avoid it by
+  construction instead of needing a one-off rename, and this mirrors Figma exactly: the
+  Primitive collection variable is named `size/icon/sm`, the Semantic Icon collection
+  variable is `icon/sm`.
+  - Primitives: `size.icon.sm` (16), `size.icon.md` (20), `size.icon.lg` (24) — chosen
+    to exactly match Button's existing Figma icon-instance dimensions, not picked fresh.
+  - Semantics: `icon.sm` → `size.icon.sm`, `icon.md` → `size.icon.md`, `icon.lg` →
+    `size.icon.lg`. No cross-product, no additional roles — three sizes, three primitives,
+    one alias each, same as the sizes already approved in Figma.
+- **Px, not rem, in both source and generated CSS** — the same reasoning already applied
+  to radius (0006), shadow (0007), and viewport (0009): icon size is a fixed visual
+  dimension paired with a fixed-px control (Button's Sm/Md/Lg are 32/40/48px, not
+  rem-scaled), not something that should independently balloon with a user's root
+  font-size preference. A new `size/icon-px` Style Dictionary transform (mirroring
+  `size/radius-px`/`size/shadow-px`/`size/viewport-px` exactly) pre-formats the bare
+  primitive number as an explicit `"Npx"` string before the built-in `size/rem`
+  transform runs, so `size/rem` passes it through unchanged instead of appending an
+  unscaled `"rem"` suffix.
+- **`Icon.tsx` consumes the semantic tokens as CSS custom properties**
+  (`var(--icon-sm)`, `var(--icon-md)`, `var(--icon-lg)`), not the generated
+  `src/tokens/build/js/tokens.js` constants. That file is a gitignored build artifact
+  regenerated by `npm run tokens:build`, with no build-order dependency wiring it into
+  `npm run build` (tsup) — importing it from committed source would make the shipped
+  bundle depend on a file that may not exist yet at build time. CSS custom properties
+  have no such ordering problem: they're resolved by the browser at runtime, the same
+  way every other semantic token in this system (color, spacing, radius) is already
+  consumed by a component's styles.
+
+## Consequences
+
+- Anyone adding a 15th starter icon must update three places in lockstep: `IconName` in
+  `types.ts`, the `lucideIconMap` entry in `providers/lucide.ts`, and the reference table
+  in `docs/foundations/icons.md`. TypeScript enforces the first two are never out of sync
+  with each other (a missing map entry fails `Record<IconName, ...>` at compile time);
+  the doc table is manual, same as every other foundation's doc.
+- `size.icon.*` / `icon.*` joins `viewport.*` / `layout.container.maxWidth` as the second
+  case in this codebase where a semantic token's root key differs from its primitive's —
+  future foundations should keep checking for this collision class up front (per 0006's
+  original warning) rather than assuming shared root keys are always safe.
+- Consuming an icon's size via `var(--icon-md)` means a page must have this design
+  system's generated CSS (`src/tokens/build/css/variables.css`, shipped via `dist/`)
+  loaded for the variable to resolve — identical to the existing requirement for every
+  color/spacing/radius-consuming component, not a new constraint introduced by icons.
+- This ADR covers the icon _foundation_ only. Button has not been updated to consume
+  `Icon` yet — it will keep its already-planned `leadingIcon?: React.ReactNode` /
+  `trailingIcon?: React.ReactNode` props when implemented, letting a consuming product
+  pass either a raw `lucide-react` element, an `<Icon name="..." />`, or any other
+  `ReactNode` without Button ever importing an icon library itself.

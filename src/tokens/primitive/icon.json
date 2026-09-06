@@ -1,0 +1,13 @@
+{
+  "size": {
+    "icon": {
+      "sm": {
+        "$value": 16,
+        "$type": "dimension",
+        "$description": "Raw scale, no meaning attached. Matches Button Sm's existing icon dimension."
+      },
+      "md": { "$value": 20, "$type": "dimension", "$description": "Matches Button Md's existing icon dimension." },
+      "lg": { "$value": 24, "$type": "dimension", "$description": "Matches Button Lg's existing icon dimension." }
+    }
+  }
+}

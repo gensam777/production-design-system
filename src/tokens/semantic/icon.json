@@ -1,0 +1,19 @@
+{
+  "icon": {
+    "sm": {
+      "$value": "{size.icon.sm}",
+      "$type": "dimension",
+      "$description": "Compact icon size used in dense controls."
+    },
+    "md": {
+      "$value": "{size.icon.md}",
+      "$type": "dimension",
+      "$description": "Default icon size used across standard controls."
+    },
+    "lg": {
+      "$value": "{size.icon.lg}",
+      "$type": "dimension",
+      "$description": "Larger icon size used for prominent or touch-first controls."
+    }
+  }
+}

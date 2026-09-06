@@ -50,5 +50,8 @@
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "vite": "^8.2.2"
+  },
+  "dependencies": {
+    "lucide-react": "^1.41.0"
   }
 }

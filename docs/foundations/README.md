@@ -10,5 +10,6 @@ here as MDX/Markdown, one file per foundation.
 - [`elevation.md`](./elevation.md) — Elevation / Shadow Foundation V1
 - [`motion.md`](./motion.md) — Motion Foundation V1
 - [`responsive.md`](./responsive.md) — Responsive / Breakpoint Foundation V1
+- [`icons.md`](./icons.md) — Icon Foundation V1 (provider-neutral, Lucide default)
 
 All planned foundations are now implemented.
