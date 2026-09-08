@@ -1,0 +1,263 @@
+/**
+ * Button (V1). Consumes generated token custom properties from
+ * src/tokens/build/css/{variables,typography}.css — run `npm run tokens:build` first, or
+ * these custom properties are undefined. See docs/design-to-code-mappings.md for the full
+ * Figma <-> code parity table, including the intentional gaps noted inline below.
+ *
+ * Height (32/40/48px) is a Button-owned constant, not a token — see CLAUDE.md's "do not
+ * create speculative control-height tokens" and governance/decisions/0010 for why other
+ * fixed-px dimensions (icon size) stayed tokens while this one didn't: no second control
+ * has asked for these heights yet.
+ */
+
+.ds-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background-clip: padding-box;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--motion-micro),
+    border-color var(--motion-micro),
+    color var(--motion-micro),
+    box-shadow var(--motion-micro);
+}
+
+.ds-button:disabled {
+  cursor: not-allowed;
+}
+
+/* Preserves Secondary's normal 1px border (box-shadow layers on top of it rather than
+   replacing outline) and stays visible across every variant, including borderless ones. */
+.ds-button:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-focus-ring-offset),
+    0 0 0 4px var(--color-focus-ring);
+}
+
+/* ---- Sizes ---- */
+
+.ds-button--sm {
+  height: 32px;
+  padding-inline: var(--space-inset-md);
+  font-family: var(--text-label-sm-medium-font-family);
+  font-size: var(--text-label-sm-medium-font-size);
+  font-weight: var(--text-label-sm-medium-font-weight);
+  line-height: var(--text-label-sm-medium-line-height);
+  letter-spacing: var(--text-label-sm-medium-letter-spacing);
+}
+.ds-button--sm .ds-button__content {
+  gap: var(--space-inline-xs);
+}
+.ds-button--sm .ds-button__icon,
+.ds-button--sm .ds-button__spinner {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+
+.ds-button--md {
+  height: 40px;
+  padding-inline: var(--space-inset-lg);
+  font-family: var(--text-label-md-medium-font-family);
+  font-size: var(--text-label-md-medium-font-size);
+  font-weight: var(--text-label-md-medium-font-weight);
+  line-height: var(--text-label-md-medium-line-height);
+  letter-spacing: var(--text-label-md-medium-letter-spacing);
+}
+.ds-button--md .ds-button__content {
+  gap: var(--space-inline-sm);
+}
+.ds-button--md .ds-button__icon,
+.ds-button--md .ds-button__spinner {
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+
+.ds-button--lg {
+  height: 48px;
+  padding-inline: var(--space-inset-xl);
+  font-family: var(--text-label-lg-medium-font-family);
+  font-size: var(--text-label-lg-medium-font-size);
+  font-weight: var(--text-label-lg-medium-font-weight);
+  line-height: var(--text-label-lg-medium-line-height);
+  letter-spacing: var(--text-label-lg-medium-letter-spacing);
+}
+.ds-button--lg .ds-button__content {
+  gap: var(--space-inline-sm);
+}
+.ds-button--lg .ds-button__icon,
+.ds-button--lg .ds-button__spinner {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+}
+
+/* ---- Icon-adjacent padding ----
+   Mirrors the approved Figma Button V1 refinement: the side next to a leading/trailing
+   icon drops one `space.inset.*` step, while the opposite side keeps the size's base
+   inset. Compound selectors (size + icon-presence modifier) win over the base
+   `padding-inline` shorthand in `.ds-button--sm/md/lg` above by specificity, so only the
+   icon-adjacent side is overridden — the other side is left alone and keeps inheriting
+   the base value. `padding-inline-start`/`-end` (not `-left`/`-right`), matching the
+   logical property already used for the base rule, so this also behaves correctly under
+   RTL — a difference from Figma, whose padding overrides are physical left/right (see
+   docs/design-to-code-mappings.md for why: Figma has no native way to make a master
+   component's padding conditional on a boolean property in the first place, let alone a
+   logical-direction-aware one). Derived from icon presence only — never a separate prop. */
+.ds-button--sm.ds-button--has-leading-icon {
+  padding-inline-start: var(--space-inset-sm);
+}
+.ds-button--sm.ds-button--has-trailing-icon {
+  padding-inline-end: var(--space-inset-sm);
+}
+.ds-button--md.ds-button--has-leading-icon {
+  padding-inline-start: var(--space-inset-md);
+}
+.ds-button--md.ds-button--has-trailing-icon {
+  padding-inline-end: var(--space-inset-md);
+}
+.ds-button--lg.ds-button--has-leading-icon {
+  padding-inline-start: var(--space-inset-lg);
+}
+.ds-button--lg.ds-button--has-trailing-icon {
+  padding-inline-end: var(--space-inset-lg);
+}
+
+/* ---- Variants ---- */
+/* Foreground (color) is set once per variant/state and inherited by both the label text
+   and any icon slot content via currentColor — see .ds-button__icon below. */
+
+.ds-button--primary {
+  background-color: var(--color-action-primary-default);
+  color: var(--color-action-primary-on-color);
+}
+.ds-button--primary:hover:not(:disabled) {
+  background-color: var(--color-action-primary-hover);
+}
+.ds-button--primary:active:not(:disabled) {
+  background-color: var(--color-action-primary-active);
+}
+.ds-button--primary:disabled {
+  background-color: var(--color-action-primary-disabled);
+  color: var(--color-text-disabled);
+}
+
+.ds-button--secondary {
+  background-color: var(--color-action-secondary-default);
+  border-color: var(--color-border-default);
+  color: var(--color-text-primary);
+}
+/* No dedicated action.secondary.active token exists — Pressed reuses the approved Hover
+   token, per the approved V1 behavior (see docs/design-to-code-mappings.md). */
+.ds-button--secondary:hover:not(:disabled),
+.ds-button--secondary:active:not(:disabled) {
+  background-color: var(--color-action-secondary-hover);
+}
+/* No dedicated secondary-disabled token exists — reuses the shared disabled treatment
+   (surface.disabled fill + text.disabled foreground) used by every variant below that
+   lacks its own disabled token. */
+.ds-button--secondary:disabled {
+  background-color: var(--color-surface-disabled);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-disabled);
+}
+
+.ds-button--tertiary {
+  background-color: transparent;
+  color: var(--color-text-primary);
+}
+/* No dedicated action.tertiary.active token exists — Pressed reuses the approved Hover
+   token, same rule as Secondary. */
+.ds-button--tertiary:hover:not(:disabled),
+.ds-button--tertiary:active:not(:disabled) {
+  background-color: var(--color-action-tertiary-hover);
+}
+.ds-button--tertiary:disabled {
+  background-color: var(--color-surface-disabled);
+  color: var(--color-text-disabled);
+}
+
+.ds-button--danger {
+  background-color: var(--color-action-danger-default);
+  color: var(--color-action-danger-on-color);
+}
+/* No dedicated action.danger.active token exists — Pressed reuses the approved Hover
+   token, same rule as Secondary/Tertiary. */
+.ds-button--danger:hover:not(:disabled),
+.ds-button--danger:active:not(:disabled) {
+  background-color: var(--color-action-danger-hover);
+}
+/* Danger Disabled reuses the shared disabled treatment — no dedicated danger-disabled
+   token exists, per the approved V1 behavior. */
+.ds-button--danger:disabled {
+  background-color: var(--color-surface-disabled);
+  color: var(--color-text-disabled);
+}
+
+/* ---- Content / icon slots ---- */
+
+.ds-button__content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ds-button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: inherit;
+}
+/* Button owns icon slot sizing regardless of what the consumer passed (an <Icon>, a raw
+   provider element, or any other ReactNode) — the slot forces artwork to fill it rather
+   than trusting the child's own intrinsic size to match. */
+.ds-button__icon > svg,
+.ds-button__icon > img {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- Loading ---- */
+
+/* opacity, not visibility/display: none — the label text must stay in the accessibility
+   tree (and keep contributing the button's accessible name) while only its visual
+   rendering is hidden. Layout is preserved because the content still occupies its box. */
+.ds-button--loading .ds-button__content {
+  opacity: 0;
+}
+
+.ds-button__spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-full);
+  animation: ds-button-spin 0.6s linear infinite;
+}
+
+@keyframes ds-button-spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* No spinner/loop duration token exists yet (see docs/foundations/motion.md — "Not
+   covered in V1: spinners/loops"), so 0.6s above is a Button-local constant, not a token
+   reference — flagged as a token gap in docs/design-to-code-mappings.md rather than
+   inventing a new semantic motion token silently. Reduced motion freezes the spin instead
+   of speeding it up or removing the spinner: aria-busy plus the native disabled state
+   still communicate the loading state without motion. */
+@media (prefers-reduced-motion: reduce) {
+  .ds-button__spinner {
+    animation: none;
+  }
+}
