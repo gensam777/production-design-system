@@ -1,0 +1,188 @@
+/**
+ * Checkbox (V1). Consumes generated token custom properties from
+ * src/tokens/build/css/variables.css — run `npm run tokens:build` first, or these custom
+ * properties are undefined. See docs/design-to-code-mappings.md for the full Figma <->
+ * code parity table.
+ *
+ * Visual box (16px) and interaction target (24px) are component-owned constants, not
+ * tokens — same convention as Button/Input's control heights (see Button.css and
+ * governance/decisions/0010): no second control has asked for these dimensions yet.
+ *
+ * One size only in V1 — the approved Figma architecture has no Sm/Md/Lg axis for
+ * Checkbox (a checkbox stays visually stable relative to whatever body/label text size
+ * it sits beside, unlike Button/Input's own control sizing) — see the Sizing section of
+ * the Figma documentation page.
+ */
+
+.ds-checkbox {
+  display: inline-flex;
+  align-items: flex-start; /* top-align, not center — required for correct first-line
+    alignment when the label wraps to multiple lines. Do not change to `center`: see the
+    "final Figma alignment parity" note below. */
+  gap: var(--space-inline-sm);
+}
+
+/* ---- Hit area / interactive target ----
+   24×24 minimum (WCAG 2.2 SC 2.5.8) even though the visual box stays 16×16 — the native
+   <input> fills the whole hit area (invisible, opacity: 0) so the entire 24×24 region is
+   clickable/tappable, not just the smaller visible box. */
+.ds-checkbox__control {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  /* flex-start (not center) + an explicit `top` on the box below — see the box's own
+     comment for why: `align-items: center` combined with a negative margin-top produces
+     a non-linear result (the browser's centering step partially re-absorbs any margin
+     change), which makes the offset impossible to tune predictably. flex-start removes
+     that interference so the box's `top` value below is a direct, 1:1 pixel offset. */
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.ds-checkbox__input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.ds-checkbox__input:disabled {
+  cursor: not-allowed;
+}
+
+/* ---- Visual box (16×16, purely decorative — the input above owns all real state) ----
+   `pointer-events: none` so every click/tap is always handled by the native input that
+   sits on top of it, never intercepted by this box or its child marks. */
+.ds-checkbox__box {
+  position: relative;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-control);
+  background-color: var(--color-surface-default);
+  color: var(--color-action-primary-on-color); /* mark color when checked/indeterminate */
+  transition:
+    background-color var(--motion-micro),
+    border-color var(--motion-micro),
+    box-shadow var(--motion-micro);
+
+  /* Optical alignment offset, measured directly against the rendered browser DOM (not
+     copied from Figma's own offset — browser font metrics/line-boxes differ from
+     Figma's, so the two values are coincidentally different, not interchangeable). The
+     box is NOT centered on the naive (24 - 16) / 2 = 4px within the 24×24 hit area — see
+     docs/design-to-code-mappings.md for the measured `getBoundingClientRect()` deltas
+     this value is derived from. Because `.ds-checkbox__control` is `flex-start`-aligned
+     (see above), this `top` is a direct, linear pixel offset from the hit area's own
+     top — unlike a `center`-aligned flex item's margin, changing this value shifts the
+     box by exactly that many pixels, with no re-centering interference. This is what
+     makes a single-line label read as vertically centered against the box, while a
+     wrapped label still keys off the first line (the offset lives inside the fixed-size
+     hit area, independent of label height). Do not change this value without
+     re-measuring against Checkbox.stories.tsx's actual rendered label metrics. */
+  position: relative;
+  top: 0.75px;
+}
+
+/* Hover — native CSS, not a React prop. */
+.ds-checkbox__input:hover:not(:disabled) ~ .ds-checkbox__box {
+  border-color: var(--color-border-strong);
+}
+
+/* Focus-visible — same box-shadow double-ring technique as Button/Input. The input is
+   the actual interactive element (not wrapped the way Input's is), so :focus-visible
+   applies directly — no :has() needed here. */
+.ds-checkbox__input:focus-visible ~ .ds-checkbox__box {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-focus-ring-offset),
+    0 0 0 4px var(--color-focus-ring);
+}
+
+/* ---- Checked / Indeterminate ----
+   Both native pseudo-classes ( :checked, :indeterminate — the latter fully supported for
+   checkboxes) drive the visual state directly; there is no JS-computed "selection" class.
+   A checkbox can be :checked and :indeterminate at the same time in the DOM (setting the
+   indeterminate DOM property does not clear `checked`) — the dedicated override block
+   below (source-ordered after this one) is what makes indeterminate win visually, per the
+   approved Figma Selection precedence. */
+.ds-checkbox__input:checked ~ .ds-checkbox__box,
+.ds-checkbox__input:indeterminate ~ .ds-checkbox__box {
+  border-color: var(--color-action-primary-default);
+  background-color: var(--color-action-primary-default);
+}
+.ds-checkbox__input:checked:hover:not(:disabled) ~ .ds-checkbox__box,
+.ds-checkbox__input:indeterminate:hover:not(:disabled) ~ .ds-checkbox__box {
+  border-color: var(--color-action-primary-hover);
+  background-color: var(--color-action-primary-hover);
+}
+
+/* ---- Disabled — native :disabled, styled after Checked/Indeterminate so it always wins
+   the cascade tie (Disabled + Checked renders with the disabled treatment, never the
+   active blue), same precedence rule Input.css uses for Disabled + Error. ---- */
+.ds-checkbox__input:disabled ~ .ds-checkbox__box {
+  border-color: var(--color-border-subtle);
+  background-color: var(--color-surface-disabled);
+}
+.ds-checkbox__input:disabled:checked ~ .ds-checkbox__box,
+.ds-checkbox__input:disabled:indeterminate ~ .ds-checkbox__box {
+  border-color: var(--color-action-primary-disabled);
+  background-color: var(--color-action-primary-disabled);
+  color: var(--color-text-disabled);
+}
+
+/* ---- Marks (internal SVG, never Lucide/`Icon`/a public icon prop — see
+   docs/design-to-code-mappings.md) ----
+   Geometry matches the approved Figma component exactly: 16×16 viewBox, 1.6 stroke
+   weight, round caps/joins. `stroke: currentColor` so the mark always matches
+   `.ds-checkbox__box`'s `color` above (on-color when active, text.disabled when
+   disabled+active) without a separate color rule per state. */
+.ds-checkbox__mark {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ds-checkbox__input:checked ~ .ds-checkbox__box .ds-checkbox__mark--check {
+  display: block;
+}
+.ds-checkbox__input:indeterminate ~ .ds-checkbox__box .ds-checkbox__mark--dash {
+  display: block;
+}
+/* Indeterminate wins when both are true — source-ordered after the :checked rule above so
+   it wins the specificity tie. */
+.ds-checkbox__input:indeterminate ~ .ds-checkbox__box .ds-checkbox__mark--check {
+  display: none;
+}
+
+/* ---- Label ---- */
+.ds-checkbox__label {
+  color: var(--color-text-primary);
+  font-family: var(--text-label-md-medium-font-family);
+  font-size: var(--text-label-md-medium-font-size);
+  font-weight: var(--text-label-md-medium-font-weight);
+  line-height: var(--text-label-md-medium-line-height);
+  letter-spacing: var(--text-label-md-medium-letter-spacing);
+  cursor: pointer;
+  /* No max-width/white-space lock — long labels wrap naturally inside whatever width the
+     consumer's layout gives `.ds-checkbox`, matching the approved Figma wrapping
+     behavior (box stays aligned to the first line — see align-items: flex-start above). */
+}
+.ds-checkbox:has(.ds-checkbox__input:disabled) .ds-checkbox__label {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}

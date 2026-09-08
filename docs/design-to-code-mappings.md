@@ -10,6 +10,7 @@ this table is updated by hand whenever a component ships or a mapping changes.
 | --- | --- | --- | --- |
 | Button | _(Figma Button V1 component — link not captured in this pass)_ | `src/components/Button/Button.tsx` | See [Button](#button) below. |
 | Input | _(Figma Input V1 component — link not captured in this pass)_ | `src/components/Input/Input.tsx` | See [Input](#input) below. |
+| Checkbox | _(Figma Checkbox V1 component — link not captured in this pass)_ | `src/components/Checkbox/Checkbox.tsx` | See [Checkbox](#checkbox) below. |
 
 - **Figma component** — the component/variant name as it appears in the Figma library.
 - **Figma link** — direct link to the node in the library file.
@@ -376,3 +377,211 @@ Input never imports `lucide-react` or `Icon` — `leadingIcon`/`trailingIcon` ac
 `icon.sm`/`md`/`lg` via CSS), alignment, the icon-to-text gap, and the fixed per-state
 foreground color; the icon provider owns the artwork. Lucide is the default/reference
 provider in the Figma library, not a constraint — same note as Button's.
+
+## Checkbox
+
+- React: `src/components/Checkbox/Checkbox.tsx`
+- Styles: `src/components/Checkbox/Checkbox.css`
+- Storybook: `src/components/Checkbox/Checkbox.stories.tsx` (`Components/Checkbox`)
+- Figma: Checkbox V1 (approved), flat 12-variant component set — node reference not
+  captured in this pass; add the direct link here when available.
+
+### Figma architecture (current, authoritative)
+
+Figma Checkbox is a single flat component set — unlike Button/Input, there is no nested
+Content component, because there is no structurally-crossing axis (like Icon Layout) to
+factor out of a larger outer cross:
+
+| Component set | Variant axes | Count | Owns |
+| --- | --- | --- | --- |
+| **Checkbox** | Selection × Interaction | 12 | Visual box (border/fill per state), checkmark/dash marks, focus ring, Label, Show label |
+
+Selection (Unchecked/Checked/Indeterminate) and Interaction (Default/Hover/Focus-visible/
+Disabled) are the only two variant axes. `Label` (TEXT) and `Show label` (BOOLEAN) are
+native top-level properties — no nested-instance exposure limitation applies here, since
+there's no nested instance at all.
+
+### Selection mapping (Figma ↔ React)
+
+Selection is not a prop in React — it's derived from two independent native-shaped props,
+using this precedence:
+
+| Figma Selection | React |
+| --- | --- |
+| Unchecked | `checked=false, indeterminate=false` (or both omitted) |
+| Checked | `checked=true, indeterminate=false` |
+| Indeterminate | `indeterminate=true` (regardless of `checked`) |
+
+`indeterminate` wins visually whenever both `checked` and `indeterminate` are true — a
+checkbox can be both `:checked` and `:indeterminate` in the DOM simultaneously (setting
+the `indeterminate` DOM property does not clear `checked`), and `Checkbox.css` orders the
+`:indeterminate` mark/color rules after the `:checked` ones specifically so indeterminate
+wins the cascade tie. This mirrors the approved Figma precedence exactly (see the
+Selection guidance section of the Figma documentation page).
+
+### Prop mapping
+
+| Figma property | React prop | Notes |
+| --- | --- | --- |
+| Selection (Unchecked/Checked/Indeterminate) | `checked?: boolean`, `defaultChecked?: boolean`, `indeterminate?: boolean` | See Selection mapping above. No `selection` prop exists. |
+| Interaction (Default/Hover/Focus-visible/Disabled) | **not a prop, except Disabled** | Hover and Focus-visible are native CSS states (`:hover`, `:focus-visible`), same convention as Button/Input's own Interaction/State axes. Disabled is the native HTML `disabled` attribute. |
+| Label | `label?: React.ReactNode` | Renders a real `<label>` associated via `htmlFor`/`id`. Omitted entirely (not an empty string) when not passed. |
+| Show label (nested boolean) | **not a prop** | Derived: no `label` prop passed → no `<label>` rendered — identical pattern to Input's Show label/Show support text. |
+| — (Figma has no equivalent) | `indeterminate?: boolean` | A DOM property, not an HTML attribute — see "Indeterminate implementation" below. Not settable via a plain JSX attribute the way `checked` is. |
+
+No `selection`, `interaction`, `visualState`, `icon`, or `size` prop exists — `CheckboxProps`
+is `Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> & { label?, indeterminate? }`,
+the smallest surface that covers the approved Figma architecture.
+
+### Indeterminate implementation
+
+`indeterminate` is a live DOM property with no JSX/HTML attribute equivalent (unlike
+`checked`, which has a real attribute-backed prop) — React cannot set it via a plain JSX
+prop. `Checkbox.tsx` synchronizes it imperatively:
+
+1. An internal `useRef<HTMLInputElement>` is always created, merged with any ref the
+   caller forwards (supporting both callback-ref and object-ref forms), so the internal
+   sync works whether or not the consumer also needs the DOM node.
+2. A `useEffect` keyed on `[indeterminate]` sets `internalRef.current.indeterminate =
+   Boolean(indeterminate)` on every change — not just on mount — so a parent-driven
+   "select all" pattern (see the `Indeterminate` Storybook story) stays correct as group
+   selection changes.
+3. The native `<input>` never leaves the DOM and never becomes a styled `<div>` — every
+   other native behavior (`checked`/`defaultChecked`, `onChange`, `disabled`, form
+   participation, Space-key activation, label click) works exactly as it would on a plain
+   `<input type="checkbox">`, because it is one.
+
+### Size parity
+
+| | Value |
+| --- | --- |
+| Visual box | 16×16 (component constant, not a token — same convention as Button/Input's control heights) |
+| Interaction target | 24×24 minimum (component constant), via a `position: absolute; inset: 0` native `<input>` sized to the full hit area, invisible (`opacity: 0`) but real and interactive |
+| Radius | `radius.control` (4px) |
+
+One size only — Checkbox has no Sm/Md/Lg axis in the approved Figma architecture (a
+checkbox stays visually stable relative to whatever body/label text size it sits beside,
+unlike Button/Input's own control sizing).
+
+### Optical alignment (Figma → code)
+
+The visual box is not naively centered in the 24×24 hit area. The approved Figma
+alignment rule (see the Figma documentation page's Label behavior / Accessibility
+sections) is: structurally top-align the checkbox + label row (required for correct
+first-line alignment when a label wraps), then apply a small, fixed optical offset so a
+*single-line* label still reads as vertically centered against the box.
+
+**The numeric offset is not shared with Figma.** Figma's own measured offset (a 2.5px
+shift, derived from Figma's text-layer render bounds) does not transfer to the browser —
+browser font metrics/line-boxes for the same semantic token (`text.label.md.medium`) are
+not pixel-identical to Figma's, and in this codebase the label actually renders at 14px
+(not the 16px assumed during the Figma-side measurement), so reusing Figma's number here
+would be tuning against the wrong font size entirely. The code-side value below was
+measured independently, directly against the rendered DOM in Storybook, via
+`getBoundingClientRect()` on `.ds-checkbox__box` and `.ds-checkbox__label`:
+
+- `.ds-checkbox__control` uses `align-items: flex-start` (not `center`) specifically so
+  the box's position is a **direct, linear** offset from the hit area's top — a `center`-
+  aligned flex item with a margin produces a non-linear result (the browser's centering
+  step re-absorbs part of any margin change), which makes the offset impossible to tune
+  predictably by trial and error. `flex-start` removes that interference.
+- At `top: 0` (i.e. box flush with the hit area's top, same as the label), the measured
+  box center sat 0.75px *above* the label's own line-box center
+  (`labelRect.top + labelRect.height / 2`).
+- `Checkbox.css` closes that exact gap:
+
+```css
+.ds-checkbox__control {
+  align-items: flex-start;
+}
+.ds-checkbox__box {
+  position: relative;
+  top: 0.75px; /* closes the measured 0.75px gap to the label's line-box center */
+}
+```
+
+Verified after applying: `boxCenter` and `labelLayoutCenter` matched exactly (diff `0`).
+
+Because this offset lives inside the fixed-size 24×24 hit area (not derived from the
+label's own height), it has no effect on multi-line labels — the box still keys off the
+row's `align-items: flex-start`, i.e. the first line, regardless of how many lines the
+label wraps to. Do not copy Figma's offset value here, and do not change this value
+without re-measuring against `Checkbox.stories.tsx`'s actual rendered label metrics in a
+real browser; it is not an arbitrary tweak.
+
+### Color tokens by selection/interaction
+
+| State | Border | Background | Mark |
+| --- | --- | --- | --- |
+| Unchecked, Default | `border.default` | `surface.default` | — |
+| Unchecked, Hover | `border.strong` | `surface.default` | — |
+| Checked / Indeterminate, Default | `action.primary.default` | `action.primary.default` | `action.primary.on-color` |
+| Checked / Indeterminate, Hover | `action.primary.hover` | `action.primary.hover` | `action.primary.on-color` |
+| Disabled, Unchecked | `border.subtle` | `surface.disabled` | — |
+| Disabled, Checked / Indeterminate | `action.primary.disabled` | `action.primary.disabled` | `text.disabled` |
+| Label | — | — | `text.primary`, disabled → `text.disabled` |
+| Focus | `focus.ring` / `focus.ring-offset` (box-shadow, same technique as Button/Input) | | |
+
+No new tokens were created. Every value above is an existing semantic token, matching the
+approved Figma Token mapping exactly. The mark color is never set as a separate rule per
+state — `.ds-checkbox__box` sets `color`, and both SVG marks use `stroke: currentColor`,
+the same inherited-color pattern Button/Input use for their icon slots.
+
+### Checkmark / indeterminate mark ownership
+
+Checkbox owns both marks internally as inline SVG (`Checkbox.tsx`, 16×16 viewBox, 1.6
+stroke weight, round caps/joins, matching the Figma component's internal vector paths
+exactly) — it never imports `lucide-react` or `Icon`, and there is no public icon prop.
+Visibility is driven entirely by native CSS (`:checked`, `:indeterminate` on the input,
+targeting the marks via general-sibling selectors), not React state — matching the
+"internal, not provider-swappable" ownership documented on the Figma Checkbox page.
+
+### Accessibility (implemented and spot-checked, not a certified audit)
+
+- Native `<input type="checkbox">` — never a styled `<div>`. The `type` prop is omitted
+  from `CheckboxProps` (`Omit<..., 'type'>`) and hardcoded internally so it can never be
+  overridden to something else.
+- `<label>` renders only when `label` is passed, associated via `htmlFor`/`id`
+  (`useId()`-generated when the caller doesn't supply their own `id` — the caller's `id`
+  always wins, same pattern as Input).
+- When `label` is omitted, the caller is expected to supply `aria-label` or
+  `aria-labelledby` directly — both pass through natively via `...rest`. Nothing in
+  `Checkbox.tsx` synthesizes a fallback accessible name; an unlabeled checkbox with
+  neither a visible label nor an ARIA name ships with no accessible name, same as any
+  native `<input>` would.
+- Native `:indeterminate`/mixed-state semantics — screen readers announce this from the
+  DOM property directly, not from a custom `aria-checked="mixed"` (which would be
+  redundant on a real native checkbox and is not applied here).
+- `disabled` is the native HTML attribute, passed straight through.
+- Space toggles the checkbox natively (no custom keydown handling); clicking the
+  associated `<label>` toggles it natively (`htmlFor`/`id`), because the input is real.
+- Focus-visible uses the native `:focus-visible` pseudo-class directly on the input
+  (simpler than Input's `:has()` indirection, since the checkbox `<input>` itself is the
+  interactive element the box visually represents, not wrapped inside a styled
+  container).
+- The visual box and both marks are `aria-hidden="true"` — purely decorative, since the
+  native input already carries checkbox semantics/state.
+- Not yet verified: screen-reader spot-check, 200% zoom/reflow, full WCAG 2.2 AA sweep —
+  per `governance/accessibility.md`, required before "stable," not claimed here. This is
+  documented implementation intent, not a certification.
+
+### Cross-platform contract (shared design intent, not yet implemented elsewhere)
+
+The following state model is intended to be shared across Web React (this
+implementation), React Native, SwiftUI, and Jetpack Compose, even though only Web React
+exists today:
+
+- **Shared**: Unchecked / Checked / Indeterminate, a Disabled state, label association,
+  and interaction intent (focus/press feedback exists on every platform, implemented
+  natively per-platform rather than as a shared prop).
+- **Not shared** (platform-owned rendering): the exact focus/ripple/press visual
+  treatment, and how "interaction intent" is expressed (`:focus-visible` on web vs.
+  platform-native focus/ripple elsewhere).
+- **Visual box**: 16×16 on every platform.
+- **Interaction target**: 24×24 minimum on web (WCAG 2.2 SC 2.5.8, implemented here via
+  the full-hit-area invisible `<input>`); touch/mobile platforms (React Native, iOS,
+  Android) should target approximately 44×44 or the applicable platform guidance — larger
+  than the web minimum, same visual box.
+- Jetpack Compose's native `TriStateCheckbox` is a useful reference precedent for the
+  three-value Selection model this contract assumes — see the Figma documentation page's
+  Cross-platform notes section for the full rationale.
