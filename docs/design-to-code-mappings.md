@@ -9,6 +9,7 @@ this table is updated by hand whenever a component ships or a mapping changes.
 | Figma component | Figma link | React component | Notes |
 | --- | --- | --- | --- |
 | Button | _(Figma Button V1 component — link not captured in this pass)_ | `src/components/Button/Button.tsx` | See [Button](#button) below. |
+| Input | _(Figma Input V1 component — link not captured in this pass)_ | `src/components/Input/Input.tsx` | See [Input](#input) below. |
 
 - **Figma component** — the component/variant name as it appears in the Figma library.
 - **Figma link** — direct link to the node in the library file.
@@ -236,3 +237,142 @@ constraint. Button itself, in both Figma and code, stays provider-neutral: swapp
 different approved icon provider is a Button Content instance-swap change in Figma and a
 different `ReactNode` passed to `leadingIcon`/`trailingIcon` in code, neither of which
 requires touching Button's own definition.
+
+## Input
+
+- React: `src/components/Input/Input.tsx`
+- Styles: `src/components/Input/Input.css`
+- Storybook: `src/components/Input/Input.stories.tsx` (`Components/Input`)
+- Figma: Input V1 (approved), nested architecture — node reference not captured in this
+  pass; add the direct link here when available.
+
+### Figma architecture (current, authoritative)
+
+Figma Input is two component-set layers, following the exact same split Button
+established:
+
+| Component set | Variant axes | Count | Owns |
+| --- | --- | --- | --- |
+| **Input** (outer) | Size × Interaction × Validation | 24 | Label, Show label, Support text, Show support text, container border/background per interaction+validation, focus ring, height, radius |
+| **Input Content** (nested, six sets — one per Size × Tone) | Icon Layout × Content | 8 per set (48 total) | Leading icon, Trailing icon, Text, Icon Layout, asymmetric icon-adjacent padding, icon gap, icon sizing, native foreground per Content/Tone |
+
+Interaction (Default/Hover/Focus/Disabled) and Validation (Default/Error) are two
+**independent** outer axes, not one crossed enum — every combination exists as a real
+Figma variant, including Focus+Error and Hover+Error, matching how a real field can be
+simultaneously invalid and focused. Tone (Default/Disabled, nested) and the nested Size
+are not properties a designer can see or set at all — Input Content is split into six
+separate component sets, one per Size×Tone combination, specifically so there's nothing
+named "Size" or "Tone" for Figma's nested-instance exposure to leak; which of the six
+applies is simply which set a given outer master's nested instance belongs to, fixed at
+author time.
+
+**Figma limitation — Icon Layout and Content are not top-level properties (intentional,
+same category as Button's Icon Layout).** Only `TEXT`/`INSTANCE_SWAP` nested properties
+merge to the top-level panel; `VARIANT`-type ones never do. Label/Show label/Support
+text/Show support text are native to the outer (always top-level, no exposure mechanism
+needed). Text/Leading icon/Trailing icon are exposed from the nested instance (confirmed
+working). Icon Layout/Content require drilling into the nested instance.
+
+### Prop mapping
+
+| Figma property | React prop | Notes |
+| --- | --- | --- |
+| Size (Sm/Md/Lg) | `size?: 'sm' \| 'md' \| 'lg'` | Default `'md'`. The native HTML `size` attribute (`size?: number`) is intentionally omitted from `InputProps` via `Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>` — `size` is reserved for this prop, so the two can never collide. |
+| Interaction (Default/Hover/Focus/Disabled) | **not a prop** | Hover and Focus-visible are native CSS states (`:hover`, `:focus-visible`) — Figma's Interaction property is documentation/prototyping only, same as Button's State. Disabled is the one Interaction value with a real prop, and it's the *native* HTML `disabled` attribute, not a design-system-specific one — styled via the native `:disabled` pseudo-class (via `:has()` on the field container), not a JS-computed class. |
+| Validation (Default/Error) | `error?: boolean` | Default `false`. An explicit controlled flag, independent of native constraint validation (`:invalid`) — not derived from it. |
+| — | `errorText?: React.ReactNode` | Shown in the support region instead of `helperText` while `error` is true. See Validation below. |
+| Label | `label?: React.ReactNode` | Renders a real `<label>` associated via `htmlFor`/`id`. Omitted entirely (not an empty string) when not passed — never a placeholder substitute. |
+| Show label (nested boolean) | **not a prop** | Derived: no label prop passed → no `<label>` rendered. Same "derived, not a boolean prop" pattern as Icon Layout below. |
+| Support text | `helperText?: React.ReactNode` | Shown below the field unless superseded by `errorText` (see Validation). |
+| Show support text (nested boolean) | **not a prop** | Derived: no `helperText`/`errorText` content → no support region rendered. |
+| Icon Layout (nested, None/Leading/Trailing/Both) | **no `iconLayout` prop — does not exist in code** | Purely a Figma authoring convenience for Input Content's own padding/gap variant. React derives it implicitly from `Boolean(leadingIcon)`/`Boolean(trailingIcon)`, exactly mirroring Button. |
+| Content (nested, Placeholder/Value) | **no `content`/`hasValue` prop — does not exist in code** | Native `<input>` behavior: the browser itself renders `::placeholder` vs the typed value with zero JS state. Figma needs a static axis to show both looks; code doesn't, because the DOM already does this natively. |
+| Text (nested, editable string) | **not a prop — maps to native `placeholder`/`value`/`defaultValue`** | Figma-only authoring convenience (renamed from "Value" specifically to avoid implying it's the same as React's `value`). Code uses the real native attributes directly; `Text` never becomes a prop. |
+| Tone (nested, Default/Disabled) | **not a prop, internal Figma implementation only** | Not designer-facing even in Figma (see Figma architecture above). In code, disabled foreground comes from the native `:disabled` pseudo-class resolving to `text.disabled` — there is no `tone` concept in code at all. |
+| Leading icon slot | `leadingIcon?: React.ReactNode` | Provider-neutral — accepts `<Icon name="..." />`, a raw provider element, or any other node. See `governance/decisions/0010-icon-token-architecture.md`. |
+| Trailing icon slot | `trailingIcon?: React.ReactNode` | Same contract as `leadingIcon`. |
+
+### Size parity
+
+| Size | Field height | Label typography | Value/placeholder typography | Support typography | Icon |
+| --- | --- | --- | --- | --- | --- |
+| Sm | 32px (component constant, not a token) | `text.label.sm.medium` | `text.body.sm.regular` | `text.caption.sm.regular` | `icon.sm` (16px) |
+| Md | 40px (component constant, not a token) | `text.label.md.medium` | `text.body.md.regular` | `text.caption.md.regular` | `icon.md` (20px) |
+| Lg | 48px (component constant, not a token) | `text.label.lg.medium` | `text.body.lg.regular` | `text.caption.md.regular` (no `caption/lg` token exists — Lg reuses `caption/md`, same gap the Figma file's own architecture notes record) | `icon.lg` (24px) |
+
+Height is intentionally **not** tokenized, same convention as Button. Radius uses
+`radius.control` (4px) at every size. Label↔field and field↔support gaps both use
+`space.stack.sm` (8px) — the token's own description is literally "Label → input, field →
+helper text."
+
+### Icon-adjacent padding
+
+Identical structure and identical values to Button's approved table — Input Content's
+padding table was explicitly built to reuse Button's exact numbers, not invent new ones:
+
+| Size | No icons | Leading only | Trailing only | Both icons |
+| --- | --- | --- | --- | --- |
+| Sm | `inset.md`/`inset.md` — 12/12 | `inset.sm`/`inset.md` — 8/12 | `inset.md`/`inset.sm` — 12/8 | `inset.sm`/`inset.sm` — 8/8 |
+| Md | `inset.lg`/`inset.lg` — 16/16 | `inset.md`/`inset.lg` — 12/16 | `inset.lg`/`inset.md` — 16/12 | `inset.md`/`inset.md` — 12/12 |
+| Lg | `inset.xl`/`inset.xl` — 20/20 | `inset.lg`/`inset.xl` — 16/20 | `inset.xl`/`inset.lg` — 20/16 | `inset.lg`/`inset.lg` — 16/16 |
+
+(start/end, i.e. left/right in LTR) — derived from `Boolean(leadingIcon)`/
+`Boolean(trailingIcon)` only, never a separate prop, using `padding-inline-start`/`-end`
+so it's RTL-correct automatically. No new spacing tokens were created.
+
+### Color tokens by interaction/validation
+
+| State | Border | Background | Label/value/icon foreground | Support text |
+| --- | --- | --- | --- | --- |
+| Default | `border.default` | `surface.default` | `text.primary` (value) / `text.tertiary` (placeholder, icon) | `text.tertiary` |
+| Hover | `border.strong` | `surface.default` | same as Default | `text.tertiary` |
+| Focus | `border.default` + focus ring (`focus.ring`/`focus.ring-offset`, Button's box-shadow technique) | `surface.default` | same as Default | `text.tertiary` |
+| Error (any non-disabled interaction) | `border.danger` (wins over Hover's `border.strong`; ring, if focused, still layers on top per Focus + Error below) | `surface.default` | unchanged — only the border and support text turn error-toned | `text.danger` |
+| Disabled | `border.subtle` | `surface.disabled` | `text.disabled` (value, placeholder, icon, label) | `text.disabled` |
+
+**Focus + Error**: the error border (`border.danger`) stays; the focus ring layers on top
+via `box-shadow`, unchanged in color — the ring communicates "keyboard focus," the border
+communicates "invalid," and the two are deliberately not conflated into one color, exactly
+as approved in the Figma proposal.
+
+**Disabled + Error (precedence rule)**: Disabled's container styling always wins —
+`.ds-input__field:has(.ds-input__field-input:disabled)` is declared after the
+`.ds-input--error` rules in `Input.css` specifically so it wins the cascade tie, matching
+the approved Figma behavior where Disabled+Error renders identically to Disabled+Default.
+`errorText` still renders in the support region if provided; only the border color is
+suppressed — a disabled field's content shouldn't visually urge the user to act on
+something they can't.
+
+Icon color is never set directly — every icon slot uses a fixed `color` matching the
+current state's foreground (`text.tertiary` normally, `text.disabled` when disabled),
+mirroring Figma's Tone: icons don't turn error-red the same way the typed value doesn't,
+only the border and support text do.
+
+### Accessibility (implemented and spot-checked, not a certified audit)
+
+- Native `<input>` — never a styled `<div>`.
+- `<label>` renders only when `label` is passed, associated via `htmlFor`/`id`
+  (`useId()`-generated when the caller doesn't supply their own `id` — the caller's `id`
+  always wins). Placeholder is never used as a label substitute — enforced by the API
+  shape (`placeholder` and `label` are entirely separate props, native `placeholder`
+  attribute) rather than by convention alone.
+- `aria-describedby` points at a generated support-text id (`${inputId}-support`) only
+  when support content (`errorText` or `helperText`) is actually rendered — no dangling
+  reference to a non-existent node.
+- `aria-invalid="true"` set when `error` is true; omitted (not `"false"`) otherwise,
+  matching Button's `aria-busy` pattern.
+- `disabled` is the native HTML attribute, passed straight through.
+- Focus-visible uses the native `:focus-visible` pseudo-class (via `:has()` on the field
+  container) — never suppressed.
+- Leading/trailing icons are `aria-hidden="true"` — the visible label/value text already
+  carries the accessible name; icons never contribute a second, redundant one.
+- Not yet verified: screen-reader spot-check, 200% zoom/reflow, full WCAG 2.2 AA sweep —
+  per `governance/accessibility.md`, required before "stable," not claimed here.
+
+### Icon size mapping / provider-neutral icon behavior
+
+Input never imports `lucide-react` or `Icon` — `leadingIcon`/`trailingIcon` accept any
+`ReactNode`, identical contract to Button. Input owns the icon slot's size (forced to
+`icon.sm`/`md`/`lg` via CSS), alignment, the icon-to-text gap, and the fixed per-state
+foreground color; the icon provider owns the artwork. Lucide is the default/reference
+provider in the Figma library, not a constraint — same note as Button's.

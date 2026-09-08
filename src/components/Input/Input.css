@@ -1,0 +1,283 @@
+/**
+ * Input (V1). Consumes generated token custom properties from
+ * src/tokens/build/css/{variables,typography}.css — run `npm run tokens:build` first, or
+ * these custom properties are undefined. See docs/design-to-code-mappings.md for the full
+ * Figma <-> code parity table.
+ *
+ * Height (32/40/48px) is a component-owned constant, not a token — same convention as
+ * Button (see Button.css and governance/decisions/0010) — no second control has asked for
+ * these heights yet.
+ *
+ * No intrinsic width lock: `.ds-input` is a plain block element (default full width of
+ * its container) and `.ds-input__field`/`.ds-input__label`/`.ds-input__support` are flex
+ * children of a column flex container with the default `align-items: stretch`, so they
+ * all naturally span whatever width the root is given — by a parent's layout, an explicit
+ * `width`/`max-width` set by the consumer, or the default 100%. Nothing here sets a fixed
+ * or hugging width.
+ */
+
+.ds-input {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.ds-input * {
+  box-sizing: border-box;
+}
+
+/* ---- Label ---- */
+
+.ds-input__label {
+  display: block;
+  margin-bottom: var(--space-stack-sm);
+  color: var(--color-text-primary);
+}
+
+/* ---- Field (the bordered container) ---- */
+
+.ds-input__field {
+  display: flex;
+  align-items: center;
+  position: relative;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-control);
+  background-color: var(--color-surface-default);
+  transition:
+    border-color var(--motion-micro),
+    background-color var(--motion-micro),
+    box-shadow var(--motion-micro);
+}
+
+.ds-input__field-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+}
+
+.ds-input__field-input::placeholder {
+  color: var(--color-text-tertiary);
+  /* Placeholder never substitutes for the label — see Input.tsx's label prop doc and
+     docs/design-to-code-mappings.md's accessibility section. This is purely the visual
+     treatment mirroring Figma's Content=Placeholder Tone. */
+  opacity: 1; /* Firefox default-dims placeholder text; keep color the single source of truth. */
+}
+
+/* Hover — native CSS, not a React prop. Comes before .ds-input--error below so error's
+   border color wins the cascade tie when both apply (Hover + Error stays red-bordered). */
+.ds-input__field:hover {
+  border-color: var(--color-border-strong);
+}
+
+/* Focus-visible — same box-shadow double-ring technique as Button, scoped to the field
+   container via :has() so the ring wraps the whole field, not just the native input's own
+   outline. Layers on top of whatever border-color is already set (Default, Hover, or
+   Error) rather than replacing it — this is what makes Focus + Error show a red border
+   with a blue ring on top, matching the approved Figma behavior, the same way Button's
+   Secondary variant keeps its border visible underneath its own ring. */
+.ds-input__field:has(.ds-input__field-input:focus-visible) {
+  box-shadow:
+    0 0 0 2px var(--color-focus-ring-offset),
+    0 0 0 4px var(--color-focus-ring);
+}
+
+/* ---- Validation (error prop — not native CSS, an explicit controlled flag) ---- */
+
+.ds-input--error .ds-input__field {
+  border-color: var(--color-border-danger);
+}
+.ds-input--error .ds-input__field:hover {
+  border-color: var(--color-border-danger);
+}
+.ds-input--error .ds-input__field:has(.ds-input__field-input:focus-visible) {
+  border-color: var(--color-border-danger);
+  box-shadow:
+    0 0 0 2px var(--color-focus-ring-offset),
+    0 0 0 4px var(--color-focus-ring);
+}
+.ds-input--error .ds-input__support {
+  color: var(--color-text-danger);
+}
+
+/* ---- Disabled — native :disabled, styled last so it always wins over hover/error
+   (Disabled + Error renders identically to Disabled + Default; see the precedence note
+   in docs/design-to-code-mappings.md). A disabled input cannot receive focus in any
+   browser, so no extra guard is needed against the focus-visible rule above. ---- */
+
+.ds-input:has(.ds-input__field-input:disabled) .ds-input__label {
+  color: var(--color-text-disabled);
+}
+.ds-input__field:has(.ds-input__field-input:disabled) {
+  background-color: var(--color-surface-disabled);
+  border-color: var(--color-border-subtle);
+}
+.ds-input__field-input:disabled {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+.ds-input__field-input:disabled::placeholder {
+  color: var(--color-text-disabled);
+}
+.ds-input:has(.ds-input__field-input:disabled) .ds-input__icon {
+  color: var(--color-text-disabled);
+}
+.ds-input:has(.ds-input__field-input:disabled) .ds-input__support {
+  color: var(--color-text-disabled);
+}
+
+/* ---- Sizes ---- */
+
+.ds-input--sm .ds-input__label {
+  font-family: var(--text-label-sm-medium-font-family);
+  font-size: var(--text-label-sm-medium-font-size);
+  font-weight: var(--text-label-sm-medium-font-weight);
+  line-height: var(--text-label-sm-medium-line-height);
+  letter-spacing: var(--text-label-sm-medium-letter-spacing);
+}
+.ds-input--sm .ds-input__field {
+  height: 32px;
+  padding-inline: var(--space-inset-md);
+  gap: var(--space-inline-xs);
+}
+.ds-input--sm .ds-input__field-input {
+  font-family: var(--text-body-sm-regular-font-family);
+  font-size: var(--text-body-sm-regular-font-size);
+  font-weight: var(--text-body-sm-regular-font-weight);
+  line-height: var(--text-body-sm-regular-line-height);
+  letter-spacing: var(--text-body-sm-regular-letter-spacing);
+}
+.ds-input--sm .ds-input__icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+.ds-input--sm .ds-input__support {
+  margin-top: var(--space-stack-sm);
+  font-family: var(--text-caption-sm-regular-font-family);
+  font-size: var(--text-caption-sm-regular-font-size);
+  font-weight: var(--text-caption-sm-regular-font-weight);
+  line-height: var(--text-caption-sm-regular-line-height);
+  letter-spacing: var(--text-caption-sm-regular-letter-spacing);
+}
+
+.ds-input--md .ds-input__label {
+  font-family: var(--text-label-md-medium-font-family);
+  font-size: var(--text-label-md-medium-font-size);
+  font-weight: var(--text-label-md-medium-font-weight);
+  line-height: var(--text-label-md-medium-line-height);
+  letter-spacing: var(--text-label-md-medium-letter-spacing);
+}
+.ds-input--md .ds-input__field {
+  height: 40px;
+  padding-inline: var(--space-inset-lg);
+  gap: var(--space-inline-sm);
+}
+.ds-input--md .ds-input__field-input {
+  font-family: var(--text-body-md-regular-font-family);
+  font-size: var(--text-body-md-regular-font-size);
+  font-weight: var(--text-body-md-regular-font-weight);
+  line-height: var(--text-body-md-regular-line-height);
+  letter-spacing: var(--text-body-md-regular-letter-spacing);
+}
+.ds-input--md .ds-input__icon {
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+.ds-input--md .ds-input__support {
+  margin-top: var(--space-stack-sm);
+  font-family: var(--text-caption-md-regular-font-family);
+  font-size: var(--text-caption-md-regular-font-size);
+  font-weight: var(--text-caption-md-regular-font-weight);
+  line-height: var(--text-caption-md-regular-line-height);
+  letter-spacing: var(--text-caption-md-regular-letter-spacing);
+}
+
+.ds-input--lg .ds-input__label {
+  font-family: var(--text-label-lg-medium-font-family);
+  font-size: var(--text-label-lg-medium-font-size);
+  font-weight: var(--text-label-lg-medium-font-weight);
+  line-height: var(--text-label-lg-medium-line-height);
+  letter-spacing: var(--text-label-lg-medium-letter-spacing);
+}
+.ds-input--lg .ds-input__field {
+  height: 48px;
+  padding-inline: var(--space-inset-xl);
+  gap: var(--space-inline-sm);
+}
+.ds-input--lg .ds-input__field-input {
+  font-family: var(--text-body-lg-regular-font-family);
+  font-size: var(--text-body-lg-regular-font-size);
+  font-weight: var(--text-body-lg-regular-font-weight);
+  line-height: var(--text-body-lg-regular-line-height);
+  letter-spacing: var(--text-body-lg-regular-letter-spacing);
+}
+.ds-input--lg .ds-input__icon {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+}
+.ds-input--lg .ds-input__support {
+  /* No caption/lg token exists — Lg reuses caption/md, same gap noted in
+     docs/design-to-code-mappings.md and the Figma file's own architecture notes. */
+  margin-top: var(--space-stack-sm);
+  font-family: var(--text-caption-md-regular-font-family);
+  font-size: var(--text-caption-md-regular-font-size);
+  font-weight: var(--text-caption-md-regular-font-weight);
+  line-height: var(--text-caption-md-regular-line-height);
+  letter-spacing: var(--text-caption-md-regular-letter-spacing);
+}
+
+/* ---- Icon-adjacent padding ----
+   Mirrors the approved Figma Input Content padding table exactly: the side next to a
+   leading/trailing icon drops one space.inset.* step, the opposite side keeps the size's
+   base inset. Compound selectors win over the base padding-inline shorthand above by
+   specificity, so only the icon-adjacent side changes. padding-inline-start/-end (not
+   -left/-right), so this is RTL-correct automatically — same approach as Button. Derived
+   from icon presence only — never a separate prop. */
+.ds-input--sm.ds-input--has-leading-icon .ds-input__field {
+  padding-inline-start: var(--space-inset-sm);
+}
+.ds-input--sm.ds-input--has-trailing-icon .ds-input__field {
+  padding-inline-end: var(--space-inset-sm);
+}
+.ds-input--md.ds-input--has-leading-icon .ds-input__field {
+  padding-inline-start: var(--space-inset-md);
+}
+.ds-input--md.ds-input--has-trailing-icon .ds-input__field {
+  padding-inline-end: var(--space-inset-md);
+}
+.ds-input--lg.ds-input--has-leading-icon .ds-input__field {
+  padding-inline-start: var(--space-inset-lg);
+}
+.ds-input--lg.ds-input--has-trailing-icon .ds-input__field {
+  padding-inline-end: var(--space-inset-lg);
+}
+
+/* ---- Icon slots ---- */
+
+.ds-input__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-text-tertiary);
+}
+/* Input owns icon slot sizing regardless of what the consumer passed (an <Icon>, a raw
+   provider element, or any other ReactNode) — same contract as Button's icon slots. */
+.ds-input__icon > svg,
+.ds-input__icon > img {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- Support text (helper or error) ---- */
+
+.ds-input__support {
+  color: var(--color-text-tertiary);
+}
