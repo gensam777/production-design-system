@@ -33,6 +33,34 @@ governance/     # accessibility, lifecycle, versioning rules + ADRs (decisions/)
   to React components. There is no automated sync (Figma Code Connect is not used) —
   update this file by hand whenever a component ships.
 
+## Canonical Figma Source
+
+- **File**: Production Design System
+- **File key**: `zE07Pl0ioDayHN2GK2set7`
+- **URL**: https://www.figma.com/design/zE07Pl0ioDayHN2GK2set7/Production-Design-System
+
+This is the single source-of-truth Figma file for this design system. All foundations
+and component work — Button, Input, Checkbox, and anything built after them — targets
+this file exclusively.
+
+- Do not create or modify components in another Figma file unless explicitly instructed.
+- Before making any Figma change, inspect the existing component/page first — reuse and
+  extend what's there instead of duplicating it.
+- Preserve existing component IDs and architecture where possible; a rebuild from scratch
+  is a decision to confirm with the user, not a default.
+
+### Known page / component-set references (verified 2026-09-11)
+
+| Component | Page (canvas) | Component set(s) | Notes |
+| --- | --- | --- | --- |
+| Button | `180:10` ("Button") | Outer: `115:224` (72 variants — Variant × Size × State). Nested: `678:802` ("Button Content", 36 variants — Size × Icon Layout × Tone). | See `docs/design-to-code-mappings.md` (Button section) for the full architecture. |
+| Input | `714:10` ("Input") | Outer: `722:305` (24 variants — Size × Interaction × Validation). Nested Input Content, six sets (one per Size × Tone, 8 variants each = 48 total): `736:1018` (Sm/Default), `746:9` (Md/Default), `746:1018` (Lg/Default), `736:1019` (Sm/Disabled), `746:1017` (Md/Disabled), `746:1019` (Lg/Disabled). | See `docs/design-to-code-mappings.md` (Input section) for the full architecture. |
+| Checkbox | `769:9` ("Checkbox") | `769:74` (12 variants — Selection × Interaction) | Flat set, no nesting. |
+
+Node IDs are internal Figma identifiers, not a stable public API — re-verify with the
+Figma MCP tools (`get_metadata`/`get_design_context`) before relying on them if this file
+has been edited since the date above.
+
 ## Commands
 
 - `npm run build` — build the library (tsup) → `dist/`
