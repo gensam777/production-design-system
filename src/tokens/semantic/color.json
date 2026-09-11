@@ -83,6 +83,17 @@
       "subtle": { "$value": "{color.overlay.subtle}", "$type": "color", "$description": "elevation.raised shadow color." },
       "default": { "$value": "{color.overlay.default}", "$type": "color", "$description": "elevation.overlay shadow color." },
       "strong": { "$value": "{color.overlay.strong}", "$type": "color", "$description": "elevation.modal shadow color." }
+    },
+    "switch": {
+      "track": {
+        "background": {
+          "off": {
+            "default": { "$value": "{color.gray.500}", "$type": "color", "$description": "Switch track fill, Off + Default. Component-scoped (not a shared `action.neutral.*` semantic family) — Switch is currently the only consumer of this neutral filled interactive surface; promote to a shared token only if a second component needs the same concept. Same primitive as `border.strong`/`text.tertiary` (4.83:1 on surface.default, clears the 3:1 non-text minimum) but not reused directly as either — those are a stroke-role and a text-role token respectively, not a fill." },
+            "hover": { "$value": "{color.gray.600}", "$type": "color", "$description": "Switch track fill, Off + Hover. Mirrors the darken-on-hover step every `action.*` group already uses (e.g. `action.primary.default` → `.hover`)." },
+            "disabled": { "$value": "{color.gray.300}", "$type": "color", "$description": "Switch track fill, Off + Disabled. Same primitive as `action.primary.disabled` — Off+Disabled and On+Disabled deliberately converge on the same muted gray, matching this system's existing disabled-state convention of flattening state distinctions rather than the resting-state color." }
+          }
+        }
+      }
     }
   }
 }

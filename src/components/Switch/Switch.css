@@ -1,0 +1,173 @@
+/**
+ * Switch (V1). Consumes generated token custom properties from
+ * src/tokens/build/css/variables.css — run `npm run tokens:build` first, or these custom
+ * properties are undefined. See docs/design-to-code-mappings.md for the full Figma <->
+ * code parity table.
+ *
+ * Track (36×20) and thumb diameter (16×16)/hit area (40×24) are component-owned
+ * constants, not tokens — same convention as Checkbox/Radio's own control geometry (see
+ * governance/decisions/0010): no second control has asked for these exact dimensions yet.
+ * The thumb's inset from the track edge is NOT a component constant, though — see below.
+ *
+ * One size only in V1, same reasoning as Checkbox/Radio: a switch stays visually stable
+ * relative to whatever body/label text size it sits beside.
+ *
+ * Thumb inset — token-bound (updated after a Figma sync, 2026-09-12): the approved Figma
+ * file binds the track's padding to `space/3xs` (2px), a new primitive added specifically
+ * for this thumb-inside-track inset — not left as an unbound literal the way the overall
+ * track/thumb/hit-area dimensions still are. Code mirrors that exactly via
+ * `--space-inset-3xs` (`src/tokens/semantic/spacing.json`) — never a hardcoded `2px`.
+ * Governs the horizontal resting (Off) inset only — see the next note for vertical.
+ *
+ * Thumb vertical centering — structural, not hand-tuned (fixed 2026-09-12): the thumb's
+ * `top` is `50%` + `transform: translateY(-50%)`, not a computed `top: <inset token>`
+ * offset. A hardcoded top offset would silently assume the track's rendered height is
+ * exactly 20px and that `--space-inset-3xs` converts to exactly 2px at the page's actual
+ * root font-size — both true under normal conditions, but neither is asserted by the CSS
+ * itself, so either assumption drifting (a root font-size override, a future track-height
+ * change) would silently break centering without any visual signal until someone noticed.
+ * `top: 50%; translateY(-50%)` instead derives the center from the track's and thumb's
+ * *actual rendered* heights every time, with no arithmetic to keep in sync — this is what
+ * "centering from the track geometry" means structurally, versus hand-tuning a number.
+ * `--space-inset-3xs` still governs the horizontal resting position exactly as before;
+ * only the vertical axis changed. Off and On are vertically identical by construction —
+ * `translateY(...)` is present in both the base rule and the `:checked` override.
+ *
+ * Optical Y correction — +0.5px, component-level constant, NOT a token (added
+ * 2026-09-12): even with structural centering, the thumb still read as sitting slightly
+ * high against the approved Figma reference — a well-documented category of effect (a
+ * shape mathematically centered inside another often reads optically high; this
+ * codebase's own Checkbox carries an analogous small measured correction for a related
+ * reason — see Checkbox.css). `translateY(calc(-50% + 0.5px))` layers a 0.5px downward
+ * nudge on top of the structural center, chosen as the smallest of 0px/+0.5px/+1px per
+ * the design review — 0px still read high, +1px read too low. This value was NOT
+ * confirmed via an automated rendered-pixel comparison (no browser-automation tool is
+ * available in the environment this was authored in) — it is a reasoned, minimal,
+ * convention-based choice pending a human visual check in a real browser. Re-tune only
+ * after an actual visual comparison, not by re-deriving the arithmetic — this is an
+ * optical correction, not a geometry bug, so it isn't "solvable" by more precise math.
+ *
+ * Thumb slide (platform difference, not a token mismatch): Figma expresses the Off/On
+ * thumb position via the track's own Auto Layout alignment (primary-axis MIN vs MAX) — a
+ * static concept with no animation information. Code layers a real sliding transition on
+ * top (transform + --motion-micro), the same way this system already layers code-only
+ * motion onto an otherwise-static Figma appearance (Button's spinner, Checkbox's
+ * hover/selection color transitions). The translateX distance is expressed as a `calc()`
+ * derived from the same inset token rather than a bare hardcoded number, so it can never
+ * silently drift out of sync with the token if `space.inset.3xs` ever changes value:
+ * 36px track width − 16px thumb diameter − 2×(the inset token) = travel distance.
+ */
+
+.ds-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-inline-sm);
+}
+
+/* ---- Hit area / interactive target ----
+   40×24 minimum (WCAG 2.2 SC 2.5.8, cleared on both axes) even though the visual track is
+   36×20 — the native <input> fills the whole hit area (invisible, opacity: 0) so the
+   entire 40×24 region is clickable/tappable, not just the visible track. */
+.ds-switch__control {
+  position: relative;
+  width: 40px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ds-switch__input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.ds-switch__input:disabled {
+  cursor: not-allowed;
+}
+
+/* ---- Track (36×20 pill, purely decorative — the input above owns all real state) ---- */
+.ds-switch__track {
+  position: relative;
+  box-sizing: border-box;
+  width: 36px;
+  height: 20px;
+  pointer-events: none;
+  border-radius: var(--radius-full);
+  background-color: var(--color-switch-track-background-off-default);
+  transition: background-color var(--motion-micro);
+}
+
+/* Hover — native CSS, not a React prop. */
+.ds-switch__input:hover:not(:disabled) ~ .ds-switch__track {
+  background-color: var(--color-switch-track-background-off-hover);
+}
+
+/* Focus-visible — same box-shadow double-ring technique as Checkbox/Radio/Button/Input. */
+.ds-switch__input:focus-visible ~ .ds-switch__track {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-focus-ring-offset),
+    0 0 0 4px var(--color-focus-ring);
+}
+
+/* ---- On (native :checked) ----
+   Reuses action.primary.* directly — same semantic role as Checkbox's Checked fill, no
+   new token needed (confirmed during the Figma token-model pass). */
+.ds-switch__input:checked ~ .ds-switch__track {
+  background-color: var(--color-action-primary-default);
+}
+.ds-switch__input:checked:hover:not(:disabled) ~ .ds-switch__track {
+  background-color: var(--color-action-primary-hover);
+}
+
+/* ---- Disabled — native :disabled, styled after On so it always wins the cascade tie
+   (Disabled + On renders with the disabled treatment, never the active blue), same
+   precedence rule Checkbox/Radio use. Off+Disabled and On+Disabled deliberately converge
+   on the same action.primary.disabled gray — see docs/design-to-code-mappings.md. ---- */
+.ds-switch__input:disabled ~ .ds-switch__track {
+  background-color: var(--color-switch-track-background-off-disabled);
+}
+.ds-switch__input:disabled:checked ~ .ds-switch__track {
+  background-color: var(--color-action-primary-disabled);
+}
+
+/* ---- Thumb (16×16 circle, always on-color — a position indicator, not a state-color
+   carrier, so it does NOT dim when Disabled; matches the approved Figma decision exactly,
+   deliberately unlike Radio's inner dot, which does dim when Selected+Disabled). ---- */
+.ds-switch__thumb {
+  position: absolute;
+  top: 50%;
+  left: var(--space-inset-3xs);
+  /* Structural centering (top: 50%/translateY(-50%)) + a tiny component-level optical
+     correction — see the file header comment for what this is and isn't. */
+  transform: translateY(calc(-50% + 0.5px));
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-action-primary-on-color);
+  transition: transform var(--motion-micro);
+}
+.ds-switch__input:checked ~ .ds-switch__track .ds-switch__thumb {
+  transform: translateY(calc(-50% + 0.5px)) translateX(calc(36px - 16px - 2 * var(--space-inset-3xs)));
+}
+
+/* ---- Label ---- */
+.ds-switch__label {
+  color: var(--color-text-primary);
+  font-family: var(--text-label-md-medium-font-family);
+  font-size: var(--text-label-md-medium-font-size);
+  font-weight: var(--text-label-md-medium-font-weight);
+  line-height: var(--text-label-md-medium-line-height);
+  letter-spacing: var(--text-label-md-medium-letter-spacing);
+  cursor: pointer;
+}
+.ds-switch:has(.ds-switch__input:disabled) .ds-switch__label {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}

@@ -1,6 +1,7 @@
 {
   "space": {
     "none": { "$value": 0, "$type": "dimension", "$description": "Hybrid 4/8px rhythm — raw scale, no meaning attached. Explicit zero, used by semantic overrides (flush/collapsed variants)." },
+    "3xs": { "$value": 2, "$type": "dimension", "$description": "Added alongside Switch V1 — a thumb-inside-track inset needed a step below 2xs (4px). Mirrored from the Figma `space/3xs` primitive (scope: GAP)." },
     "2xs": { "$value": 4, "$type": "dimension" },
     "xs": { "$value": 8, "$type": "dimension" },
     "sm": { "$value": 12, "$type": "dimension" },

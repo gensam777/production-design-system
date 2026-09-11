@@ -13,6 +13,7 @@ this table is updated by hand whenever a component ships or a mapping changes.
 | Checkbox | _(Figma Checkbox V1 component — link not captured in this pass)_ | `src/components/Checkbox/Checkbox.tsx` | See [Checkbox](#checkbox) below. |
 | Radio | Radio V1, page `903:9`, component set `905:44` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Radio/Radio.tsx` | See [Radio](#radio) below. |
 | Radio Group | Radio Group V1, page `907:1396`, component set `907:1435` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/RadioGroup/RadioGroup.tsx` | See [Radio Group](#radio-group) below. |
+| Switch | Switch V1, page `934:9`, component set `934:50` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Switch/Switch.tsx` | See [Switch](#switch) below. |
 
 - **Figma component** — the component/variant name as it appears in the Figma library.
 - **Figma link** — direct link to the node in the library file.
@@ -842,3 +843,212 @@ whether it's actually meaningful — it wasn't for this V1.
 - **Not claimed**: an "invalid state" concept for the group on any platform — this was
   confirmed not to exist natively even on web; other platforms should be assumed to have
   the same gap unless proven otherwise.
+
+## Switch
+
+- React: `src/components/Switch/Switch.tsx`
+- Styles: `src/components/Switch/Switch.css`
+- Storybook: `src/components/Switch/Switch.stories.tsx` (`Components/Switch`)
+- Figma: Switch V1 (approved), flat 8-variant component set. Page `934:9` ("Switch"),
+  component set `934:50`. See `CLAUDE.md`'s Canonical Figma Source table for the current
+  node references.
+
+### Figma architecture (current, authoritative)
+
+Figma Switch is a single flat component set — same reasoning as Checkbox/Radio: there is
+no structurally-crossing axis to factor into a separate nested Content component.
+
+| Component set | Variant axes | Count | Owns |
+| --- | --- | --- | --- |
+| **Switch** | State × Interaction | 8 | Track fill (per state), thumb, focus ring, Label, Show label |
+
+State (Off/On) and Interaction (Default/Hover/Focus-visible/Disabled) are the only two
+variant axes — no Indeterminate/partial state, same as Radio.
+
+### Reference components
+
+Switch's closest reference components are **Checkbox** and **Radio** — same native-input
++ label-association pattern, same flat (no nested Content) architecture, same
+one-fixed-size convention. New anatomy neither reference has: a track (filled pill) and a
+sliding thumb, in place of a single box+mark.
+
+### Prop mapping
+
+| Figma property | React prop | Notes |
+| --- | --- | --- |
+| State (Off/On) | native `checked?: boolean`, `defaultChecked?: boolean` | Standard `<input>` HTML attributes, passed through — same as Checkbox/Radio's own Selection/Selected mapping. No `on`/`state` prop exists. |
+| Interaction (Default/Hover/Focus-visible/Disabled) | **not a prop, except Disabled** | Hover and Focus-visible are native CSS states (`:hover`, `:focus-visible`). Disabled is the native HTML `disabled` attribute. |
+| Label | `label?: React.ReactNode` | Renders a real `<label>` associated via `htmlFor`/`id`. Omitted entirely (not an empty string) when not passed. |
+| Show label (nested boolean) | **not a prop** | Derived: no `label` prop passed → no `<label>` rendered — same pattern as Checkbox/Radio's Show label. |
+| — (native, no Figma equivalent) | native `type="checkbox"` + `role="switch"` (hardcoded, not overridable) | `SwitchProps` omits both `type` and `role` via `Omit<InputHTMLAttributes<HTMLInputElement>, 'type' \| 'role'>` — the established WAI-ARIA switch pattern (a real checkbox, re-announced as a switch), not a custom widget. See Accessibility below. |
+
+No `state`, `interaction`, `visualState`, or `size` prop exists — `SwitchProps` is
+`Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'role'> & { label? }`, the
+same minimal shape as `RadioProps`.
+
+### Size parity
+
+| | Value |
+| --- | --- |
+| Track | 36×20 (component constant, not a token — same convention as Checkbox/Radio) |
+| Thumb | 16×16 (component constant); inset from the track edge is `space.inset.3xs` (**token, not a constant** — see below) |
+| Interaction target | 40×24 minimum (component constant), via a `position: absolute; inset: 0` native `<input>` sized to the full hit area, invisible (`opacity: 0`) but real and interactive |
+| Radius | `radius.full` (track and thumb) |
+
+One size only — same convention as Checkbox/Radio: a switch stays visually stable
+relative to whatever body/label text size it sits beside.
+
+### Thumb inset — synced from Figma, 2026-09-12 (token, not a component constant)
+
+Originally built as an unbound literal (`2px`) on both sides, matching Checkbox/Radio's
+own control-geometry precedent. A manual Figma edit bound the track's padding to a new
+primitive, `space/3xs` (2px, scope `GAP`) — discovered during a Figma→code sync and
+confirmed with the user before mirroring: added `space.3xs` to
+`src/tokens/primitive/spacing.json` and `space.inset.3xs` to
+`src/tokens/semantic/spacing.json` (aliasing the primitive, following the exact same
+`inset.*` shape as every other inset step), generating `--space-inset-3xs`. `Switch.css`
+consumes `var(--space-inset-3xs)` for the thumb's `left` offset — never a hardcoded
+`2px`. This is the first consumer of `space.inset.3xs`; promote/rename only if a future
+need actually diverges from what Switch established.
+
+**Vertical inset uses a different mechanism than horizontal, on purpose** (fixed
+2026-09-12 — the thumb rendered off-center vertically in Storybook): the thumb's vertical
+position is `top: 50%; transform: translateY(-50%)`, not `top: var(--space-inset-3xs)`.
+A hardcoded `top` offset is only correct if the track's rendered height and the token's
+rem→px conversion both happen to match the assumed 20px/2px exactly — true under normal
+conditions, but nothing in the CSS itself asserts either assumption, so it can silently
+drift. `top: 50%`/`translateY(-50%)` derives the vertical center from the track's and
+thumb's actual rendered heights directly, with no number to keep in sync. `--space-inset-
+3xs` still governs the horizontal resting inset exactly as before — only the vertical
+mechanism changed. See `Switch.css`'s own comment for the full reasoning.
+
+**Component-level optical correction — `+0.5px`, not a token** (added 2026-09-12): even
+structurally centered, the thumb still read as sitting slightly high against the approved
+Figma reference. `translateY(calc(-50% + 0.5px))` layers a small downward nudge on top of
+the structural center — `0.5px` was chosen as the smallest of `0px`/`+0.5px`/`+1px` per
+design review (`0px` still read high, `+1px` read too low). **This was not confirmed via
+an automated rendered-pixel comparison** — no browser-automation tooling was available
+when this was authored, so the value is a reasoned, minimal, convention-based choice
+(the same category of effect as Checkbox's own small measured optical offset, though
+arrived at differently here) pending a human visual check in a real browser. It is a
+documented component-level constant, deliberately not a foundation token — this exact
+value has no claim to reuse elsewhere.
+
+### Thumb slide — platform difference (intentional, not a token mismatch)
+
+Figma expresses the Off/On thumb position via the track's own Auto Layout alignment
+(primary-axis `MIN` for Off, `MAX` for On) — a static authoring concept with no animation
+information. Code adds a real sliding transition on top (`transform: translateX(...)` +
+`--motion-micro`), the same way this system already layers code-only motion onto an
+otherwise-static Figma appearance (Button's spinner rotation, Checkbox's hover/selection
+color transitions — neither has a literal Figma animation source either). The travel
+distance is expressed as `calc(36px - 16px - 2 * var(--space-inset-3xs))`, not a bare
+hardcoded number — derived from the same approved geometry (`36px track width − 16px
+thumb diameter − 2× the inset token`). The `:checked` transform combines this with the
+constant `translateY(-50%)` vertical-centering transform (`translateY(-50%)
+translateX(...)`) — Off and On stay vertically identical because the same `translateY(-50%)`
+is present in both the base rule and the `:checked` override, never dropped by one and
+not the other.
+
+### Color tokens by state
+
+| State | Track | Thumb |
+| --- | --- | --- |
+| Off, Default | `switch.track.background.off.default` | `action.primary.on-color` |
+| Off, Hover | `switch.track.background.off.hover` | `action.primary.on-color` |
+| On, Default | `action.primary.default` | `action.primary.on-color` |
+| On, Hover | `action.primary.hover` | `action.primary.on-color` |
+| Disabled, Off | `switch.track.background.off.disabled` | `action.primary.on-color` |
+| Disabled, On | `action.primary.disabled` | `action.primary.on-color` |
+| Label | `text.primary`, disabled → `text.disabled` | — |
+| Focus | `focus.ring` / `focus.ring-offset` (box-shadow, same technique as Checkbox/Radio/Button/Input) | |
+
+**The thumb never changes color, in any state** — deliberately, unlike Radio's inner dot
+(which dims to `text.disabled` when Selected+Disabled). The thumb is a position
+indicator, not a state-color carrier; the track alone carries state meaning. This was a
+deliberate decision made during the Figma pass, not an oversight — confirmed identical in
+code (no `:disabled` override on `.ds-switch__thumb`'s `background-color` anywhere in
+`Switch.css`).
+
+**`switch.track.background.off.disabled` and `action.primary.disabled` are the same
+value** (`{color.gray.300}`) — Disabled+Off and Disabled+On therefore render with an
+identical track color. This is deliberate (see the token-model decision recorded in
+`CLAUDE.md` and the Figma page's own Governance Note section), matching this system's
+existing convention of disabled states converging toward a shared muted treatment rather
+than preserving the resting-state distinction.
+
+### Token gaps (reported, not silently filled)
+
+None. Every color used above is an existing or newly-approved semantic token — no
+approximation, no reuse of a differently-scoped token, no hardcoded value.
+
+### New tokens (component-scoped, not promoted to a shared family)
+
+`switch.track.background.off.default` / `.hover` / `.disabled` — added to
+`src/tokens/semantic/color.json` under a new `color.switch` key, aliasing
+`{color.gray.500}` / `{color.gray.600}` / `{color.gray.300}` respectively. **Deliberately
+not** generalized into a shared `action.neutral.*` family: Switch is currently the only
+confirmed consumer of a neutral filled interactive surface in this system. If a future
+second component needs the same concept, evaluate promoting these into a shared semantic
+token family at that point — this precedent is not license to add further
+component-scoped color tokens without the same explicit justification.
+
+### New token, general (not component-scoped) — `space.inset.3xs`
+
+Added 2026-09-12 during a Figma→code sync, after the user confirmed the placement:
+**general** `space.inset.3xs` (unlike the color tokens above, this one lives in the
+regular `inset.*` semantic family, not a `switch.*`-scoped key), since a tight inset is a
+reusable spacing concept, not something Switch-specific the way a neutral fill color was.
+`src/tokens/primitive/spacing.json` gained `space.3xs` (2px, one step below the existing
+smallest `2xs`/4px); `src/tokens/semantic/spacing.json` gained `space.inset.3xs` aliasing
+it. See the Thumb inset section above for the full story of how this was discovered (a
+manual Figma edit bound Switch's track padding to a Figma primitive with no semantic
+token yet in between — flagged rather than silently mirrored, since skipping the semantic
+tier would have broken this system's primitive → semantic → component rule).
+
+### Accessibility (implemented and spot-checked, not a certified audit)
+
+- Native `<input type="checkbox" role="switch">` — the established WAI-ARIA switch
+  pattern (see [WAI-ARIA Switch Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/switch/)),
+  not a custom `<div>`/`<button>` widget. `role="switch"` overrides only how assistive
+  tech *announces* the control (as "switch, on/off" instead of "checkbox, checked") — it
+  changes zero native behavior: `checked`/`defaultChecked`, form `name`/value
+  participation, native constraint validation, Space-to-toggle, and label association via
+  `htmlFor`/`id` all work exactly as they would on a plain `<input type="checkbox">`,
+  because it is one.
+- Both `type` and `role` are hardcoded internally and omitted from `SwitchProps` via
+  `Omit<..., 'type' | 'role'>` — neither can be overridden to something else.
+- `<label>` renders only when `label` is passed, associated via `htmlFor`/`id`
+  (`useId()`-generated when the caller doesn't supply their own `id`).
+- When `label` is omitted, the caller is expected to supply `aria-label` or
+  `aria-labelledby` directly — both pass through natively via `...rest`.
+- `disabled` is the native HTML attribute, passed straight through.
+- Focus-visible uses the native `:focus-visible` pseudo-class directly on the input.
+- The track and thumb are `aria-hidden="true"` — purely decorative, since the native
+  input already carries switch semantics/state.
+- Not yet verified: screen-reader spot-check (confirming the "switch, on/off"
+  announcement specifically, not just generic checkbox announcement), 200% zoom/reflow,
+  full WCAG 2.2 AA sweep — per `governance/accessibility.md`, required before "stable,"
+  not claimed here.
+
+### Cross-platform contract (shared design intent, not yet implemented elsewhere)
+
+- **Shared**: Off/On, a Disabled state, label association, and interaction intent
+  (focus/press feedback exists on every platform, implemented natively per-platform
+  rather than as a shared prop) — same shape as Checkbox/Radio's own contract.
+- **Not shared** (platform-owned rendering): the exact focus/ripple/press visual
+  treatment, and the thumb-slide animation curve/duration (web uses `--motion-micro`;
+  other platforms should use their own native switch-animation convention, not
+  necessarily the same easing).
+- **Track**: 36×20 on web; other platforms should follow their own native switch sizing
+  convention (e.g. iOS's system `UISwitch` dimensions, Android's Material `Switch`) rather
+  than forcing this exact pixel size — the *shared* intent is "a track + sliding thumb
+  binary control," not an exact cross-platform pixel match.
+- **Interaction target**: 40×24 minimum on web (WCAG 2.2 SC 2.5.8); touch/mobile
+  platforms should target their own platform minimum (commonly ~44×44), same guidance
+  class as Checkbox/Radio.
+- **Semantic role**: web uses `role="switch"` on a native checkbox input; other platforms
+  should use their own native switch/toggle control type where one exists (e.g. SwiftUI's
+  `Toggle`, Jetpack Compose's `Switch`) rather than reimplementing the ARIA pattern — the
+  web implementation's use of a *repurposed checkbox* is a web-specific technique, not
+  the shared cross-platform contract itself.

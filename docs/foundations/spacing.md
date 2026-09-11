@@ -13,6 +13,7 @@ a primitive doesn't know it means "card padding" or "section gap."
 | Token | Value |
 | --- | --- |
 | `space.none` | 0px |
+| `space.3xs` | 2px — added alongside Switch V1 (a thumb-inside-track inset needed a step below `2xs`); mirrors the Figma `space/3xs` primitive. |
 | `space.2xs` | 4px |
 | `space.xs` | 8px |
 | `space.sm` | 12px |
@@ -33,8 +34,10 @@ semantic token is an **alias** to a primitive (`{space.md}` style reference), ne
 duplicated raw number. Four categories, each with only the aliases it has a real use
 for — not a full primitive × category cross product:
 
-- **`space.inset.*`** — padding inside a component. `none`, `xs`, `sm`, `md`, `lg`,
-  `xl`, `2xl` (0–24px).
+- **`space.inset.*`** — padding inside a component. `none`, `3xs`, `xs`, `sm`, `md`, `lg`,
+  `xl`, `2xl` (0–24px). `3xs` is the tightest step (2px) — reserved for control-internal
+  insets like Switch's thumb padding, not general control padding (use `xs` or above for
+  that).
 - **`space.stack.*`** — vertical gap between stacked elements. `none`, `xs`, `sm`, `md`,
   `lg`, `xl`, `2xl` (0–32px).
 - **`space.inline.*`** — horizontal gap between side-by-side elements. `none`, `xs`,
@@ -47,6 +50,7 @@ for — not a full primitive × category cross product:
 | Semantic | → Primitive | px |
 | --- | --- | --- |
 | `inset.none` / `stack.none` / `inline.none` | `space.none` | 0 |
+| `inset.3xs` | `space.3xs` | 2 |
 | `inset.xs` / `stack.xs` / `inline.xs` | `space.2xs` | 4 |
 | `inset.sm` / `stack.sm` / `inline.sm` | `space.xs` | 8 |
 | `inset.md` / `stack.md` / `inline.md` | `space.sm` | 12 |
@@ -95,10 +99,11 @@ Unlike color and typography, this foundation was built **Figma-first** — the V
 below were created and approved in Figma before any code existed, then mirrored here.
 
 - **`Primitive` collection**, single `Value` mode, variables grouped by `/`:
-  `space/none` … `space/5xl`, `FLOAT` type, scope `["GAP"]`.
+  `space/none` … `space/5xl` plus `space/3xs` (added with Switch V1, sits below `2xs`),
+  `FLOAT` type, scope `["GAP"]`.
 - **`Semantic Space` collection**, single `Default` mode, variables under `inset/*`,
   `stack/*`, `inline/*`, `layout/*`, each an **alias** to a `Primitive` Variable,
-  scope `["GAP"]`.
+  scope `["GAP"]`. Includes `inset/3xs` (added with Switch V1).
 - A "Spacing Specimen — V1" frame in the Figma file demonstrates every primitive step
   and semantic category with bound padding/gap values and px labels.
 - Components in Figma bind padding/gap to **Semantic Space** variables only, mirroring

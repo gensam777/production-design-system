@@ -2,6 +2,7 @@
   "space": {
     "inset": {
       "none": { "$value": "{space.none}", "$type": "dimension", "$description": "Explicit zero-padding override (flush variant)." },
+      "3xs": { "$value": "{space.3xs}", "$type": "dimension", "$description": "Tightest inset — a thumb-inside-track type inset (e.g. Switch's thumb padding). Added alongside Switch V1; not intended for general control padding, use xs or above for that." },
       "xs": { "$value": "{space.2xs}", "$type": "dimension", "$description": "Badges, tags, chips." },
       "sm": { "$value": "{space.xs}", "$type": "dimension", "$description": "Compact controls (small button, dense input)." },
       "md": { "$value": "{space.sm}", "$type": "dimension", "$description": "Default control padding (button, input, list item)." },
