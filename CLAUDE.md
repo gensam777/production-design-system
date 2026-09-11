@@ -56,6 +56,8 @@ this file exclusively.
 | Button | `180:10` ("Button") | Outer: `115:224` (72 variants — Variant × Size × State). Nested: `678:802` ("Button Content", 36 variants — Size × Icon Layout × Tone). | See `docs/design-to-code-mappings.md` (Button section) for the full architecture. |
 | Input | `714:10` ("Input") | Outer: `722:305` (24 variants — Size × Interaction × Validation). Nested Input Content, six sets (one per Size × Tone, 8 variants each = 48 total): `736:1018` (Sm/Default), `746:9` (Md/Default), `746:1018` (Lg/Default), `736:1019` (Sm/Disabled), `746:1017` (Md/Disabled), `746:1019` (Lg/Disabled). | See `docs/design-to-code-mappings.md` (Input section) for the full architecture. |
 | Checkbox | `769:9` ("Checkbox") | `769:74` (12 variants — Selection × Interaction) | Flat set, no nesting. |
+| Radio (Figma only — React not yet built, verified 2026-09-11) | `903:9` ("Radio") | `905:44` (8 variants — Selected × Interaction) | Flat set, no nesting — mirrors Checkbox minus Indeterminate. Reference component: Checkbox. |
+| Radio Group (Figma only — React not yet built, verified 2026-09-11) | `907:1396` ("Radio Group") | `907:1435` (2 variants — Validation) | Composes Radio instances; maps to native `<fieldset>`/`<legend>` in code, not `role="radiogroup"` (user-confirmed decision). No `docs/design-to-code-mappings.md` entry yet — deferred until the React implementation pass per the component-production skill's step ordering. |
 
 Node IDs are internal Figma identifiers, not a stable public API — re-verify with the
 Figma MCP tools (`get_metadata`/`get_design_context`) before relying on them if this file

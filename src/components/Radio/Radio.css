@@ -1,0 +1,146 @@
+/**
+ * Radio (V1). Consumes generated token custom properties from
+ * src/tokens/build/css/variables.css — run `npm run tokens:build` first, or these custom
+ * properties are undefined. See docs/design-to-code-mappings.md for the full Figma <->
+ * code parity table.
+ *
+ * Visual circle (16px) and interaction target (24px) are component-owned constants, not
+ * tokens — same convention as Checkbox's control sizing (see Checkbox.css and
+ * governance/decisions/0010): no second control has asked for these dimensions yet.
+ *
+ * One size only in V1 — same reasoning as Checkbox: a radio stays visually stable
+ * relative to whatever body/label text size it sits beside, unlike Button/Input's own
+ * control sizing.
+ *
+ * Optical alignment: unlike Checkbox (whose box position was independently measured
+ * against real rendered DOM — see Checkbox.css), Radio uses plain `align-items: center`
+ * here, matching the naive geometric centering used in the approved Figma file. This has
+ * not yet been re-measured against Radio's own rendered Storybook output — do that before
+ * promoting Radio past Alpha, and switch to `flex-start` + a measured offset (Checkbox's
+ * approach) only if a real misalignment is found.
+ */
+
+.ds-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-inline-sm);
+}
+
+/* ---- Hit area / interactive target ----
+   24×24 minimum (WCAG 2.2 SC 2.5.8) even though the visual circle stays 16×16 — the
+   native <input> fills the whole hit area (invisible, opacity: 0) so the entire 24×24
+   region is clickable/tappable, not just the smaller visible circle. */
+.ds-radio__control {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ds-radio__input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.ds-radio__input:disabled {
+  cursor: not-allowed;
+}
+
+/* ---- Visual box (16×16 circle, purely decorative — the input above owns all real
+   state) ---- */
+.ds-radio__box {
+  position: relative;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-default);
+  transition:
+    background-color var(--motion-micro),
+    border-color var(--motion-micro),
+    box-shadow var(--motion-micro);
+}
+
+/* Hover — native CSS, not a React prop. */
+.ds-radio__input:hover:not(:disabled) ~ .ds-radio__box {
+  border-color: var(--color-border-strong);
+}
+
+/* Focus-visible — same box-shadow double-ring technique as Checkbox/Button/Input. */
+.ds-radio__input:focus-visible ~ .ds-radio__box {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-focus-ring-offset),
+    0 0 0 4px var(--color-focus-ring);
+}
+
+/* ---- Selected (native :checked) ----
+   Border recolored to match the fill rather than removed, same technique Checkbox uses —
+   avoids a subpixel seam where the border would otherwise disappear. */
+.ds-radio__input:checked ~ .ds-radio__box {
+  border-color: var(--color-action-primary-default);
+  background-color: var(--color-action-primary-default);
+}
+.ds-radio__input:checked:hover:not(:disabled) ~ .ds-radio__box {
+  border-color: var(--color-action-primary-hover);
+  background-color: var(--color-action-primary-hover);
+}
+
+/* ---- Disabled — native :disabled, styled after Selected so it always wins the cascade
+   tie (Disabled + Selected renders with the disabled treatment, never the active blue),
+   same precedence rule Checkbox/Input use. ---- */
+.ds-radio__input:disabled ~ .ds-radio__box {
+  border-color: var(--color-border-subtle);
+  background-color: var(--color-surface-disabled);
+}
+.ds-radio__input:disabled:checked ~ .ds-radio__box {
+  border-color: var(--color-action-primary-disabled);
+  background-color: var(--color-action-primary-disabled);
+}
+
+/* ---- Inner dot (shown only when Selected) ----
+   Geometry matches the approved Figma component: 8×8, centered, radius.full. Uses
+   `background-color` (not `currentColor`/stroke like Checkbox's SVG marks) since it's a
+   filled circle with no stroke to speak of — a plain <span>, no SVG needed. */
+.ds-radio__dot {
+  display: none;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-action-primary-on-color);
+}
+.ds-radio__input:checked ~ .ds-radio__box .ds-radio__dot {
+  display: block;
+}
+.ds-radio__input:disabled:checked ~ .ds-radio__box .ds-radio__dot {
+  /* Matches the approved Figma Selected+Disabled dot color exactly — see
+     docs/design-to-code-mappings.md. */
+  background-color: var(--color-text-disabled);
+}
+
+/* ---- Label ---- */
+.ds-radio__label {
+  color: var(--color-text-primary);
+  font-family: var(--text-label-md-medium-font-family);
+  font-size: var(--text-label-md-medium-font-size);
+  font-weight: var(--text-label-md-medium-font-weight);
+  line-height: var(--text-label-md-medium-line-height);
+  letter-spacing: var(--text-label-md-medium-letter-spacing);
+  cursor: pointer;
+}
+.ds-radio:has(.ds-radio__input:disabled) .ds-radio__label {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}

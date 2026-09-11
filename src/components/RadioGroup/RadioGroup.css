@@ -1,0 +1,99 @@
+/**
+ * RadioGroup (V1). Consumes generated token custom properties from
+ * src/tokens/build/css/{variables,typography}.css — run `npm run tokens:build` first, or
+ * these custom properties are undefined. See docs/design-to-code-mappings.md for the full
+ * Figma <-> code parity table.
+ *
+ * Native <fieldset>/<legend> — ships its own reset for the browser's default fieldset
+ * border/padding/min-width and legend positioning, since this system controls all visual
+ * treatment via tokens rather than relying on browser defaults (same reasoning Input uses
+ * to reset native <input> chrome).
+ *
+ * Layout note (legend is deliberately NOT a flex item here): browsers are inconsistent
+ * about whether/how <legend> participates in a flex/grid container's `gap` — <legend> has
+ * special fieldset-caption box behavior in the CSS spec that predates flex support, and
+ * relying on it to sit correctly inside a `gap`-based flex column produced a smaller,
+ * unpredictable legend-to-options gap than Figma's Auto Layout in practice. The fix:
+ * `.ds-radio-group` stays in native block flow (<legend> in its normal, well-defined
+ * fieldset-caption position, not a flex item at all), and the legend->content gap is an
+ * explicit `margin-bottom` on the legend instead of a flex `gap` — same `space.stack.sm`
+ * token, applied via a mechanism that doesn't depend on cross-browser <legend> flex
+ * support. Items/support stay inside `.ds-radio-group__content`, a plain flex column with
+ * no <legend> involved, where `gap` is unambiguous.
+ */
+
+.ds-radio-group {
+  display: block;
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0; /* fieldset's default min-width: min-content can otherwise force overflow
+    in a surrounding flex/grid layout — same fix form libraries commonly apply, and it
+    applies to fieldset's own default sizing regardless of this component's own display
+    mode. */
+}
+
+/* ---- Legend ----
+   display: block + width: 100% overrides the browser's default legend sizing (which can
+   shrink to its content's min-width in some browsers) so it reliably spans the same width
+   as the content below it, matching Figma's Auto Layout fill behavior. margin-bottom is
+   the legend->content gap (space.stack.sm) — see the layout note above for why this is a
+   margin, not a flex gap. */
+.ds-radio-group__legend {
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  margin-bottom: var(--space-stack-sm);
+  color: var(--color-text-primary);
+  font-family: var(--text-label-md-medium-font-family);
+  font-size: var(--text-label-md-medium-font-size);
+  font-weight: var(--text-label-md-medium-font-weight);
+  line-height: var(--text-label-md-medium-line-height);
+  letter-spacing: var(--text-label-md-medium-letter-spacing);
+}
+
+/* ---- Content (items + support) — a plain flex column, no <legend> involved, so `gap`
+   behaves exactly as authored with no cross-browser ambiguity. ---- */
+.ds-radio-group__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-sm);
+}
+
+/* ---- Items (the Radio stack) ---- */
+.ds-radio-group__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-md);
+}
+
+/* ---- Support text (helper or error) ----
+   Uses caption/sm (12px), not caption/md (14px) — measured directly against the approved
+   Figma Radio Group support text node (fontSize 12), not assumed from Input's own Sm/Md
+   split. RadioGroup has no Size axis, so there's only one correct tier to match. */
+.ds-radio-group__support {
+  color: var(--color-text-tertiary);
+  font-family: var(--text-caption-sm-regular-font-family);
+  font-size: var(--text-caption-sm-regular-font-size);
+  font-weight: var(--text-caption-sm-regular-font-weight);
+  line-height: var(--text-caption-sm-regular-line-height);
+  letter-spacing: var(--text-caption-sm-regular-letter-spacing);
+}
+
+/* ---- Validation (error prop — not native CSS, an explicit controlled flag) ----
+   Changes ONLY the support text color, matching the approved Figma architecture exactly —
+   deliberately no border/background treatment on the group container. */
+.ds-radio-group--error .ds-radio-group__support {
+  color: var(--color-text-danger);
+}
+
+/* ---- Disabled — native :disabled on <fieldset> (a real, spec-defined pseudo-class for
+   listed form elements). Cascades disabled to every descendant form control natively —
+   no per-Radio prop-drilling needed. Only dims this component's own legend/support text;
+   the HTML spec's own "legend's own descendants are exempt from functional disabling"
+   quirk is about interactivity, not this purely visual color rule, so it applies fine. */
+.ds-radio-group:disabled .ds-radio-group__legend,
+.ds-radio-group:disabled .ds-radio-group__support {
+  color: var(--color-text-disabled);
+}

@@ -11,6 +11,8 @@ this table is updated by hand whenever a component ships or a mapping changes.
 | Button | _(Figma Button V1 component — link not captured in this pass)_ | `src/components/Button/Button.tsx` | See [Button](#button) below. |
 | Input | _(Figma Input V1 component — link not captured in this pass)_ | `src/components/Input/Input.tsx` | See [Input](#input) below. |
 | Checkbox | _(Figma Checkbox V1 component — link not captured in this pass)_ | `src/components/Checkbox/Checkbox.tsx` | See [Checkbox](#checkbox) below. |
+| Radio | Radio V1, page `903:9`, component set `905:44` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Radio/Radio.tsx` | See [Radio](#radio) below. |
+| Radio Group | Radio Group V1, page `907:1396`, component set `907:1435` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/RadioGroup/RadioGroup.tsx` | See [Radio Group](#radio-group) below. |
 
 - **Figma component** — the component/variant name as it appears in the Figma library.
 - **Figma link** — direct link to the node in the library file.
@@ -474,11 +476,23 @@ first-line alignment when a label wraps), then apply a small, fixed optical offs
 **The numeric offset is not shared with Figma.** Figma's own measured offset (a 2.5px
 shift, derived from Figma's text-layer render bounds) does not transfer to the browser —
 browser font metrics/line-boxes for the same semantic token (`text.label.md.medium`) are
-not pixel-identical to Figma's, and in this codebase the label actually renders at 14px
-(not the 16px assumed during the Figma-side measurement), so reusing Figma's number here
-would be tuning against the wrong font size entirely. The code-side value below was
-measured independently, directly against the rendered DOM in Storybook, via
-`getBoundingClientRect()` on `.ds-checkbox__box` and `.ds-checkbox__label`:
+not pixel-identical to Figma's. **Update (2026-09-11):** Figma's label was previously
+bound to raw 16px/Regular instead of the correct `font/size/sm` (14px) + `font/weight/
+medium` primitives — a genuine Figma authoring bug, confirmed by comparing against
+Button's and Input's own labels (both correctly bound to 14px/Medium) and fixed directly
+in Figma. This did **not** change the 2.5px-vs-0.75px non-transferability conclusion
+above (Figma and browser font metrics were never going to match pixel-for-pixel
+regardless), but it does retire the "14px vs the 16px assumed" framing this note
+previously used — Figma's own label is correctly 14px/Medium now too, matching code. The
+code-side value below was measured directly against the rendered DOM in Storybook, via
+`getBoundingClientRect()` on `.ds-checkbox__box` and `.ds-checkbox__label` —
+**but that measurement was taken before Storybook reliably loaded the real Inter font**
+(see `docs/foundations/typography.md`'s "Font loading is a consumer responsibility"
+section, added the same day this Figma fix landed). The measured 0.75px value may be
+tuned against a fallback system font's metrics, not Inter's — it has not been re-verified
+since Storybook started self-hosting Inter via `@fontsource/inter`. Treat this number as
+provisional until re-measured; do not assume it's still exactly right just because it
+was rigorously measured once.
 
 - `.ds-checkbox__control` uses `align-items: flex-start` (not `center`) specifically so
   the box's position is a **direct, linear** offset from the hit area's top — a `center`-
@@ -585,3 +599,246 @@ exists today:
 - Jetpack Compose's native `TriStateCheckbox` is a useful reference precedent for the
   three-value Selection model this contract assumes — see the Figma documentation page's
   Cross-platform notes section for the full rationale.
+
+## Radio
+
+- React: `src/components/Radio/Radio.tsx`
+- Styles: `src/components/Radio/Radio.css`
+- Storybook: `src/components/Radio/Radio.stories.tsx` (`Components/Radio`)
+- Figma: Radio V1 (approved), flat 8-variant component set. Page `903:9` ("Radio"),
+  component set `905:44`. See `CLAUDE.md`'s Canonical Figma Source table for the current
+  node references.
+
+### Figma architecture (current, authoritative)
+
+Figma Radio is a single flat component set — same reasoning as Checkbox: there is no
+structurally-crossing axis (like Button/Input's Icon Layout) to factor into a separate
+nested Content component.
+
+| Component set | Variant axes | Count | Owns |
+| --- | --- | --- | --- |
+| **Radio** | Selected × Interaction | 8 | Visual circle (border/fill per state), inner dot, focus ring, Label, Show label |
+
+Selected (Unselected/Selected) and Interaction (Default/Hover/Focus-visible/Disabled) are
+the only two variant axes — no Indeterminate; a radio has no partial-selection concept,
+unlike Checkbox.
+
+### Reference component
+
+Radio's closest reference component is **Checkbox** — same native-input + label-
+association pattern, same flat (no nested Content) architecture, same one-fixed-size
+convention. Differences are deliberate, not oversights: no Indeterminate axis, a circular
+(`radius.full`) visual box instead of a rounded square, and a plain filled inner dot
+instead of an SVG checkmark/dash.
+
+### Prop mapping
+
+| Figma property | React prop | Notes |
+| --- | --- | --- |
+| Selected (Unselected/Selected) | native `checked?: boolean`, `defaultChecked?: boolean` | Standard `<input>` HTML attributes, passed through. No `selected` prop exists. |
+| Interaction (Default/Hover/Focus-visible/Disabled) | **not a prop, except Disabled** | Hover and Focus-visible are native CSS states (`:hover`, `:focus-visible`). Disabled is the native HTML `disabled` attribute. |
+| Label | `label?: React.ReactNode` | Renders a real `<label>` associated via `htmlFor`/`id`. Omitted entirely (not an empty string) when not passed. |
+| Show label (nested boolean) | **not a prop** | Derived: no `label` prop passed → no `<label>` rendered — same pattern as Checkbox's Show label. |
+| — (native, no Figma equivalent) | `name?: string` | Standard `<input>` attribute, passed through via `...rest`. Sibling Radios sharing the same `name` is what gives native mutual exclusivity — Radio itself has no group concept; see [Radio Group](#radio-group). |
+
+No `selected`, `interaction`, `visualState`, or `size` prop exists — `RadioProps` is
+`Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> & { label? }`, the smallest
+surface that covers the approved Figma architecture — even smaller than `CheckboxProps`
+since there's no `indeterminate` equivalent.
+
+### Size parity
+
+| | Value |
+| --- | --- |
+| Visual circle | 16×16 (component constant, not a token — same convention as Checkbox) |
+| Interaction target | 24×24 minimum (component constant), via a `position: absolute; inset: 0` native `<input>` sized to the full hit area, invisible (`opacity: 0`) but real and interactive |
+| Inner dot | 8×8 (component constant), shown only when Selected |
+| Radius | `radius.full` (visual circle and inner dot) |
+
+One size only — same convention as Checkbox: a radio stays visually stable relative to
+whatever body/label text size it sits beside.
+
+### Optical alignment (Figma → code) — intentionally not carried over from Checkbox
+
+Checkbox's box position uses a specific measured offset (`top: 0.75px` on
+`align-items: flex-start`), independently measured against Checkbox's own rendered DOM —
+see `Checkbox.css` and this file's Checkbox section. That exact number is **not** reused
+here: it was measured for Checkbox's specific box/label metrics and copying it into Radio
+without re-measuring would be tuning against the wrong shape. Radio instead uses plain
+`align-items: center` on `.ds-radio__control`, matching the naive geometric centering the
+approved Figma file itself uses (no measured correction was applied there either — see
+the Radio Figma documentation page's own note on this). Consequence: unlike Checkbox, a
+multi-line wrapped Radio label centers against the full wrapped block rather than aligning
+to the first line — see the `Long label / wrapping` Storybook story. Re-measure against
+real rendered output (the same `getBoundingClientRect()` technique Checkbox's offset was
+derived from) before promoting Radio past Alpha, and switch to Checkbox's
+`flex-start` + measured-offset technique only if a real visual misalignment is found.
+
+### Color tokens by selection/interaction
+
+| State | Border | Background | Dot |
+| --- | --- | --- | --- |
+| Unselected, Default | `border.default` | `surface.default` | — |
+| Unselected, Hover | `border.strong` | `surface.default` | — |
+| Selected, Default | `action.primary.default` | `action.primary.default` | `action.primary.on-color` |
+| Selected, Hover | `action.primary.hover` | `action.primary.hover` | `action.primary.on-color` |
+| Disabled, Unselected | `border.subtle` | `surface.disabled` | — |
+| Disabled, Selected | `action.primary.disabled` | `action.primary.disabled` | `text.disabled` |
+| Label | — | — | `text.primary`, disabled → `text.disabled` |
+| Focus | `focus.ring` / `focus.ring-offset` (box-shadow, same technique as Checkbox/Button/Input) | | |
+
+No new tokens were created — every value above is an existing semantic token, matching
+the approved Figma Token mapping exactly (verified node-by-node against Checkbox's own
+variable bindings before building, not re-derived from the token names alone).
+
+### Accessibility (implemented and spot-checked, not a certified audit)
+
+- Native `<input type="radio">` — never a styled `<div>`. The `type` prop is omitted from
+  `RadioProps` (`Omit<..., 'type'>`) and hardcoded internally, same pattern as Checkbox.
+- `<label>` renders only when `label` is passed, associated via `htmlFor`/`id`
+  (`useId()`-generated when the caller doesn't supply their own `id`).
+- When `label` is omitted, the caller is expected to supply `aria-label` or
+  `aria-labelledby` directly — both pass through natively.
+- `disabled` is the native HTML attribute, passed straight through.
+- Space (or clicking the associated `<label>`) selects the radio natively — no custom
+  keydown handling.
+- **Mutual exclusivity and arrow-key navigation both come from the browser once sibling
+  Radios share a native `name`** — this is not something Radio itself implements; there is
+  no JS-driven "only one checked" logic anywhere in `Radio.tsx`. See the `Grouped`
+  Storybook story for a live demonstration with no `RadioGroup` involved.
+- Focus-visible uses the native `:focus-visible` pseudo-class directly on the input.
+- The visual circle and inner dot are `aria-hidden="true"` — purely decorative.
+- **A lone Radio outside a labeled group is an accessibility anti-pattern** — see
+  [Radio Group](#radio-group). Radio itself has no way to enforce this; it's a usage
+  guideline documented on the Figma Radio page's Usage Guidance / Do-Don't cards.
+- Not yet verified: screen-reader spot-check, 200% zoom/reflow, full WCAG 2.2 AA sweep —
+  per `governance/accessibility.md`, required before "stable," not claimed here.
+
+### Cross-platform contract (shared design intent, not yet implemented elsewhere)
+
+- **Shared**: Unselected/Selected, a Disabled state, label association, and interaction
+  intent (focus/press feedback exists on every platform, implemented natively per-platform
+  rather than as a shared prop) — same shape as Checkbox's own contract.
+- **Not shared** (platform-owned rendering): the exact focus/ripple/press visual
+  treatment.
+- **Visual circle**: 16×16 on every platform.
+- **Interaction target**: 24×24 minimum on web (WCAG 2.2 SC 2.5.8); touch/mobile
+  platforms should target approximately 44×44, same guidance as Checkbox.
+- **Mutual exclusivity**: on web, sibling Radios sharing a native `name`. Each platform
+  expresses "these radios form one exclusive set" through its own native mechanism (e.g.
+  a shared selection-state binding on React Native/SwiftUI/Compose) — this is a shared
+  *intent*, not shared implementation code.
+
+## Radio Group
+
+- React: `src/components/RadioGroup/RadioGroup.tsx`
+- Styles: `src/components/RadioGroup/RadioGroup.css`
+- Storybook: `src/components/RadioGroup/RadioGroup.stories.tsx` (`Components/RadioGroup`)
+- Figma: Radio Group V1 (approved), 2-variant component set composing Radio instances.
+  Page `907:1396` ("Radio Group"), component set `907:1435`. See `CLAUDE.md`'s Canonical
+  Figma Source table for the current node references.
+
+### Why this component exists
+
+Radio is structurally different from Checkbox in a way that matters for grouping:
+Checkbox never needed a "CheckboxGroup" because each checkbox is independently meaningful
+and grouping is purely visual/app-composed (see Checkbox's own "select all" Storybook
+pattern, with no group component involved). Radio's mutual exclusivity is a *native HTML
+requirement* — sibling `<input type="radio">`s only behave as a set when they share a
+`name` — and WAI-ARIA authoring practice expects the set to have its own accessible group
+name. Radio Group exists specifically to give that pairing (grouped Radios + a group
+name) a real component, confirmed as a genuinely new architectural surface (not a
+variation of an existing pattern) before it was built.
+
+### Figma architecture (current, authoritative)
+
+| Component set | Variant axes | Count | Owns |
+| --- | --- | --- | --- |
+| **Radio Group** | Validation | 2 | Legend, Show legend, Support text, Show support text; composes 3 example Radio instances in the Items region |
+
+Unlike Button/Input/Checkbox, Radio Group's variant axis (Validation) is **not** crossed
+with an Interaction axis — Interaction lives on the individual Radio children, not on the
+group itself, so Validation stands alone as a single 2-value axis.
+
+### Grouping & native semantics (confirmed decision)
+
+Radio Group maps to native **`<fieldset>`/`<legend>`** in code — not
+`role="radiogroup"`/`aria-labelledby`. This was an explicit choice between two real
+options (both were presented and discussed before building): `<fieldset>`/`<legend>`
+gets the group role and accessible name for free from the browser at the cost of a CSS
+reset for the browser's default fieldset border/padding; `role="radiogroup"` would have
+been fully stylable with no reset needed but requires manual `aria-labelledby` wiring.
+`<fieldset>`/`<legend>` was chosen.
+
+Radio Group does **not** generate or inject a shared `name` onto its children — it stays
+purely structural/presentational. The consumer gives every contained `Radio` the same
+`name` themselves, exactly as they would with plain HTML radios (see the `Playground`
+Storybook story). This mirrors the rest of this system's consistent preference for native
+HTML behavior over bespoke prop-injection abstractions (no component in this system clones
+or reaches into its `children`'s props).
+
+**Native `disabled` cascades for free.** `<fieldset disabled>` is a real, spec-defined
+HTML behavior that automatically disables every descendant form control — including every
+contained `Radio`'s native `<input>` — with zero extra code. This resolved what had been
+an open question during the Figma pass (whether group-level Disabled needed its own
+Figma variant or React prop-drilling): it needs neither. `RadioGroupProps` passes
+`disabled` straight through via `...rest` (`FieldsetHTMLAttributes`), and the browser
+does the rest.
+
+### Prop mapping
+
+| Figma property | React prop | Notes |
+| --- | --- | --- |
+| Legend (TEXT) | `legend?: React.ReactNode` | Renders a native `<legend>`. Named `legend`, not `label` (unlike Input/Checkbox's `label`) — deliberately literal to what it renders, confirmed explicitly rather than defaulting to this system's usual `label` naming. |
+| Show legend (BOOLEAN) | **not a prop** | Derived: no `legend` passed → no `<legend>` rendered. If omitted, the consumer must supply `aria-label`/`aria-labelledby` directly (both pass through natively) — RadioGroup must never ship with no accessible name. |
+| Support text (TEXT) | `helperText?: React.ReactNode` | Shown below the items unless superseded by `errorText` — same one-region, helper-or-error pattern as Input. |
+| Show support text (BOOLEAN) | **not a prop** | Derived: no `helperText`/`errorText` content → no support region rendered. |
+| Validation (Default/Error, VARIANT) | `error?: boolean` | Default `false`. Changes **only** the support text color/content — deliberately no border/background change on the group, unlike Input's Validation. |
+| — | `errorText?: React.ReactNode` | Shown in the support region instead of `helperText` while `error` is true. |
+| Items (Radio instances) | `children: React.ReactNode` | The consumer renders `Radio` elements as children. RadioGroup does not clone/inspect them — see Grouping & native semantics above. |
+| — (native, no Figma equivalent) | native `disabled` (standard `<fieldset>` HTML attribute, passed through) | Cascades to every child `Radio` natively — see above. |
+
+### Validation — confirmed to differ from Input (important)
+
+Input's `error` state sets a real native invalid signal: `border.danger` **and**
+`aria-invalid="true"` on the `<input>`, backed by the browser's own constraint-validation
+model. Radio Group's `error` **cannot** do the equivalent: `<fieldset>` has no native
+invalid-state concept, and `aria-invalid` is not a standardized, reliably-announced state
+on `<fieldset>` across screen readers. `RadioGroup`'s `error` is therefore a **visual and
+textual signal only** — it recolors the support text and swaps its content, and sets
+nothing else. `aria-describedby` on the `<fieldset>` (pointing at the generated support-
+text id) is what actually associates the message with the group for assistive tech — this
+is the mechanism doing the real accessibility work here, not a fieldset-level invalid
+state. Do not add `aria-invalid` to `RadioGroup` in a future revision without re-deriving
+whether it's actually meaningful — it wasn't for this V1.
+
+### Accessibility (implemented and spot-checked, not a certified audit)
+
+- Native `<fieldset>`/`<legend>` — never a styled `<div>` with ARIA bolted on.
+- **Confirmed rule**: visible, native `<legend>` (via the `legend` prop) is the preferred
+  way to name the group. If `legend` is omitted, the group **must** still receive an
+  accessible name through `aria-label` or `aria-labelledby` passed directly to
+  `RadioGroup` (both pass through via `...rest`) — RadioGroup must never silently ship
+  with no accessible name at all. This is enforced by documentation/convention only (no
+  runtime warning), the same level of enforcement Checkbox/Input apply to their own
+  `label` prop — consistent with this codebase never adding dev-time a11y warnings.
+  See the `Without legend` Storybook story.
+- `aria-describedby` on the `<fieldset>` points at a generated support-text id
+  (`${groupId}-support`) only when support content is actually rendered.
+  Same pattern as Input.
+- Arrow-key navigation between same-name Radios is native browser behavior, not something
+  RadioGroup implements — see Radio's own Accessibility section.
+- Not yet verified: screen-reader spot-check, 200% zoom/reflow, full WCAG 2.2 AA sweep —
+  required before "stable" per `governance/accessibility.md`.
+
+### Cross-platform contract (shared design intent, not yet implemented elsewhere)
+
+- **Shared**: a group accessible name, an ordered set of mutually-exclusive options, a
+  Disabled state that cascades to every option, and helper/error messaging for the group
+  as a whole.
+- **Not shared** (platform-owned): the exact mechanism for cascading Disabled (native
+  `<fieldset disabled>` on web has no guaranteed equivalent elsewhere) and for grouping
+  (native `name` on web vs. a shared selection-state binding on other platforms).
+- **Not claimed**: an "invalid state" concept for the group on any platform — this was
+  confirmed not to exist natively even on web; other platforms should be assumed to have
+  the same gap unless proven otherwise.

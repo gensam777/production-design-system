@@ -168,6 +168,33 @@ This is a **breaking rename**, not a value change — every mapped pair has iden
 these tokens yet (`src/components/` is still empty), so there are no call sites to update
 in this repo; a consuming product on the old names would need to rename references.
 
+## Font loading is a consumer responsibility
+
+This library defines Inter as the default `sans` family (`font.family.sans` — see
+Primitives above) and ships that as a **token value**, but does not bundle or serve the
+actual Inter font files as part of the published package. `src/index.ts` never imports a
+font, and no component imports one either — every component only ever consumes the
+`text.*`/`font.*` custom properties, which resolve to a `font-family` string
+(`Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`), not an
+actual loaded typeface.
+
+**Consequence**: a consuming application must provide Inter itself (self-hosted, a font
+CDN, or an OS/browser that already has it installed) for text to actually render in
+Inter. Without that, every `text.*` role still applies the correct size/weight/line-
+height/letter-spacing — those are real, resolved numbers — but the *typeface* silently
+falls through the stack to the platform's default UI font (San Francisco / Segoe UI /
+Roboto). This is expected, standard behavior for a component library that ships tokens,
+not fonts — the same way this library doesn't bundle icons beyond the provider-neutral
+`Icon` contract (see `docs/foundations/icons.md`).
+
+**Storybook is the one exception**, and only for development/review purposes: it self-
+hosts Inter via `@fontsource/inter` (a `devDependency`, imported once in
+`.storybook/preview.ts`, weights 400/500/600/700 only — the four this foundation
+actually defines) so that visual review in Storybook reflects the real intended typeface,
+not whatever happens to be installed on the reviewer's machine. This package is never
+imported by `src/index.ts` or any component — it does not ship in `dist/` and is not a
+dependency of the published library.
+
 ## Accessibility & readability
 
 - Body text floor is 16px (`md`) — `xs`/`sm` are reserved for captions/labels, never

@@ -1,5 +1,25 @@
 import type { Preview } from '@storybook/react-vite';
 
+// Inter, self-hosted via @fontsource (a Storybook-only devDependency — never imported by
+// any component or by src/index.ts, so it never ships in dist/ or becomes a runtime
+// dependency of the published package). Without this, every `font-family: Inter, ...`
+// declaration silently falls through Inter to the OS default UI font (San Francisco /
+// Segoe UI / Roboto) on any machine that doesn't happen to have Inter installed
+// system-wide — Storybook would still "work" but wouldn't be a trustworthy visual
+// reference for what the design tokens actually specify. Only the 4 weights the
+// typography foundation defines (`font.weight.regular/medium/semibold/bold` — see
+// docs/foundations/typography.md) are imported, not the full family (100–900 + italics),
+// to avoid pulling in weights this system never uses.
+//
+// This is a Storybook-only fix, not a library-level one: production consumers of this
+// package are still responsible for providing their own Inter (or an equivalent
+// substitute font) the same way any design-system consumer supplies its own webfonts —
+// see "Font loading is a consumer responsibility" in docs/foundations/typography.md.
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
+
 // Generated token CSS (gitignored, produced by `npm run tokens:build`) — the same three
 // files, same order, that src/index.ts now imports to build the package's public
 // dist/index.css (see the comment there for why this exact order matters: variables,

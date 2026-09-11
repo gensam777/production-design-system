@@ -53,7 +53,7 @@ per **Pause points**) — don't just note it inline in this skill's own output a
 Load `figma-use`/`figma-design-to-code` skills as needed for the specific Figma
 operation, and inspect the target page/component before making any change to it.
 
-## The 14-step workflow
+## The 15-step workflow
 
 ### 1. Inspect existing system
 
@@ -288,7 +288,96 @@ the whole check — run them, but do not claim WCAG 2.2 AA conformance from auto
 results alone. Explicitly list what still needs manual verification (screen-reader
 spot-check, 200% zoom/reflow, full AA sweep) rather than omitting it.
 
-### 13. Run validation
+### 13. Strict Figma ↔ code token parity audit (mandatory — blocks "ready for commit")
+
+A component is **not** ready for commit just because it looks right and the build passes.
+Every Figma-bound property must resolve to the *exact same* generated token in code — not
+a nearby one, not an approximation. This step is what verifies that, and it is required
+for every component this skill touches, not just ones where a visual bug was reported.
+Skipping it (or doing it only when something already looks broken) is itself a violation
+of this rule — token drift is often invisible until a rebrand, a dark-mode pass, or a
+second consumer surfaces it, which is exactly why it can't be optional.
+
+**Required parity flow, for every bound property:**
+
+```
+Figma semantic token → token source (src/tokens/{primitive,semantic}/*.json)
+                     → generated platform token (src/tokens/build/**, e.g. a CSS custom
+                       property or the JS token export)
+                     → component implementation (the actual property/class/style rule)
+```
+
+**Scope — audit every category that applies to the component, not just the one that
+prompted the task:** color, typography, spacing, radius, border, focus, icon size,
+motion, elevation/shadow, layout, and responsive values where applicable. A component
+that only visibly uses color and spacing can still have a silent typography or motion
+mismatch — check the category, not just what's visible in a screenshot.
+
+**How to inspect Figma bindings — do not eyeball a screenshot or a Figma doc-page
+description.** Use the Figma MCP tools (`get_variable_defs`, or `use_figma` reading
+`node.boundVariables`/`node.fills`/`node.strokes`/`node.effects`/`node.fontName`/etc.
+directly) to read the actual bound variable on the actual node, the same way the Radio/
+RadioGroup token-parity audit did — resolve the variable to its name and value, don't
+infer it from what the property "looks like" it should be.
+
+**Rules while auditing:**
+
+- **Do not approximate.** If Figma binds `border.strong`, code must use
+  `--color-border-strong`, never `--color-border-default` or `--color-border-subtle`
+  because it "looks close enough."
+- **Do not substitute a different-but-similar semantic token.** `text.caption.sm.regular`
+  and `text.caption.md.regular` are different tokens with different resolved values
+  (12px vs. 14px) even though they share a role name — matching the *role* isn't enough,
+  the exact token must match. (This is the exact class of bug the Radio Group audit
+  found: `caption.md` in code against a Figma node actually bound to `caption.sm`.)
+- **Do not hardcode a value when the Figma property is token-bound**, even if the
+  hardcoded number is numerically correct today — it silently drifts the next time the
+  token's value changes.
+- **Do not silently create platform drift** — a mismatch is either fixed or explicitly
+  documented as an intentional platform difference (see below). It is never just left.
+
+**Produce a parity table** with exactly these columns, one row per audited property:
+
+| Figma property | Figma token | Resolved value | Generated code token | Current code usage | Status | Intentional difference |
+| --- | --- | --- | --- | --- | --- | --- |
+
+`Status` is one of: `Match`, `Mismatch (fixed)`, `Mismatch (Figma corrected)`,
+`Component constant (no token)`, or `Platform difference (documented)`.
+
+**Resolving a mismatch — decide which side is canonical, don't just patch code
+reflexively:**
+
+- Compare against how the same token/role is used elsewhere in the system (other shipped
+  components, the relevant `docs/foundations/*.md` page) to determine which side drifted.
+  If Figma disagrees with itself across components (e.g. one component's label is bound
+  correctly and another's isn't), the *foundation* is canonical, not whichever component
+  was built first — see the Checkbox/Radio label-token fix as the precedent (Button and
+  Input had it right; Checkbox and Radio were the outliers; Figma was corrected to match
+  the foundation, not the other way around).
+- If code is the outlier, fix code to reference the correct generated token.
+- If Figma is the outlier, fix the Figma binding directly (with the user's authorization
+  if the task's instructions restrict Figma edits that turn) and say so in the report —
+  don't leave code silently diverging from a Figma mistake to "match" it.
+
+**Two narrow exceptions — do not treat these as mismatches:**
+
+- **Component-owned constants.** If Figma itself intentionally uses a fixed, non-
+  tokenized value (e.g. Checkbox/Radio's 24×24 hit target, Button/Input's 32/40/48px
+  control heights), code may use the same literal component-level constant. Do **not**
+  invent a new foundation token just to eliminate a literal that Figma never tokenized in
+  the first place — that violates the "no speculative tokens" rule in step 4.
+- **Platform differences with no literal equivalent.** If a Figma concept has no
+  corresponding CSS/native concept (Figma's `lineHeight: AUTO`, a Figma-only Interaction/
+  State documentation axis, a Figma `Show label`-style boolean with no prop equivalent),
+  do not force a fake 1:1 mapping. Document the semantic intent instead, the way Button's
+  Focus-visible implementation difference is already documented in
+  `docs/design-to-code-mappings.md`.
+
+This audit's findings fold into the Final report's **Token parity audit** item (see
+below) — every mismatch found must show as fixed or explicitly documented as intentional
+before step 15 can answer "ready for commit: yes."
+
+### 14. Run validation
 
 Run whatever applies to the change:
 
@@ -304,7 +393,7 @@ Only run tests if an established test runner actually exists in the repo at the 
 (none does as of this skill's writing — Vitest/Testing Library are deferred per ADR
 0001; don't invent a test command). Report every command's pass/fail, not just a summary.
 
-### 14. Produce final audit report, then stop
+### 15. Produce final audit report, then stop
 
 Do not run `git add`/`git commit`/`git push`. End the turn after the report below and
 let the user review and commit.
@@ -326,14 +415,22 @@ Always end with a report structured exactly as:
 7. **Storybook coverage** — list of stories added/updated.
 8. **Accessibility findings** — checklist results plus anything still requiring manual
    verification.
-9. **Figma ↔ code mapping** — confirmation `docs/design-to-code-mappings.md` was updated,
-   with a link to the new/changed section.
-10. **Intentional platform differences** — anything where Figma and code, or web vs.
-    other platforms, deliberately diverge.
-11. **Validation results** — pass/fail per command from step 13.
-12. **Manual checks still required** — anything a human still needs to do (screen-reader
+9. **Token parity audit** — the full parity table from step 13 (every audited category:
+   color, typography, spacing, radius, border, focus, icon size, motion, elevation/
+   shadow, layout, responsive where applicable), every mismatch's resolution, and which
+   side (Figma or code) was corrected for each.
+10. **Figma ↔ code mapping** — confirmation `docs/design-to-code-mappings.md` was
+    updated, with a link to the new/changed section.
+11. **Intentional platform differences** — anything where Figma and code, or web vs.
+    other platforms, deliberately diverge (including any from the parity audit).
+12. **Validation results** — pass/fail per command from step 14.
+13. **Manual checks still required** — anything a human still needs to do (screen-reader
     testing, design review, etc.).
-13. **Ready for commit?** — a direct yes/no, with reasons if no.
+14. **Ready for commit?** — a direct yes/no. "Yes" requires the step 13 parity audit to
+    show zero unresolved mismatches (every row is `Match`, a fixed/corrected mismatch, a
+    documented component constant, or a documented platform difference) — a component
+    with an open, unfixed token mismatch is never ready for commit, even if everything
+    else passes.
 
 ## Quality bar
 
