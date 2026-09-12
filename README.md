@@ -41,3 +41,5 @@ npm run lint
 | Figma ↔ component mapping | `docs/design-to-code-mappings.md` (manual) |
 
 See `CLAUDE.md` for more detail and conventions.
+
+CI and Chromatic are enabled for this project.
