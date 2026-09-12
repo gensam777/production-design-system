@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import tsParser from '@typescript-eslint/parser';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
 import globals from 'globals';
 
 export default [
@@ -28,6 +29,19 @@ export default [
       // time a future component references a new DOM type — reintroducing this exact
       // failure one type at a time instead of once.
       globals: globals.browser,
+    },
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+    },
+    rules: {
+      // Base no-unused-vars doesn't understand TS-only constructs — it misreads a named
+      // parameter in a function-type signature (e.g. `onValueChange?: (value: string) =>
+      // void` in an interface) as an unused binding, since there's no function body for
+      // the parameter to be "used" in. Swap in the TS-aware version, which correctly
+      // skips type-only positions; this is the standard pairing for `@typescript-eslint/
+      // parser` and doesn't pull in the full typescript-eslint recommended rule set.
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'error',
     },
   },
 ];

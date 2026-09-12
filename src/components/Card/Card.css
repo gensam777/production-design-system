@@ -1,0 +1,40 @@
+/**
+ * Card (V1). Consumes generated token custom properties from
+ * src/tokens/build/css/variables.css — run `npm run tokens:build` first, or these
+ * custom properties are undefined. See docs/design-to-code-mappings.md for the full
+ * Figma <-> code parity table.
+ */
+
+.ds-card {
+  box-sizing: border-box;
+  border-radius: var(--radius-container);
+}
+
+.ds-card * {
+  box-sizing: border-box;
+}
+
+/* ---- Variant ---- */
+
+.ds-card--outlined {
+  border: 1px solid var(--color-border-default);
+  background-color: var(--color-surface-default);
+}
+
+.ds-card--elevated {
+  border: none;
+  background-color: var(--color-surface-raised);
+  box-shadow: var(--elevation-raised);
+}
+
+/* ---- Padding ---- */
+
+.ds-card--padding-none {
+  padding: var(--space-inset-none);
+}
+.ds-card--padding-md {
+  padding: var(--space-inset-md);
+}
+.ds-card--padding-lg {
+  padding: var(--space-inset-lg);
+}

@@ -1,0 +1,39 @@
+/**
+ * Tooltip (V1). Consumes generated token custom properties from
+ * src/tokens/build/css/{variables,typography}.css — run `npm run tokens:build` first, or
+ * these custom properties are undefined. See docs/design-to-code-mappings.md for the full
+ * Figma <-> code parity table.
+ *
+ * Positioning itself (top/left via floatingStyles) is applied inline by Floating UI, not
+ * by this stylesheet — only appearance lives here.
+ */
+
+.ds-tooltip-trigger {
+  display: inline-block;
+}
+
+.ds-tooltip {
+  box-sizing: border-box;
+  max-width: 320px;
+  padding: var(--space-inset-sm);
+  border-radius: var(--radius-control);
+  background-color: var(--color-surface-inverse);
+  color: var(--color-text-inverse);
+  font-family: var(--text-caption-sm-regular-font-family);
+  font-size: var(--text-caption-sm-regular-font-size);
+  font-weight: var(--text-caption-sm-regular-font-weight);
+  line-height: var(--text-caption-sm-regular-line-height);
+  letter-spacing: var(--text-caption-sm-regular-letter-spacing);
+  box-shadow: var(--elevation-overlay);
+  z-index: 1000;
+  animation: ds-tooltip-enter var(--motion-overlay-enter);
+}
+
+@keyframes ds-tooltip-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

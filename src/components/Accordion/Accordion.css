@@ -1,0 +1,125 @@
+/**
+ * Accordion (V1). Consumes generated token custom properties from
+ * src/tokens/build/css/{variables,typography}.css — run `npm run tokens:build` first, or
+ * these custom properties are undefined. See docs/design-to-code-mappings.md for the full
+ * Figma <-> code parity table.
+ *
+ * Panel expand/collapse uses a measured `max-height` (set inline by AccordionItem.tsx,
+ * via `element.scrollHeight`) rather than the CSS Grid `grid-template-rows: 0fr -> 1fr`
+ * technique this previously used. That technique relies on a bare `<flex>` track value
+ * being treated as `minmax(auto, <flex>)` and on a child's `overflow` neutralizing the
+ * `auto` floor to exactly 0 — real per spec, but inconsistent enough across engines in
+ * practice that it leaked visible content in a live browser even with overflow:hidden
+ * applied correctly. `max-height: 0` + `overflow: hidden` has no equivalent ambiguity —
+ * it is unconditional box-model clipping, not track-sizing inference — so the collapsed
+ * state can't leak regardless of engine. Pairs with the `inert` attribute (set in
+ * AccordionItem.tsx) to correctly exclude collapsed content from focus/the accessibility
+ * tree.
+ */
+
+.ds-accordion {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.ds-accordion * {
+  box-sizing: border-box;
+}
+
+.ds-accordion-item {
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.ds-accordion-item__heading {
+  margin: 0;
+  font: inherit;
+}
+
+/* ---- Trigger ---- */
+
+.ds-accordion-item__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-inset-md);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color var(--motion-micro);
+}
+
+.ds-accordion-item__trigger:hover:not(:disabled) {
+  background-color: var(--color-action-tertiary-hover);
+}
+
+/* Inset ring, unlike Button/Input/Checkbox's outer ring — the trigger is a full-width
+   row stacked directly against sibling triggers, so an outer ring would bleed into the
+   items above/below rather than staying within this trigger's own box. */
+.ds-accordion-item__trigger:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-focus-ring-offset) inset,
+    0 0 0 4px var(--color-focus-ring) inset;
+}
+
+.ds-accordion-item__trigger:disabled {
+  cursor: not-allowed;
+}
+
+.ds-accordion-item__label {
+  color: var(--color-text-primary);
+  font-family: var(--text-label-md-medium-font-family);
+  font-size: var(--text-label-md-medium-font-size);
+  font-weight: var(--text-label-md-medium-font-weight);
+  line-height: var(--text-label-md-medium-line-height);
+  letter-spacing: var(--text-label-md-medium-letter-spacing);
+}
+
+.ds-accordion-item__trigger:disabled .ds-accordion-item__label {
+  color: var(--color-text-disabled);
+}
+
+/* ---- Chevron ----
+   Rotation is code-only (no literal Figma animation source) — same category as Switch's
+   thumb-slide and Button's spinner. */
+
+.ds-accordion-item__chevron {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+  transition: transform var(--motion-micro);
+}
+.ds-accordion-item__chevron--expanded {
+  transform: rotate(180deg);
+}
+.ds-accordion-item__trigger:disabled .ds-accordion-item__chevron {
+  color: var(--color-text-disabled);
+}
+
+/* ---- Panel ----
+   `max-height` is set inline by AccordionItem.tsx (measured via `scrollHeight`). The
+   rules here own the collapsed starting point (0) and which motion token drives the
+   transition in each direction — the inline value always wins once React's
+   useLayoutEffect runs, which happens before the browser paints, so there's no visible
+   flash of the CSS default. */
+
+.ds-accordion-item__panel {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height var(--motion-overlay-exit);
+}
+.ds-accordion-item__panel--expanded {
+  transition: max-height var(--motion-overlay-enter);
+}
+
+.ds-accordion-item__panel-inner {
+  padding: 0 var(--space-inset-md) var(--space-inset-md);
+  color: var(--color-text-primary);
+  font-family: var(--text-body-md-regular-font-family);
+  font-size: var(--text-body-md-regular-font-size);
+  font-weight: var(--text-body-md-regular-font-weight);
+  line-height: var(--text-body-md-regular-line-height);
+  letter-spacing: var(--text-body-md-regular-letter-spacing);
+}

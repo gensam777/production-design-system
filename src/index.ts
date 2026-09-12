@@ -58,3 +58,21 @@ export type { BadgeProps, BadgeStatus, BadgeEmphasis } from './components/Badge'
 
 export { Alert } from './components/Alert';
 export type { AlertProps, AlertStatus } from './components/Alert';
+
+export { Card } from './components/Card';
+export type { CardProps, CardVariant, CardPadding } from './components/Card';
+
+export { Tooltip } from './components/Tooltip';
+export type { TooltipProps, TooltipPlacement } from './components/Tooltip';
+
+export { Accordion, AccordionItem } from './components/Accordion';
+export type { AccordionProps, AccordionItemProps } from './components/Accordion';
+
+export { Tabs, TabList, Tab, TabPanels, TabPanel } from './components/Tabs';
+export type {
+  TabsProps,
+  TabListProps,
+  TabProps,
+  TabPanelsProps,
+  TabPanelProps,
+} from './components/Tabs';

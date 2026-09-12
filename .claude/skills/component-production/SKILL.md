@@ -15,6 +15,25 @@ Read `CLAUDE.md` first if it isn't already in context. It is the top-level sourc
 truth for this repo's structure and conventions and overrides anything here if they
 conflict.
 
+## The 3-layer Figma ↔ code parity gate (mandatory, non-negotiable)
+
+A component is not "done" because it looks right in a screenshot and the build passes.
+This repo has hit real bugs at every one of the following layers — a Figma text node
+bound to nothing but numerically close to the right value (Card), and a CSS technique
+that passed static review twice but still leaked visible content in a live browser
+(Accordion). Each layer catches a different failure mode; skipping any one of them
+because an earlier layer looked clean is itself the mistake that let those bugs through.
+
+| Layer | Checks | Workflow step | Blocks |
+| --- | --- | --- | --- |
+| 1. Figma authoring parity | Is the *Figma* component itself actually token-bound, not just numerically close? | Step 7 | Starting React implementation |
+| 2. Code semantic parity | Does *code* reference the exact same token Figma is bound to — not an approximation? | Step 14 | "Ready for commit" |
+| 3. Live rendered parity | Does the component *actually render/behave* correctly in a running browser — not just in source? | Step 16 | "Ready for commit" |
+
+No component may be reported "ready for commit" until all three layers pass. See the
+**Ready-for-commit rule** at the end of this document for the exact conditions and the
+required fallback phrasing when Layer 3 can't be completed.
+
 ## Pause points (do not decide these silently)
 
 Stop and report back to the user — in plain terms, with the options and a recommendation
@@ -30,6 +49,10 @@ reasonable answer:
 - Whether a piece of behavior belongs inside the component vs. composed externally by
   the consumer.
 - Whether Figma and code should intentionally diverge for this component.
+- Whether a raw (unbound) Figma value represents an intentional design decision or an
+  authoring gap where an existing semantic token should have been used instead — see the
+  **Figma Raw-Value Guard** in step 7. Do not silently treat a raw Figma value as
+  canonical just because it renders correctly today.
 
 Do not invent an answer just to keep moving. A wrong guess here is expensive to unwind
 later (breaking API change, Figma rework, a token that now has consumers). When in doubt,
@@ -53,7 +76,7 @@ per **Pause points**) — don't just note it inline in this skill's own output a
 Load `figma-use`/`figma-design-to-code` skills as needed for the specific Figma
 operation, and inspect the target page/component before making any change to it.
 
-## The 15-step workflow
+## The 17-step workflow
 
 ### 1. Inspect existing system
 
@@ -177,7 +200,55 @@ larger composed view, `figma-generate-library`/`figma-generate-design` as approp
   Accessibility, Token Mapping, Figma ↔ Code, Cross-platform Notes, Implementation Notes.
   Don't pad with empty sections.
 
-### 7. Build/update React implementation
+### 7. Figma authoring parity gate — Layer 1 (mandatory — blocks step 8)
+
+**Do not start React implementation until this gate passes.** A screenshot that looks
+numerically close to the right typography, color, or spacing is not the same as the
+Figma node actually being bound to the token that produces that value — Card's title/
+body text rendered at a size that looked plausible while its `textStyleId` was empty the
+whole time, with only the fill color actually bound. Catching that requires inspecting
+the live node's real bindings, not eyeballing the canvas.
+
+Using the Figma MCP tools (`get_variable_defs`, or `use_figma` reading
+`node.textStyleId` / `node.boundVariables` / `node.fills` / `node.strokes` /
+`node.effects` / `node.fontName` directly — never inferred from a screenshot or a Figma
+doc-page description), verify on the actual built component:
+
+- **Typography** uses the intended Text Style, or the individual typography variables
+  are bound — not a raw `fontSize`/`fontName`/`lineHeight`/`letterSpacing` literal.
+- **Colors** are bound to semantic color variables wherever a semantic role applies.
+- **Spacing** (padding, gaps/`itemSpacing`) is bound to semantic spacing variables.
+- **Radius, elevation (Effect Style), icon size, motion, and layout** values are bound
+  wherever a semantic token exists for that role.
+- No accidental raw value exists where the design system already has a semantic token
+  for that exact role. A value that happens to numerically match a token's resolved
+  output is not the same as being bound to it — it drifts silently the next time the
+  token changes, invisibly, until a rebrand or a second consumer surfaces it.
+- Component properties/variants are exactly the ones planned in step 5 — no missing or
+  extra axis.
+- Auto Layout / resizing behaves as intended (hug/fill on the right nodes, no
+  accidentally-fixed width/height where the plan called for flexible).
+- Every planned state (hover, focus-visible, disabled, error, selected, expanded, etc.)
+  has a complete, correctly-bound visual — not just the default state.
+
+**Figma Raw-Value Guard.** If a Figma text/color/spacing/radius/effect/etc. value is raw
+(unbound — checked via `textStyleId`/`boundVariables`, never via appearance) but an
+existing design-system token appears to represent the same semantic role:
+
+- **Flag it.** Do not silently treat the raw value as canonical just because it renders
+  correctly today (see the Pause points entry for this).
+- **Compare it against the established foundation** — how the same role is used
+  elsewhere in the system (another shipped component, the relevant
+  `docs/foundations/*.md` page) — to find the token that should apply.
+- **Pause and report before writing any code.** Present the raw value, the candidate
+  token, and a recommendation for whether Figma is the outlier (fix the binding) or the
+  raw value is genuinely intentional (document why, the same way a component-owned
+  constant is documented in step 4).
+- This is the same resolution question step 14's parity audit asks — this guard just
+  asks it a full step earlier, before an unbound Figma value has a chance to be
+  faithfully "matched" into code as if it were correct.
+
+### 8. Build/update React implementation
 
 TypeScript, matching the exact conventions all three shipped components follow:
 
@@ -207,7 +278,7 @@ TypeScript, matching the exact conventions all three shipped components follow:
 - File layout: `src/components/<ComponentName>/{<ComponentName>.tsx,.css,.stories.tsx,index.ts}`,
   exported from `src/index.ts`.
 
-### 8. Build Storybook coverage
+### 9. Build Storybook coverage
 
 Match the structure established in `Checkbox.stories.tsx` (and Button's/Input's
 equivalents):
@@ -226,7 +297,7 @@ equivalents):
 - Storybook-only controls (e.g. a story-local toggle used purely to demo a state) must
   never leak into the component's actual public API.
 
-### 9. Update documentation
+### 10. Update documentation
 
 - Add/update the component's entry under `docs/foundations/` only if it introduces or
   changes a foundation-level concept (rare for a component; most component docs live in
@@ -236,7 +307,7 @@ equivalents):
   checklist passed and manually verified, mapping recorded, no open API-breaking issues,
   reviewed by another maintainer) require human confirmation.
 
-### 10. Update Figma ↔ code mapping
+### 11. Update Figma ↔ code mapping
 
 Update `docs/design-to-code-mappings.md` by hand — there is no automated sync
 (deliberately; see ADR 0001). Follow the exact structure Button/Input/Checkbox already
@@ -248,15 +319,19 @@ use for their sections:
   marking **not a prop** where a Figma axis has no code equivalent, and why), Size parity
   table if applicable, Color tokens by state table, a Token gaps subsection if any exist,
   an Accessibility subsection (implemented-and-spot-checked, never claimed as a
-  certified audit), and a Cross-platform contract subsection (see step 11).
+  certified audit), and a Cross-platform contract subsection (see step 12).
 - Clearly distinguish: Figma authoring properties, Figma-internal-only properties (never
   designer-facing), the React public API, and native/CSS-derived states. Do not force a
   1:1 mapping where the platforms genuinely differ — document the difference and why,
   the way Button's Focus-visible implementation difference is documented.
 - Only add a row when the component is actually implemented, not when merely proposed
   (per the file's own guideline).
+- If step 7 or step 16 surfaced a real bug fix (a Figma raw-value correction, a runtime
+  rendering bug), document it honestly here — including a superseded first attempt, if
+  one happened (see Accordion's two-pass collapse-technique history for the precedent).
+  Never quietly overwrite a wrong prior claim without a record of what changed and why.
 
-### 11. Document the cross-platform contract
+### 12. Document the cross-platform contract
 
 Add a subsection (matching Checkbox's "Cross-platform contract" section) describing what
 should be shared across future Web React / React Native / SwiftUI / Jetpack Compose
@@ -265,7 +340,7 @@ Do not claim shared implementation code — only Web React exists today. Call ou
 platform-owned (exact focus/ripple/press treatment, platform-native interaction-target
 sizing) explicitly as platform-owned, not shared.
 
-### 12. Run accessibility checks
+### 13. Run accessibility checks
 
 Evaluate against `governance/accessibility.md`'s checklist for every component:
 
@@ -282,21 +357,27 @@ Evaluate against `governance/accessibility.md`'s checklist for every component:
   `aria-checked="mixed"`).
 - Hit target size where relevant (Checkbox's 24×24 minimum hit area over a 16×16 visual
   box is the established pattern for small controls).
+- Landmark roles (e.g. `role="region"`) are added only where a specific piece of content
+  genuinely warrants one — never applied by default to every instance of a repeating
+  pattern (e.g. every panel in an Accordion), which creates landmark noise for
+  screen-reader users navigating by landmark instead of helping them.
 
 `eslint-plugin-jsx-a11y` and `@storybook/addon-a11y` are the automated first pass, not
 the whole check — run them, but do not claim WCAG 2.2 AA conformance from automated
 results alone. Explicitly list what still needs manual verification (screen-reader
 spot-check, 200% zoom/reflow, full AA sweep) rather than omitting it.
 
-### 13. Strict Figma ↔ code token parity audit (mandatory — blocks "ready for commit")
+### 14. Code semantic parity audit — Layer 2 (mandatory — blocks "ready for commit")
 
 A component is **not** ready for commit just because it looks right and the build passes.
 Every Figma-bound property must resolve to the *exact same* generated token in code — not
-a nearby one, not an approximation. This step is what verifies that, and it is required
-for every component this skill touches, not just ones where a visual bug was reported.
-Skipping it (or doing it only when something already looks broken) is itself a violation
-of this rule — token drift is often invisible until a rebrand, a dark-mode pass, or a
-second consumer surfaces it, which is exactly why it can't be optional.
+a nearby one, not an approximation. This is Layer 2 of the 3-layer parity gate: Layer 1
+(step 7) already confirmed the Figma side itself is properly token-bound; this layer
+confirms code reproduces those exact bindings. It is required for every component this
+skill touches, not just ones where a visual bug was reported. Skipping it (or doing it
+only when something already looks broken) is itself a violation of this rule — token
+drift is often invisible until a rebrand, a dark-mode pass, or a second consumer surfaces
+it, which is exactly why it can't be optional.
 
 **Required parity flow, for every bound property:**
 
@@ -325,14 +406,19 @@ infer it from what the property "looks like" it should be.
 - **Do not approximate.** If Figma binds `border.strong`, code must use
   `--color-border-strong`, never `--color-border-default` or `--color-border-subtle`
   because it "looks close enough."
-- **Do not substitute a different-but-similar semantic token.** `text.caption.sm.regular`
-  and `text.caption.md.regular` are different tokens with different resolved values
-  (12px vs. 14px) even though they share a role name — matching the *role* isn't enough,
-  the exact token must match. (This is the exact class of bug the Radio Group audit
-  found: `caption.md` in code against a Figma node actually bound to `caption.sm`.)
+- **Do not substitute a different-but-similar or visually similar semantic token.**
+  `text.caption.sm.regular` and `text.caption.md.regular` are different tokens with
+  different resolved values (12px vs. 14px) even though they share a role name —
+  matching the *role* isn't enough, the exact token must match. (This is the exact class
+  of bug the Radio Group audit found: `caption.md` in code against a Figma node actually
+  bound to `caption.sm`.)
 - **Do not hardcode a value when the Figma property is token-bound**, even if the
   hardcoded number is numerically correct today — it silently drifts the next time the
   token's value changes.
+- **Do not silently change the semantic role** a value plays (e.g. reusing a token whose
+  documented purpose is "icon/accent use" for body text just because its resolved color
+  happens to look right) — a token's semantic role is part of what has to match, not
+  just its rendered output.
 - **Do not silently create platform drift** — a mismatch is either fixed or explicitly
   documented as an intentional platform difference (see below). It is never just left.
 
@@ -373,11 +459,11 @@ reflexively:**
   Focus-visible implementation difference is already documented in
   `docs/design-to-code-mappings.md`.
 
-This audit's findings fold into the Final report's **Token parity audit** item (see
-below) — every mismatch found must show as fixed or explicitly documented as intentional
-before step 15 can answer "ready for commit: yes."
+This audit's findings fold into the Final report's **Token parity audit** item — every
+mismatch found must show as fixed or explicitly documented as intentional before this
+component can be marked ready for commit (see the Ready-for-commit rule).
 
-### 14. Run validation
+### 15. Run validation
 
 Run whatever applies to the change:
 
@@ -393,7 +479,68 @@ Only run tests if an established test runner actually exists in the repo at the 
 (none does as of this skill's writing — Vitest/Testing Library are deferred per ADR
 0001; don't invent a test command). Report every command's pass/fail, not just a summary.
 
-### 15. Produce final audit report, then stop
+Passing this step confirms the component *builds*. It does not confirm it *renders or
+behaves correctly* — that's Layer 3, next.
+
+### 16. Live rendered parity gate — Layer 3 (mandatory — blocks "ready for commit")
+
+Static source inspection (steps 7 and 14) and a passing build (step 15) are necessary but
+not sufficient. A component can have perfect Figma bindings and perfect token references
+in code and still render or behave wrong at runtime — CSS interactions, browser layout
+algorithms, and JS timing don't show up in a source diff or a successful build. This
+happened for real: Accordion's collapsed panel passed every static token/binding check
+while still leaking visible content in a live browser, twice — the bug was in how a CSS
+technique resolved at runtime, not in any token reference or build error.
+
+**Before any component is reported "ready for commit," require a live Storybook or
+manual-browser review** for any component whose rendering or behavior can plausibly
+differ between static source and a running browser — in practice, nearly every
+interactive or animated component. Check, as applicable:
+
+- Typography rendering (the actual measured text, not just the CSS rule that produced it)
+- Spacing and dimensions as rendered, not just as declared
+- Alignment
+- Focus (a visible ring, the correct element receives it, tab order is logical)
+- Hover
+- Disabled
+- Text wrapping
+- Open/closed (or expanded/collapsed, selected/unselected) state
+- Animation — does it actually play, in the right direction, at the right speed
+- Overflow/clipping — especially any state that's supposed to render nothing
+- Browser-native behavior (native `<select>`, `<details>`, form controls, etc.)
+- Overlay/floating positioning where applicable (flip/shift/collision handling)
+
+**Runtime Behavior Guard.** For components with runtime state or layout behavior, audit
+the specific failure modes for that component's actual behavior model — not a generic
+checklist applied by rote. Examples this repo has already hit (not an exhaustive list —
+reason from the real component, the way these were reasoned from):
+
+| Component shape | What to specifically verify live |
+| --- | --- |
+| Accordion (or any disclosure) | Collapsed panel shows **zero** visible content and contributes **zero** visible layout space — not just "hidden text," actually reclaimed height. Open/close animation plays correctly in both directions. Disabled and `allowMultiple` behave correctly together with the collapse mechanism. |
+| Tooltip (or any floating overlay) | Shows on hover **and** keyboard focus, not just one. Viewport collision handling (flip/shift) actually repositions it near an edge. Dismisses on Escape/blur. |
+| Tabs (or any tablist) | Arrow-key navigation moves focus and switches the panel per the chosen activation model. Keyboard and click both select the right panel. Roving tabindex is correct (only the selected tab is a tab stop). |
+| Select (or any native-control wrapper) | The closed control's rendered appearance matches Figma — native chrome doesn't always take styling the way a static mock assumes. Native behavior (keyboard, mobile picker) is preserved, not fought or reimplemented. |
+| Switch (or any thumb/track control) | Thumb aligns correctly at rest in both states and slides smoothly between them — optical-alignment bugs are easy to miss in a static screenshot and only show up rendered. |
+
+**If Claude cannot access a live browser** (no connected browser-automation tooling — the
+common case in this environment):
+
+- Do **not** claim visual or behavioral parity is complete.
+- Explicitly name what still needs checking (from the list above, scoped to this
+  component) rather than a vague "manual review recommended."
+- Do **not** report "ready for commit." Say instead, verbatim: **"Ready for manual visual
+  review, not ready for commit yet."** Use this exact phrasing, not a softer paraphrase,
+  so the report is unambiguous about what has and hasn't been confirmed.
+- A static source review, a Figma screenshot comparison, or a successful
+  `build`/`build-storybook` command is never a substitute for this layer — they check
+  different things (steps 7, 14, and 15 respectively) and none of them execute the
+  component's actual runtime behavior in a browser.
+- If browser-automation tooling *is* available and used, say so explicitly and describe
+  what was actually exercised (which states were triggered, what was observed) rather
+  than asserting "verified" without detail.
+
+### 17. Produce final audit report, then stop
 
 Do not run `git add`/`git commit`/`git push`. End the turn after the report below and
 let the user review and commit.
@@ -410,27 +557,52 @@ Always end with a report structured exactly as:
 4. **New tokens/constants** — any new token or component-owned constant added, with
    justification; "none" if none.
 5. **Figma changes** — what was built/changed, node/component names, documentation
-   frames added.
+   frames added, and the outcome of the step 7 Figma authoring parity gate (any raw-value
+   findings and how they were resolved).
 6. **Public API** — the final prop table.
 7. **Storybook coverage** — list of stories added/updated.
 8. **Accessibility findings** — checklist results plus anything still requiring manual
    verification.
-9. **Token parity audit** — the full parity table from step 13 (every audited category:
-   color, typography, spacing, radius, border, focus, icon size, motion, elevation/
-   shadow, layout, responsive where applicable), every mismatch's resolution, and which
-   side (Figma or code) was corrected for each.
+9. **Token parity audit (Layer 2)** — the full parity table from step 14 (every audited
+   category: color, typography, spacing, radius, border, focus, icon size, motion,
+   elevation/shadow, layout, responsive where applicable), every mismatch's resolution,
+   and which side (Figma or code) was corrected for each.
 10. **Figma ↔ code mapping** — confirmation `docs/design-to-code-mappings.md` was
     updated, with a link to the new/changed section.
 11. **Intentional platform differences** — anything where Figma and code, or web vs.
     other platforms, deliberately diverge (including any from the parity audit).
-12. **Validation results** — pass/fail per command from step 14.
-13. **Manual checks still required** — anything a human still needs to do (screen-reader
-    testing, design review, etc.).
-14. **Ready for commit?** — a direct yes/no. "Yes" requires the step 13 parity audit to
-    show zero unresolved mismatches (every row is `Match`, a fixed/corrected mismatch, a
-    documented component constant, or a documented platform difference) — a component
-    with an open, unfixed token mismatch is never ready for commit, even if everything
-    else passes.
+12. **Validation results** — pass/fail per command from step 15.
+13. **Live rendered parity (Layer 3)** — what was actually checked in a live browser and
+    what was observed, per step 16; or, if no live-browser access was available, the
+    explicit list of what still needs checking. Never silently omit this item.
+14. **Manual checks still required** — anything a human still needs to do (screen-reader
+    testing, design review, live visual/behavioral confirmation, etc.).
+15. **Ready for commit?** — see the Ready-for-commit rule below; never a bare yes/no
+    without checking all four conditions.
+
+## Ready-for-commit rule
+
+A component is only "ready for commit" when **all four** of the following hold:
+
+1. **Figma authoring parity passes** (step 7, Layer 1) — the Figma component itself is
+   properly token-bound, with any raw-value findings resolved and reported, not
+   silently propagated.
+2. **Code semantic parity passes** (step 14, Layer 2) — every parity-table row is
+   `Match`, a fixed/corrected mismatch, a documented component constant, or a documented
+   platform difference. An open, unfixed token mismatch means this is never ready for
+   commit, even if everything else passes.
+3. **Build validation passes** (step 15) — `tokens:build`, `typecheck`, `lint`, `build`,
+   and `build-storybook` all succeed.
+4. **Live rendered parity has been confirmed** (step 16, Layer 3) — either Claude
+   verified it directly against a running browser (state exactly what was exercised), or
+   the user has explicitly confirmed the live Storybook result themselves.
+
+If condition 4 cannot be met because no live-browser access is available, the report's
+final line must be, verbatim: **"Ready for manual visual review, not ready for commit
+yet."** Do not report "ready for commit: yes" on the strength of static review and a
+passing build alone — that is exactly the gap that let a token-binding bug (Card) and a
+runtime rendering bug (Accordion, twice) ship past this skill's own audit before this
+rule existed.
 
 ## Quality bar
 
@@ -438,4 +610,5 @@ Optimize for production maintainability, consistency with the existing system,
 accessibility, scalability, cross-platform readiness, and minimal unnecessary complexity
 — not for speed. This skill exists to make repeated component production faster without
 skipping any of the real design-system practice above. If a step in this workflow would
-be skipped to go faster, that is itself a pause point, not a shortcut to take silently.
+be skipped to go faster, that is itself a pause point, not a shortcut to take silently —
+the 3-layer parity gate above is the least skippable part of this document.

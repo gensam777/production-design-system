@@ -18,6 +18,10 @@ this table is updated by hand whenever a component ships or a mapping changes.
 | Alert | Alert V1, page `961:9`, component set `961:1634` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Alert/Alert.tsx` | See [Alert](#alert) below. |
 | Textarea | Textarea V1, page `961:1669`, component set `961:1811` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Textarea/Textarea.tsx` | See [Textarea](#textarea) below. |
 | Select | Select V1, page `961:1846`, component set `961:2074` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Select/Select.tsx` | See [Select](#select) below. |
+| Card | Card V1, page `967:9`, component set `967:1625` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Card/Card.tsx` | See [Card](#card) below. |
+| Tooltip | Tooltip V1, page `968:9`, single component `968:10` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Tooltip/Tooltip.tsx` | See [Tooltip](#tooltip) below. |
+| Accordion | Accordion V1, page `968:1638`, component set `968:1736` ("Accordion Item") — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Accordion/Accordion.tsx`, `AccordionItem.tsx` | See [Accordion](#accordion) below. |
+| Tabs | Tabs V1, page `968:1781`, component set `968:1847` ("Tab") — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Tabs/Tabs.tsx`, `TabList.tsx`, `Tab.tsx`, `TabPanels.tsx`, `TabPanel.tsx` | See [Tabs](#tabs) below. |
 
 - **Figma component** — the component/variant name as it appears in the Figma library.
 - **Figma link** — direct link to the node in the library file.
@@ -1479,3 +1483,463 @@ pattern Input's own icon slots use. No new tokens were created.
   for one-of-many," not a pixel-identical popup.
 - **Not claimed**: search/filter or multi-select on any platform — both are out of V1
   scope, not gaps.
+
+## Card
+
+- React: `src/components/Card/Card.tsx`
+- Styles: `src/components/Card/Card.css`
+- Storybook: `src/components/Card/Card.stories.tsx` (`Components/Card`)
+- Figma: Card V1 (approved), flat 6-variant component set. Page `967:9` ("Card"),
+  component set `967:1625`. See `CLAUDE.md`'s Canonical Figma Source table for the
+  current node references.
+
+### Reference component
+
+No control ancestor — draws directly from existing surface/radius/spacing/elevation
+foundations. No compound sub-parts (`Card.Header`/`Card.Body`/`Card.Footer`); the
+consumer composes freely inside `children`, per this system's standing rule against
+premature composition helpers.
+
+### Figma architecture (current, authoritative)
+
+Flat component set — no nested Content layer:
+
+| Component set | Variant axes | Count | Owns |
+| --- | --- | --- | --- |
+| **Card** | Variant × Padding | 6 | Border/shadow per Variant, padding per Padding value |
+
+Variant (Outlined/Elevated) × Padding (None/Md/Lg) are the only two axes.
+
+### Typography token-parity fix applied post-implementation
+
+An audit of the live Figma Card node found its demo "title"/"body" text layers had an
+empty `textStyleId` — only fill color was bound (`text.primary`/`text.secondary`); font
+family, size, weight, line-height, and letter-spacing were all unbound literals (title:
+16px/Semi Bold/`AUTO` line-height; body: 14px/Regular/`AUTO` line-height), and the
+title→body gap was bound to `space.stack.xs` (4px, "Icon+label stacked, tightly coupled
+pairs" — the wrong role for a title/description relationship). **Figma was the
+outlier** — every other shipped component's text is bound via a real text style. Fixed
+in Figma (title → `text.heading.sm.semibold`, literally documented as "Card/dialog
+title"; body → `text.body.sm.regular`, matching Alert's own precedent for supporting/
+description text; gap → `space.stack.sm`, "Label → input, field → helper text") and in
+the `Card.stories.tsx` demo content (previously hardcoded `fontSize`/hex-color inline
+styles, now the matching `var(--text-heading-sm-semibold-*)`/`var(--text-body-sm-regular-
+*)`/`var(--space-stack-sm)` custom properties). See the Token Mapping below for the
+final, corrected values — this is what the Storybook demo content should be judged
+against now, not the original approximation.
+
+### Prop mapping
+
+| Figma property | React prop | Notes |
+| --- | --- | --- |
+| Variant (Outlined/Elevated) | `variant?: 'outlined' \| 'elevated'` | Default `'outlined'`. |
+| Padding (None/Md/Lg) | `padding?: 'none' \| 'md' \| 'lg'` | Default `'lg'`. |
+| Content | `children: React.ReactNode` | Card never clones or inspects it. |
+
+No interaction props exist — Card has no `onClick`/clickable variant. A consumer wanting
+a clickable card composes their own `<button>`/`<a>` around it (see the `Composed as
+clickable` Storybook story) — this was a deliberate scope decision (per your "do not
+invent interaction semantics unless explicitly needed" instruction), not an oversight.
+
+### Color tokens by Variant
+
+| Variant | Border | Background | Shadow |
+| --- | --- | --- | --- |
+| Outlined | `border.default` | `surface.default` | none |
+| Elevated | none | `surface.raised` | `elevation.raised` |
+
+### Demo content typography (Storybook `DEMO_CONTENT`, not part of Card's own API)
+
+Card itself has no title/body slots — these tokens apply to the example content shown in
+Storybook stories and mirrored in the Figma mockup, not to any Card prop:
+
+| Role | Token | Resolved value |
+| --- | --- | --- |
+| Title font/size/weight/line-height/letter-spacing | `text.heading.sm.semibold` | Inter, 20px, 600, 1.25, 0em |
+| Title color | `text.primary` | — |
+| Body font/size/weight/line-height/letter-spacing | `text.body.sm.regular` | Inter, 14px, 400, 1.5, 0em |
+| Body color | `text.secondary` | — |
+| Title → body gap | `space.stack.sm` | 8px |
+
+### Size parity
+
+| Padding | Token |
+| --- | --- |
+| None | `space.inset.none` |
+| Md | `space.inset.md` |
+| Lg | `space.inset.lg` |
+
+Radius `radius.container` at every combination. No new tokens — every value here was
+already documented for exactly this use (`radius.container`: "Cards, panels...";
+`space.inset.lg`: "Default card/panel padding"; `elevation.raised`: "Cards, panels...").
+
+### Accessibility (implemented and spot-checked, not a certified audit)
+
+- Plain `<div>`, no role by default — a Card is a visual grouping, not a landmark. A
+  consumer needing a labeled region can add `role="region"`/`aria-label` themselves via
+  `...rest`.
+- **Forced-colors mode note**: `box-shadow` is suppressed in `forced-colors`/Windows High
+  Contrast mode (per `docs/foundations/elevation.md`'s own accessibility note), so the
+  Elevated variant has no fallback boundary cue there. Not solved by adding a border to
+  Elevated — that would erase its visual distinction from Outlined — flagged for manual
+  review instead.
+- Not yet verified: screen-reader spot-check, 200% zoom/reflow, full WCAG 2.2 AA sweep —
+  per `governance/accessibility.md`, required before "stable."
+
+### Cross-platform contract (shared design intent, not yet implemented elsewhere)
+
+- **Shared**: Variant/Padding intent, no built-in interaction semantics.
+- **Not shared** (platform-owned): exact border/shadow rendering technique per platform.
+- **Not claimed**: any compound sub-component API on any platform.
+
+## Tooltip
+
+- React: `src/components/Tooltip/Tooltip.tsx`
+- Styles: `src/components/Tooltip/Tooltip.css`
+- Storybook: `src/components/Tooltip/Tooltip.stories.tsx` (`Components/Tooltip`)
+- Figma: Tooltip V1 (approved), single component, no variant axis. Page `968:9`
+  ("Tooltip"), component `968:10`. See `CLAUDE.md`'s Canonical Figma Source table for the
+  current node references.
+
+### Reference component
+
+No control ancestor — draws from text/color tokens already documented for exactly this
+use (`surface.inverse`/`text.inverse`: "tooltips, dark banners"; `elevation.overlay`:
+"...tooltips"; `motion.overlay-enter`/`overlay-exit`: "...tooltip opening/closing").
+
+### Confirmed architecture decision: Floating UI
+
+Presented as an open decision during the architecture pass and confirmed: **a real
+positioning library** (`@floating-ui/react`, new runtime dependency), not fixed-placement
+CSS. Provides automatic viewport-collision handling (`flip()`/`shift()`) so the tooltip
+never renders off-screen regardless of `placement` or scroll position. `strategy: 'fixed'`
+is set on `useFloating` to additionally help the tooltip escape `overflow: hidden`
+ancestors without a portal — a `FloatingPortal` was deliberately not added in V1 to keep
+the implementation lean; a tooltip nested inside a strict `overflow: hidden` container may
+still clip in edge cases, a known, documented limitation rather than a silently-accepted
+gap.
+
+### Figma architecture (current, authoritative)
+
+Single component, no variant axis — `placement` is a code-only layout concern with no
+Figma representation (a floating element's position is layout, not a look, the same
+category as Button's Loading spinner being documentation-only in Figma).
+
+### Prop mapping
+
+| Figma property | React prop | Notes |
+| --- | --- | --- |
+| Label (TEXT) | `content: React.ReactNode` | Required. |
+| — (Figma has no equivalent) | `placement?: 'top' \| 'bottom' \| 'left' \| 'right'` | Default `'top'`. Preferred side — Floating UI flips/shifts away from it when there isn't room. |
+| — (Figma has no equivalent) | `children: ReactElement` | The trigger. Wrapped in a plain `<span>`, never cloned — see Accessibility below. |
+
+### Token Mapping
+
+`surface.inverse` (background) · `text.inverse` (label) · `text.caption.sm.regular`
+(typography) · `space.inset.sm` (padding) · `radius.control` · `elevation.overlay`
+(shadow) · `motion.overlay-enter`/`motion.overlay-exit` (show/hide fade, code-only, no
+literal Figma animation source). Zero new tokens.
+
+### Accessibility (implemented and spot-checked, not a certified audit)
+
+- `role="tooltip"` on the floating element and `aria-describedby` on the reference
+  element are both wired automatically by Floating UI's `useRole` hook — no manual id
+  bookkeeping.
+- Shown on **both** `:hover` and keyboard focus of the trigger (`useHover` + `useFocus`),
+  dismissed on Escape or on losing hover/focus (`useDismiss`) — never hover-only or
+  focus-only, either of which would fail keyboard or hover-only users respectively.
+- The reference ref and interaction props live on a wrapping `<span>`, not on `children`
+  itself (Tooltip never clones the trigger) — this is what lets a tooltip work correctly
+  on a **disabled** trigger, which fires no mouse/focus events of its own (see the `On a
+  disabled trigger` Storybook story).
+- Not yet verified: screen-reader spot-check (confirming the description is actually
+  announced), 200% zoom/reflow, full WCAG 2.2 AA sweep, and a live-browser check that
+  focus entering a focusable descendant of the wrapping span correctly triggers
+  `useFocus` (relies on `focusin` bubbling — expected to work per Floating UI's own
+  documented disabled-trigger pattern, but not yet confirmed against a real browser in
+  this environment, which has no interactive browser-automation test set up).
+
+### Cross-platform contract (shared design intent, not yet implemented elsewhere)
+
+- **Shared**: hover/focus-triggered supplementary text, dismiss-on-Escape intent.
+- **Not shared** (platform-owned): the exact positioning/collision-avoidance mechanism —
+  other platforms should use their own native tooltip/popover positioning API rather than
+  porting Floating UI's algorithm.
+- **Not claimed**: an arrow/pointer on any platform — deliberately omitted in V1.
+
+## Accordion
+
+- React: `src/components/Accordion/Accordion.tsx`, `src/components/Accordion/AccordionItem.tsx`
+- Styles: `src/components/Accordion/Accordion.css`
+- Storybook: `src/components/Accordion/Accordion.stories.tsx` (`Components/Accordion`)
+- Figma: Accordion V1 (approved), flat 8-variant component set. Page `968:1638`
+  ("Accordion"), component set `968:1736` ("Accordion Item"). See `CLAUDE.md`'s Canonical
+  Figma Source table for the current node references.
+
+### Reference component
+
+Button (trigger interaction/focus treatment) + the WAI-ARIA Accordion Pattern (disclosure
+structure).
+
+### Confirmed architecture decision: custom button + panel, not native `<details>`
+
+Presented as an open decision and confirmed: a custom `<button aria-expanded>` + panel
+composition, **not** native `<details>`/`<summary>`. Chosen for animatable open/close
+height (native `<details>` has no built-in transition) and trivial `allowMultiple`
+exclusive-group logic in JS (native exclusive groups depend on `<details name="...">`,
+only newly baseline across browsers as of 2024). The trigger is still a real native
+`<button>`, matching the Button reference — only the expand/collapse relationship is
+ARIA-described rather than browser-native.
+
+### Accessibility correction applied during implementation
+
+An earlier pass of this component's Figma documentation described the panel as getting
+`role="region"` by default, following the WAI-ARIA Accordion Pattern example literally.
+This was corrected during the React implementation pass: **the panel does not get
+`role="region"` by default.** Per WAI-ARIA authoring guidance and well-documented
+real-world screen-reader feedback (landmark navigation becomes noisy when every panel in
+a multi-item accordion is announced as a region), `role="region"` is added only when a
+specific panel's content genuinely warrants a landmark — which this component cannot know
+in general, so it doesn't guess. A consumer who wants this for a specific panel adds it
+themselves by wrapping their panel content in an element with `role="region"` and an
+appropriate label.
+
+### Figma architecture (current, authoritative)
+
+Flat component set — no nested Content layer:
+
+| Component set | Variant axes | Count | Owns |
+| --- | --- | --- | --- |
+| **Accordion Item** | State × Interaction | 8 | Header (label, chevron) per State+Interaction; Panel content shown only in Expanded variants |
+
+State (Collapsed/Expanded) × Interaction (Default/Hover/Focus-visible/Disabled) — 8
+variants, well under the ~12-variant flat threshold. Panel presence is fully determined
+by State, not a separate boolean property.
+
+### State model
+
+`allowMultiple` (default `false`, single-open/exclusive) lives on the `Accordion` root.
+The `Accordion`/`AccordionItem` compound API is core structure, not optional composition
+sugar — unlike Card, which stayed a single container, an accordion's item-registration/
+open-state relationship has no simpler shape.
+
+### Prop mapping
+
+| Figma property | React prop | Notes |
+| --- | --- | --- |
+| State (Collapsed/Expanded) | **not a direct prop** | Derived from whether `AccordionItem`'s `value` is in the `Accordion` root's open set — managed internally, exposed only via `defaultValue` (initial open item(s)) and `allowMultiple`. |
+| Interaction (Default/Hover/Focus-visible/Disabled) | **not a prop, except Disabled** | Hover/Focus-visible are native CSS states. Disabled is the native `disabled` attribute on the trigger `<button>` — native Space/Enter activation and focus handling are never reimplemented; there is no `onKeyDown` on the trigger at all. |
+| Label (TEXT) | `label: React.ReactNode` on `AccordionItem` | Required. |
+| Panel content | `children: React.ReactNode` on `AccordionItem` | Shown only while expanded. |
+| — (native, no Figma equivalent) | `value: string` on `AccordionItem` | Identifies the item for open-state tracking; must be unique among siblings. |
+| — (native, no Figma equivalent) | `allowMultiple?: boolean` on `Accordion` | Default `false`. |
+| — (native, no Figma equivalent) | `defaultValue?: string \| string[]` on `Accordion` | Initially open item(s). Uncontrolled only — no `value`/`onValueChange` pair in V1. |
+
+### Color tokens by Interaction
+
+| State | Header background | Label | Chevron |
+| --- | --- | --- | --- |
+| Default | transparent | `text.primary` | `text.secondary` |
+| Hover | `action.tertiary.hover` | `text.primary` | `text.secondary` |
+| Focus-visible | transparent + inset focus ring | `text.primary` | `text.secondary` |
+| Disabled | transparent | `text.disabled` | `text.disabled` |
+
+Item divider: `border.subtle`. Focus ring: `focus.ring`/`focus.ring-offset`, rendered
+**inset** rather than this system's usual outer ring — an intentional divergence, see
+Implementation Notes below. No new tokens.
+
+### Size parity
+
+`space.inset.md` (header and panel padding), `text.label.md.medium` (label),
+`text.body.md.regular` (panel), `icon.md` (chevron, 20px). One size only — text-driven
+height, same convention as Checkbox/Radio/Switch.
+
+### Motion
+
+Chevron rotation (180° between Collapsed/Expanded): `motion.micro`, code-only (no literal
+Figma animation source, same category as Switch's thumb-slide). Panel reveal: a measured
+`max-height` transition using `motion.overlay-enter`/`motion.overlay-exit` — reusing the
+closest existing "reveal/hide a panel" semantic pair rather than inventing an
+accordion-specific token, paired with the `inert` HTML attribute (not `hidden`) on the
+collapsed panel so it can be excluded from focus/the accessibility tree while remaining
+animatable (`display: none`, which `hidden` forces, cannot transition height). See the
+bug-fix history below for why this is `max-height`, not CSS Grid.
+
+### Bug fix history: collapsed panel content leaking visually (two passes)
+
+**Pass 1 — incomplete.** Panel collapse originally used the CSS Grid
+`grid-template-rows: 0fr → 1fr` technique. Root cause of the first leak: `overflow:
+hidden` was applied only to `.ds-accordion-item__panel-inner` (the grid *item*), not to
+`.ds-accordion-item__panel` (the grid *container*). The item's `overflow: hidden`
+zeroes its own automatic minimum size as a grid item — the mechanism that lets a `0fr`
+row track shrink instead of being floored at content height — but does nothing to stop
+the item's own rendered box from overflowing its *parent* if that box doesn't land on
+exactly zero. Fixed by adding `overflow: hidden` to the container too, plus an explicit
+`min-height: 0` on the item.
+
+**Pass 2 — still leaked in a live browser, so the technique itself was replaced.** The
+CSS Grid approach depends on a bare `<flex>` track value (`0fr`) being treated as
+`minmax(auto, <flex>)`, with a descendant's `overflow` neutralizing the `auto` floor to
+exactly 0. That chain is real per the Grid spec, but is inconsistent enough across
+engines in practice that visible content still leaked past the collapsed row even with
+both `overflow: hidden` declarations from Pass 1 in place — confirmed in a live browser,
+not just static review. **Final fix**: replaced `grid-template-rows` entirely with a
+measured `max-height`. `AccordionItem.tsx` measures `panelInnerRef.current.scrollHeight`
+in a `useLayoutEffect` (runs before paint, so there's no visible flash) and sets it as
+an inline `max-height` on the panel — `${scrollHeight}px` when expanded, `'0px'` when
+collapsed. `max-height: 0` + `overflow: hidden` (`Accordion.css`) is unconditional
+box-model clipping, not track-sizing inference, so the collapsed state cannot leak
+regardless of engine. No new dependency — this is the entire measurement, no
+`ResizeObserver`. Content stays permanently mounted (never conditionally rendered) so
+the transition has something to animate between; this is why the clipping has to be
+structurally airtight rather than papered over with `visibility`/`opacity` alone, which
+would hide pixels without reclaiming layout space.
+
+**Known V1 limitation**: if a panel's content resizes *while already expanded* (e.g. an
+image finishes loading), the measured `max-height` doesn't automatically grow to match
+until something else re-triggers the effect (any prop change re-running it, in
+practice). Not solved here — stated rather than silently left, matching this system's
+practice of documenting a real gap instead of adding resize-observation machinery no
+consumer has asked for yet.
+
+### Accessibility (implemented and spot-checked, not a certified audit)
+
+- Trigger is a real `<button type="button">` inside an `<h3>` (hardcoded — not yet
+  configurable; a consumer nesting Accordion under a different heading level in their own
+  document outline may want this configurable in a future version, a known V1 limitation,
+  not a silent gap).
+- `aria-expanded` (on the trigger) + `aria-controls` (pointing at the panel id) describe
+  the expand/collapse relationship; the panel's `aria-labelledby` points back at the
+  trigger id.
+- **No `role="region"` on the panel by default** — see the correction above.
+- `disabled` is the native HTML attribute on the trigger; native Space/Enter activation
+  and tab-order removal are never reimplemented.
+- Collapsed panel content is `inert` (excluded from focus and the accessibility tree)
+  rather than merely visually hidden.
+- **No arrow-key navigation between item headers in V1** — Tab/Shift+Tab moves between
+  triggers normally; this was a deliberate lean-V1 scope cut (not requested, not added),
+  not an oversight.
+- Not yet verified: screen-reader spot-check, 200% zoom/reflow, full WCAG 2.2 AA sweep —
+  per `governance/accessibility.md`, required before "stable."
+
+### Implementation Notes
+
+- **Inset, not outer, focus ring**: the trigger is a full-width row stacked directly
+  against sibling triggers (via `border-bottom` dividers), so an outer ring (this
+  system's usual technique) would visually bleed into the item above/below rather than
+  staying within the focused trigger's own box. Tabs' trigger has the same divergence,
+  for the same structural reason (adjacent siblings).
+
+### Cross-platform contract (shared design intent, not yet implemented elsewhere)
+
+- **Shared**: Collapsed/Expanded, single-open vs. `allowMultiple`, a Disabled state, the
+  expand/collapse relationship between a trigger and its panel.
+- **Not shared** (platform-owned): exact focus/ripple/press treatment; the exact
+  height-animation mechanism (web's CSS Grid technique is web-specific).
+- **Not claimed**: arrow-key navigation between headers, or a configurable heading level,
+  on any platform — both are stated V1 scope cuts.
+
+## Tabs
+
+- React: `src/components/Tabs/Tabs.tsx`, `TabList.tsx`, `Tab.tsx`, `TabPanels.tsx`,
+  `TabPanel.tsx`
+- Styles: `src/components/Tabs/Tabs.css`
+- Storybook: `src/components/Tabs/Tabs.stories.tsx` (`Components/Tabs`)
+- Figma: Tabs V1 (approved), flat 8-variant component set. Page `968:1781` ("Tabs"),
+  component set `968:1847` ("Tab"). See `CLAUDE.md`'s Canonical Figma Source table for
+  the current node references. The Figma page documents the `Tab` trigger only —
+  `TabList`/`TabPanel` are structural wrappers with no visual variants of their own.
+
+### Reference component
+
+Button-like interaction per trigger (hover/focus treatment modeled on Button's Tertiary
+variant) + the WAI-ARIA Tabs Pattern for grouped navigation.
+
+### Figma architecture (current, authoritative)
+
+Flat component set — no nested Content layer:
+
+| Component set | Variant axes | Count | Owns |
+| --- | --- | --- | --- |
+| **Tab** | State × Interaction | 8 | Label, optional leading icon, bottom selection indicator, per State+Interaction |
+
+State (Selected/Unselected) × Interaction (Default/Hover/Focus-visible/Disabled) — 8
+variants. The bottom indicator reserves its 2px height in **both** states (transparent
+when Unselected) specifically so selecting/deselecting a tab never shifts layout.
+
+### Activation mode (resolved, not paused)
+
+**Automatic activation** — arrow keys immediately switch the visible panel, not just
+move focus. WAI-ARIA's own guidance recommends this "in most instances," and a generic
+V1 Tabs component has no way to know whether a given consumer's panel content is
+expensive enough to warrant manual (Enter/Space-to-activate) activation. Documented as
+the V1 default, revisitable later without a breaking change (manual activation would be
+an additive prop, not a removal).
+
+### Prop mapping
+
+| Figma property | React prop | Notes |
+| --- | --- | --- |
+| State (Selected) | **not a direct prop** | Derived: `Tab`'s `value` matches the `Tabs` root's active value. |
+| Interaction (Default/Hover/Focus-visible/Disabled) | **not a prop, except Disabled** | Same convention as every other control — native CSS states, Disabled is the native `disabled` attribute. |
+| Label (TEXT) | `children: React.ReactNode` on `Tab` | Required. |
+| Leading icon (INSTANCE_SWAP) | `leadingIcon?: React.ReactNode` on `Tab` | Provider-neutral, same contract as Button/Input's icon slots. |
+| — (native, no Figma equivalent) | `value: string` on `Tab`/`TabPanel` | Correlates a `Tab` to its `TabPanel` — both derive their DOM `id`s from the same `(baseId, value)` pair, so there is no separate registration step to keep in sync. |
+| — (native, no Figma equivalent) | `value?`/`defaultValue?`/`onValueChange?` on `Tabs` | Controlled/uncontrolled active-tab state, at the root. |
+
+### Color tokens by Interaction
+
+| State | Label | Indicator | Hover fill |
+| --- | --- | --- | --- |
+| Selected, enabled | `text.primary` | `action.primary.default` | `action.tertiary.hover` |
+| Selected, disabled | `text.disabled` | `action.primary.disabled` | — |
+| Unselected, enabled | `text.secondary` | transparent | `action.tertiary.hover` |
+| Unselected, disabled | `text.disabled` | transparent | — |
+
+Focus ring: `focus.ring`/`focus.ring-offset`, rendered **inset** — same reasoning as
+Accordion's trigger (adjacent siblings sitting flush against each other). No new tokens.
+
+### Size parity
+
+`space.inset.md` (trigger padding), `space.inline.xs` (icon-to-label gap),
+`text.label.md.medium` (label). One size only.
+
+### Accessibility (implemented and spot-checked, not a certified audit)
+
+- `role="tablist"` (root container, real `<div>` — composite widget, not itself a tab
+  stop; see Implementation Notes), `role="tab"` on each real `<button>`
+  (`aria-selected`, `aria-controls`), `role="tabpanel"` on each panel
+  (`aria-labelledby`, `tabIndex={0}` per WAI-ARIA APG guidance so the panel region
+  itself is focusable/scrollable even when its content has no focusable elements).
+- **Roving tabindex**: only the selected `Tab` is `tabIndex={0}`; every other tab is
+  `-1`, so Tab/Shift+Tab from outside the tablist lands on the selected tab.
+- **Arrow-key navigation**: Left/Right (wrapping) and Home/End, implemented in
+  `TabList`'s `onKeyDown` by querying its own `[role="tab"]:not(:disabled)` DOM children
+  at keydown time rather than maintaining a separate JS registry — a disabled `Tab` is
+  automatically excluded.
+- Inactive `TabPanel`s use the native `hidden` attribute and are not mounted (`children`
+  render only while selected) — no open/close animation is intended for tab switching
+  (unlike Accordion's panel reveal), so there's no `inert`/height-animation question here.
+- Not yet verified: screen-reader spot-check, 200% zoom/reflow, full WCAG 2.2 AA sweep —
+  per `governance/accessibility.md`, required before "stable."
+
+### Implementation Notes
+
+- **`jsx-a11y/interactive-supports-focus` false positive**: the lint rule flags
+  `role="tablist"` on a non-focusable `<div>`, but per WAI-ARIA, a composite widget's
+  container is deliberately not itself a tab stop — focus lives on its `tab` children via
+  roving tabindex. Suppressed with an inline, justified `eslint-disable-next-line`, not a
+  broad rule change.
+- **Inset, not outer, focus ring** — see Accordion's own Implementation Notes; the same
+  adjacent-siblings reasoning applies here.
+
+### Cross-platform contract (shared design intent, not yet implemented elsewhere)
+
+- **Shared**: Selected/Unselected, a Disabled state, automatic activation intent, the
+  tablist/tab/tabpanel relationship.
+- **Not shared** (platform-owned): exact focus/ripple/press treatment; keyboard
+  navigation specifics should follow each platform's own native tab-view conventions
+  where one exists (e.g. SwiftUI's `TabView`) rather than porting the web ARIA pattern
+  verbatim.
+- **Not claimed**: vertical orientation or manual activation on any platform — both are
+  stated V1 scope cuts, not gaps.
