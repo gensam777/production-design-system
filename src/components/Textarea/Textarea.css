@@ -1,0 +1,189 @@
+/**
+ * Textarea (V1). Consumes generated token custom properties from
+ * src/tokens/build/css/{variables,typography}.css — run `npm run tokens:build` first, or
+ * these custom properties are undefined. See docs/design-to-code-mappings.md for the full
+ * Figma <-> code parity table.
+ *
+ * Unlike Input/Button, there is no fixed height component constant — a multi-line
+ * control's height is inherently content-driven (rows + padding + line-height), not a
+ * fixed control size.
+ *
+ * No intrinsic width lock: `.ds-textarea` is a plain block element (default full width of
+ * its container), matching Input's own "no fixed/hugging width" convention.
+ */
+
+.ds-textarea {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.ds-textarea * {
+  box-sizing: border-box;
+}
+
+/* ---- Label ---- */
+
+.ds-textarea__label {
+  display: block;
+  margin-bottom: var(--space-stack-sm);
+  color: var(--color-text-primary);
+}
+
+/* ---- Field (the textarea itself — no separate wrapper container, unlike Input, since
+   there are no icon slots to lay out around it) ---- */
+
+.ds-textarea__field {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-control);
+  background-color: var(--color-surface-default);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  resize: vertical;
+  transition:
+    border-color var(--motion-micro),
+    background-color var(--motion-micro),
+    box-shadow var(--motion-micro);
+}
+
+.ds-textarea__field::placeholder {
+  color: var(--color-text-tertiary);
+  opacity: 1; /* Firefox default-dims placeholder text; keep color the single source of truth. */
+}
+
+/* Hover — native CSS, not a React prop. Comes before .ds-textarea--error below so error's
+   border color wins the cascade tie when both apply. */
+.ds-textarea__field:hover {
+  border-color: var(--color-border-strong);
+}
+
+/* Focus-visible — same box-shadow double-ring technique as Input/Button. */
+.ds-textarea__field:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-focus-ring-offset),
+    0 0 0 4px var(--color-focus-ring);
+}
+
+/* ---- Validation (error prop — not native CSS, an explicit controlled flag) ---- */
+
+.ds-textarea--error .ds-textarea__field {
+  border-color: var(--color-border-danger);
+}
+.ds-textarea--error .ds-textarea__field:hover {
+  border-color: var(--color-border-danger);
+}
+.ds-textarea--error .ds-textarea__field:focus-visible {
+  border-color: var(--color-border-danger);
+}
+.ds-textarea--error .ds-textarea__support {
+  color: var(--color-text-danger);
+}
+
+/* ---- Disabled — native :disabled, styled last so it always wins over hover/error
+   (Disabled + Error renders identically to Disabled + Default, same precedence rule as
+   Input). A disabled textarea cannot receive focus in any browser. ---- */
+
+.ds-textarea:has(.ds-textarea__field:disabled) .ds-textarea__label {
+  color: var(--color-text-disabled);
+}
+.ds-textarea__field:disabled {
+  background-color: var(--color-surface-disabled);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+  resize: none;
+}
+.ds-textarea__field:disabled::placeholder {
+  color: var(--color-text-disabled);
+}
+.ds-textarea:has(.ds-textarea__field:disabled) .ds-textarea__support {
+  color: var(--color-text-disabled);
+}
+
+/* ---- Sizes ----
+   Padding is symmetric on all four sides (unlike Input, which only varies horizontal
+   padding) — a textarea has no icon-adjacent asymmetry to account for, and text can wrap
+   to multiple lines, so vertical padding matters just as much as horizontal. Each size
+   reuses Input's own "no icon" base inset value, applied to every side. */
+
+.ds-textarea--sm .ds-textarea__label {
+  font-family: var(--text-label-sm-medium-font-family);
+  font-size: var(--text-label-sm-medium-font-size);
+  font-weight: var(--text-label-sm-medium-font-weight);
+  line-height: var(--text-label-sm-medium-line-height);
+  letter-spacing: var(--text-label-sm-medium-letter-spacing);
+}
+.ds-textarea--sm .ds-textarea__field {
+  padding: var(--space-inset-md);
+  font-family: var(--text-body-sm-regular-font-family);
+  font-size: var(--text-body-sm-regular-font-size);
+  font-weight: var(--text-body-sm-regular-font-weight);
+  line-height: var(--text-body-sm-regular-line-height);
+  letter-spacing: var(--text-body-sm-regular-letter-spacing);
+}
+.ds-textarea--sm .ds-textarea__support {
+  margin-top: var(--space-stack-sm);
+  font-family: var(--text-caption-sm-regular-font-family);
+  font-size: var(--text-caption-sm-regular-font-size);
+  font-weight: var(--text-caption-sm-regular-font-weight);
+  line-height: var(--text-caption-sm-regular-line-height);
+  letter-spacing: var(--text-caption-sm-regular-letter-spacing);
+}
+
+.ds-textarea--md .ds-textarea__label {
+  font-family: var(--text-label-md-medium-font-family);
+  font-size: var(--text-label-md-medium-font-size);
+  font-weight: var(--text-label-md-medium-font-weight);
+  line-height: var(--text-label-md-medium-line-height);
+  letter-spacing: var(--text-label-md-medium-letter-spacing);
+}
+.ds-textarea--md .ds-textarea__field {
+  padding: var(--space-inset-lg);
+  font-family: var(--text-body-md-regular-font-family);
+  font-size: var(--text-body-md-regular-font-size);
+  font-weight: var(--text-body-md-regular-font-weight);
+  line-height: var(--text-body-md-regular-line-height);
+  letter-spacing: var(--text-body-md-regular-letter-spacing);
+}
+.ds-textarea--md .ds-textarea__support {
+  margin-top: var(--space-stack-sm);
+  font-family: var(--text-caption-md-regular-font-family);
+  font-size: var(--text-caption-md-regular-font-size);
+  font-weight: var(--text-caption-md-regular-font-weight);
+  line-height: var(--text-caption-md-regular-line-height);
+  letter-spacing: var(--text-caption-md-regular-letter-spacing);
+}
+
+.ds-textarea--lg .ds-textarea__label {
+  font-family: var(--text-label-lg-medium-font-family);
+  font-size: var(--text-label-lg-medium-font-size);
+  font-weight: var(--text-label-lg-medium-font-weight);
+  line-height: var(--text-label-lg-medium-line-height);
+  letter-spacing: var(--text-label-lg-medium-letter-spacing);
+}
+.ds-textarea--lg .ds-textarea__field {
+  padding: var(--space-inset-xl);
+  font-family: var(--text-body-lg-regular-font-family);
+  font-size: var(--text-body-lg-regular-font-size);
+  font-weight: var(--text-body-lg-regular-font-weight);
+  line-height: var(--text-body-lg-regular-line-height);
+  letter-spacing: var(--text-body-lg-regular-letter-spacing);
+}
+.ds-textarea--lg .ds-textarea__support {
+  /* No caption/lg token exists — Lg reuses caption/md, same gap as Input. */
+  margin-top: var(--space-stack-sm);
+  font-family: var(--text-caption-md-regular-font-family);
+  font-size: var(--text-caption-md-regular-font-size);
+  font-weight: var(--text-caption-md-regular-font-weight);
+  line-height: var(--text-caption-md-regular-line-height);
+  letter-spacing: var(--text-caption-md-regular-letter-spacing);
+}
+
+/* ---- Support text (helper or error) ---- */
+
+.ds-textarea__support {
+  color: var(--color-text-tertiary);
+}

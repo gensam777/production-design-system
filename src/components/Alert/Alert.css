@@ -1,0 +1,136 @@
+/**
+ * Alert (V1). Consumes generated token custom properties from
+ * src/tokens/build/css/{variables,typography}.css — run `npm run tokens:build` first, or
+ * these custom properties are undefined. See docs/design-to-code-mappings.md for the full
+ * Figma <-> code parity table.
+ *
+ * Subtle emphasis only in V1 — no solid/strong background variant. No border — relies on
+ * the tinted background alone for status signaling, consistent with Badge, and
+ * sidesteps the fact that border.info does not exist yet in the token set.
+ */
+
+.ds-alert {
+  display: flex;
+  align-items: flex-start;
+  box-sizing: border-box;
+  gap: var(--space-inline-md);
+  padding: var(--space-inset-lg);
+  border-radius: var(--radius-container);
+}
+
+.ds-alert * {
+  box-sizing: border-box;
+}
+
+/* ---- Status backgrounds ---- */
+
+.ds-alert--neutral {
+  background-color: var(--color-surface-sunken);
+}
+.ds-alert--info {
+  background-color: var(--color-feedback-info-subtle);
+}
+.ds-alert--success {
+  background-color: var(--color-feedback-success-subtle);
+}
+.ds-alert--warning {
+  background-color: var(--color-feedback-warning-subtle);
+}
+.ds-alert--danger {
+  background-color: var(--color-feedback-danger-subtle);
+}
+
+/* ---- Icon ----
+   Icon color uses the *.default step — the token source's own description says
+   "Icon/accent use" for that exact step (see src/tokens/semantic/color.json). */
+
+.ds-alert__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+.ds-alert--neutral .ds-alert__icon {
+  color: var(--color-text-secondary);
+}
+.ds-alert--info .ds-alert__icon {
+  color: var(--color-feedback-info-default);
+}
+.ds-alert--success .ds-alert__icon {
+  color: var(--color-feedback-success-default);
+}
+.ds-alert--warning .ds-alert__icon {
+  color: var(--color-feedback-warning-default);
+}
+.ds-alert--danger .ds-alert__icon {
+  color: var(--color-feedback-danger-default);
+}
+
+/* ---- Content column ---- */
+
+.ds-alert__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-xs);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ds-alert__title {
+  font-family: var(--text-label-sm-medium-font-family);
+  font-size: var(--text-label-sm-medium-font-size);
+  font-weight: var(--text-label-sm-medium-font-weight);
+  line-height: var(--text-label-sm-medium-line-height);
+  letter-spacing: var(--text-label-sm-medium-letter-spacing);
+}
+.ds-alert--neutral .ds-alert__title {
+  color: var(--color-text-primary);
+}
+.ds-alert--info .ds-alert__title {
+  color: var(--color-feedback-info-emphasis);
+}
+.ds-alert--success .ds-alert__title {
+  color: var(--color-feedback-success-emphasis);
+}
+.ds-alert--warning .ds-alert__title {
+  color: var(--color-feedback-warning-emphasis);
+}
+.ds-alert--danger .ds-alert__title {
+  color: var(--color-feedback-danger-emphasis);
+}
+
+/* Description stays neutral text.primary regardless of status — only the icon and title
+   carry the status color, so long-form body text stays readable either way. */
+.ds-alert__description {
+  color: var(--color-text-primary);
+  font-family: var(--text-body-sm-regular-font-family);
+  font-size: var(--text-body-sm-regular-font-size);
+  font-weight: var(--text-body-sm-regular-font-weight);
+  line-height: var(--text-body-sm-regular-line-height);
+  letter-spacing: var(--text-body-sm-regular-letter-spacing);
+}
+
+/* ---- Dismiss button ---- */
+
+.ds-alert__dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+}
+.ds-alert__dismiss:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-focus-ring-offset),
+    0 0 0 4px var(--color-focus-ring);
+  border-radius: var(--radius-control);
+}

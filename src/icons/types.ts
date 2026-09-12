@@ -14,6 +14,8 @@ export type IconName =
   | 'chevron-up'
   | 'info'
   | 'warning'
+  | 'success'
+  | 'danger'
   | 'trash'
   | 'edit'
   | 'settings';

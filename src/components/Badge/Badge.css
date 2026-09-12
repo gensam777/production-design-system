@@ -1,0 +1,99 @@
+/**
+ * Badge (V1). Consumes generated token custom properties from
+ * src/tokens/build/css/{variables,typography}.css — run `npm run tokens:build` first, or
+ * these custom properties are undefined. See docs/design-to-code-mappings.md for the full
+ * Figma <-> code parity table.
+ *
+ * First real consumer of the color.feedback.* semantic family (info/success/warning/
+ * danger) — previously unused by any shipped component.
+ *
+ * One size only — no Sm/Md/Lg axis, same convention as Checkbox/Radio/Switch: a badge
+ * stays visually stable relative to whatever text it sits beside.
+ */
+
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  gap: var(--space-inline-xs);
+  padding: var(--space-inset-xs);
+  border-radius: var(--radius-full);
+  font-family: var(--text-label-sm-medium-font-family);
+  font-size: var(--text-label-sm-medium-font-size);
+  font-weight: var(--text-label-sm-medium-font-weight);
+  line-height: var(--text-label-sm-medium-line-height);
+  letter-spacing: var(--text-label-sm-medium-letter-spacing);
+  white-space: nowrap;
+}
+
+.ds-badge * {
+  box-sizing: border-box;
+}
+
+/* ---- Icon slot ---- */
+
+.ds-badge__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: inherit;
+}
+.ds-badge__icon > svg,
+.ds-badge__icon > img {
+  width: 100%;
+  height: 100%;
+}
+
+.ds-badge__label {
+  color: inherit;
+}
+
+/* ---- Status x Emphasis color pairs ---- */
+
+.ds-badge--neutral.ds-badge--subtle {
+  background-color: var(--color-surface-sunken);
+  color: var(--color-text-secondary);
+}
+.ds-badge--neutral.ds-badge--strong {
+  background-color: var(--color-surface-inverse);
+  color: var(--color-text-inverse);
+}
+
+.ds-badge--info.ds-badge--subtle {
+  background-color: var(--color-feedback-info-subtle);
+  color: var(--color-feedback-info-emphasis);
+}
+.ds-badge--info.ds-badge--strong {
+  background-color: var(--color-feedback-info-emphasis);
+  color: var(--color-feedback-info-on-color);
+}
+
+.ds-badge--success.ds-badge--subtle {
+  background-color: var(--color-feedback-success-subtle);
+  color: var(--color-feedback-success-emphasis);
+}
+.ds-badge--success.ds-badge--strong {
+  background-color: var(--color-feedback-success-emphasis);
+  color: var(--color-feedback-success-on-color);
+}
+
+.ds-badge--warning.ds-badge--subtle {
+  background-color: var(--color-feedback-warning-subtle);
+  color: var(--color-feedback-warning-emphasis);
+}
+.ds-badge--warning.ds-badge--strong {
+  background-color: var(--color-feedback-warning-emphasis);
+  color: var(--color-feedback-warning-on-color);
+}
+
+.ds-badge--danger.ds-badge--subtle {
+  background-color: var(--color-feedback-danger-subtle);
+  color: var(--color-feedback-danger-emphasis);
+}
+.ds-badge--danger.ds-badge--strong {
+  background-color: var(--color-feedback-danger-emphasis);
+  color: var(--color-feedback-danger-on-color);
+}

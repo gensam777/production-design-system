@@ -36,6 +36,8 @@ API in this codebase exposes a Lucide-specific name.
 | `chevron-up`   | `ChevronUp`           |
 | `info`         | `Info`                |
 | `warning`      | `TriangleAlert`       |
+| `success`      | `CircleCheck`         |
+| `danger`       | `CircleX`             |
 | `trash`        | `Trash`               |
 | `edit`         | `Pencil`              |
 | `settings`     | `Settings`            |
@@ -43,6 +45,12 @@ API in this codebase exposes a Lucide-specific name.
 This is a small starter set, not the full Lucide catalog. Add a name only when a real
 component/product needs it — see `governance/decisions/0010-icon-token-architecture.md`
 for what updating this list requires.
+
+`success` and `danger` were added alongside Alert V1 — Alert owns its per-status icon
+internally (fixed per `status`, not a consumer-facing prop), and needed a distinct icon
+for each status distinguishable from `warning`'s triangle. Both parallel the existing
+`info`/`warning` precedent of a DS name that is simultaneously a status vocabulary word
+and an icon name.
 
 ## Sizes
 

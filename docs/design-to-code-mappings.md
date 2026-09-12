@@ -14,6 +14,10 @@ this table is updated by hand whenever a component ships or a mapping changes.
 | Radio | Radio V1, page `903:9`, component set `905:44` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Radio/Radio.tsx` | See [Radio](#radio) below. |
 | Radio Group | Radio Group V1, page `907:1396`, component set `907:1435` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/RadioGroup/RadioGroup.tsx` | See [Radio Group](#radio-group) below. |
 | Switch | Switch V1, page `934:9`, component set `934:50` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Switch/Switch.tsx` | See [Switch](#switch) below. |
+| Badge | Badge V1, page `958:9`, component set `958:1573` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Badge/Badge.tsx` | See [Badge](#badge) below. |
+| Alert | Alert V1, page `961:9`, component set `961:1634` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Alert/Alert.tsx` | See [Alert](#alert) below. |
+| Textarea | Textarea V1, page `961:1669`, component set `961:1811` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Textarea/Textarea.tsx` | See [Textarea](#textarea) below. |
+| Select | Select V1, page `961:1846`, component set `961:2074` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Select/Select.tsx` | See [Select](#select) below. |
 
 - **Figma component** — the component/variant name as it appears in the Figma library.
 - **Figma link** — direct link to the node in the library file.
@@ -1052,3 +1056,426 @@ tier would have broken this system's primitive → semantic → component rule).
   `Toggle`, Jetpack Compose's `Switch`) rather than reimplementing the ARIA pattern — the
   web implementation's use of a *repurposed checkbox* is a web-specific technique, not
   the shared cross-platform contract itself.
+
+## Badge
+
+- React: `src/components/Badge/Badge.tsx`
+- Styles: `src/components/Badge/Badge.css`
+- Storybook: `src/components/Badge/Badge.stories.tsx` (`Components/Badge`)
+- Figma: Badge V1 (approved), flat 10-variant component set. Page `958:9` ("Badge"),
+  component set `958:1573`. See `CLAUDE.md`'s Canonical Figma Source table for the
+  current node references.
+
+### Reference component
+
+No single direct ancestor among Button/Input/Checkbox/Radio/Switch — confirmed during
+the architecture pass, not assumed. Badge draws its anatomy from established typography/
+color/token conventions directly, plus Button/Input's icon-slot contract for its optional
+icon.
+
+### Figma architecture (current, authoritative)
+
+Flat component set — no nested Content layer:
+
+| Component set | Variant axes | Count | Owns |
+| --- | --- | --- | --- |
+| **Badge** | Status × Emphasis | 10 | Container fill/text color per Status+Emphasis, Label, optional icon (Show icon + Icon instance-swap) |
+
+Status (Neutral/Info/Success/Warning/Danger) × Emphasis (Subtle/Strong) are the only two
+variant axes — 10 variants is well under the ~12-variant threshold (Checkbox's precedent)
+that would justify factoring out a Content layer. Icon presence is a boolean + instance-
+swap property pair on the base component (mirroring Input's Label/Show label pattern),
+not a variant axis, so it never multiplies the set.
+
+### Prop mapping
+
+| Figma property | React prop | Notes |
+| --- | --- | --- |
+| Status (Neutral/Info/Success/Warning/Danger) | `status?: 'neutral' \| 'info' \| 'success' \| 'warning' \| 'danger'` | Default `'neutral'`. |
+| Emphasis (Subtle/Strong) | `emphasis?: 'subtle' \| 'strong'` | Default `'subtle'`. |
+| Label (TEXT) | `children: React.ReactNode` | Required. |
+| Show icon (BOOLEAN) + Icon (INSTANCE_SWAP) | `icon?: React.ReactNode` | Derived: `Boolean(icon)` controls rendering, same "derived, not a boolean prop" pattern as Button/Input's icon-adjacent layout. Provider-neutral — Badge never imports an icon library. |
+
+No `size` prop exists — one size only in V1, matching Checkbox/Radio/Switch's "stays
+visually stable relative to surrounding text" precedent, a reversible (non-breaking to
+add later) lean default rather than a demonstrated need.
+
+### Color tokens by Status × Emphasis
+
+First real consumer of `color.feedback.*` (previously provisioned in ADR 0002 but unused
+by any shipped component):
+
+| Status | Subtle background | Subtle text/icon | Strong background | Strong text/icon |
+| --- | --- | --- | --- | --- |
+| Neutral | `surface.sunken` | `text.secondary` | `surface.inverse` | `text.inverse` |
+| Info | `feedback.info.subtle` | `feedback.info.emphasis` | `feedback.info.emphasis` | `feedback.info.on-color` |
+| Success | `feedback.success.subtle` | `feedback.success.emphasis` | `feedback.success.emphasis` | `feedback.success.on-color` |
+| Warning | `feedback.warning.subtle` | `feedback.warning.emphasis` | `feedback.warning.emphasis` | `feedback.warning.on-color` |
+| Danger | `feedback.danger.subtle` | `feedback.danger.emphasis` | `feedback.danger.emphasis` | `feedback.danger.on-color` |
+
+Strong backgrounds use `.emphasis`, not `.default` — the token source's own description
+documents `on-color` as contrast-validated against `.emphasis`. Subtle text uses
+`feedback.<status>.emphasis` uniformly across all four statuses (not `text.danger` /
+`text.success` / `text.warning`, which exist for three of four but not `info`) so Badge
+draws from one consistent token family rather than mixing families per status. No new
+tokens were created.
+
+### Size parity
+
+| | Value |
+| --- | --- |
+| Padding | `space.inset.xs` (4px, all sides) — the token's own description literally says "Badges, tags, chips" |
+| Radius | `radius.full` |
+| Typography | `text.label.sm.medium` |
+| Icon | `icon.sm` (16px) |
+
+One size only — see Prop mapping above.
+
+### Accessibility (implemented and spot-checked, not a certified audit)
+
+- Plain `<span>`, no role by default — content reads in normal document flow like any
+  inline text, the same way Checkbox/Radio decline to add ARIA the component can't be
+  sure is correct for every usage.
+- A consumer needing live-region behavior for a dynamically-changing badge (e.g. a live
+  count) should add `aria-live` themselves via `...rest` — Badge does not guess at this.
+- Icon (when passed) is `aria-hidden="true"` — decorative, since the label text already
+  carries the meaning.
+- Not yet verified: screen-reader spot-check, 200% zoom/reflow, full WCAG 2.2 AA sweep —
+  per `governance/accessibility.md`, required before "stable."
+
+### Cross-platform contract (shared design intent, not yet implemented elsewhere)
+
+- **Shared**: Status × Emphasis color intent, one fixed size, optional leading icon.
+- **Not shared** (platform-owned): exact rendering of the pill shape/typography scale on
+  non-web platforms should follow each platform's own compact-label convention.
+- **Not claimed**: any interactive/dismissible behavior on any platform — that is a
+  separate future Tag/Chip component's scope, not Badge's.
+
+## Alert
+
+- React: `src/components/Alert/Alert.tsx`
+- Styles: `src/components/Alert/Alert.css`
+- Storybook: `src/components/Alert/Alert.stories.tsx` (`Components/Alert`)
+- Figma: Alert V1 (approved), flat 5-variant component set. Page `961:9` ("Alert"),
+  component set `961:1634`. See `CLAUDE.md`'s Canonical Figma Source table for the
+  current node references.
+
+### Reference component
+
+No single direct ancestor — confirmed during the architecture pass. Alert reuses the
+`color.feedback.*` family (new to the system via Badge, built in the same batch), Input's
+icon-slot conventions, and Checkbox's "internally-owned icon" precedent (Alert's status
+icon is fixed per variant, not a consumer-facing prop, the same ownership model as
+Checkbox's check/dash marks).
+
+### Figma architecture (current, authoritative)
+
+Flat component set — no nested Content layer:
+
+| Component set | Variant axes | Count | Owns |
+| --- | --- | --- | --- |
+| **Alert** | Status | 5 | Container fill per Status, internally-owned status icon, Title/Show title, Description, Dismissible + dismiss icon |
+
+Status (Neutral/Info/Success/Warning/Danger) is the only variant axis — unlike Badge,
+there is no Emphasis axis in V1 (subtle only, see V1 scope cuts below). Show title and
+Dismissible are boolean properties on the base component, not variants — Alert stays flat
+at 5 variants.
+
+### V1 scope cuts (stated, not silently assumed)
+
+- **Subtle emphasis only** — no solid/strong Alert background variant. Non-breaking to
+  add a second `emphasis` value later if a real need surfaces.
+- **No action slot** (e.g. an inline Retry button) — composing a Button correctly inside
+  an Alert per status is a larger scope question, deferred to a future version.
+- **No border** — relies on the tinted background alone for status signaling, consistent
+  with Badge, and sidesteps the fact that `border.info` does not exist in the token set
+  (a pre-existing gap, not filled speculatively here).
+
+### Icon catalog extension (new, added alongside Alert)
+
+Alert's status icon is internally owned (fixed per `status`, not a prop) — this required
+two new entries in the shared, provider-neutral `IconName` catalog, added in lockstep
+across all three required files per ADR 0010:
+
+| DS name | Lucide implementation | Added in |
+| --- | --- | --- |
+| `success` | `CircleCheck` | `src/icons/types.ts`, `src/icons/providers/lucide.ts`, `docs/foundations/icons.md` |
+| `danger` | `CircleX` | `src/icons/types.ts`, `src/icons/providers/lucide.ts`, `docs/foundations/icons.md` |
+
+Both parallel the existing `info`/`warning` precedent of a name that is simultaneously
+status vocabulary and an icon name. `Neutral` and `Info` both use `info`; `Success` uses
+the new `success`; `Warning` uses the existing `warning`; `Danger` uses the new `danger` —
+chosen specifically so Danger (circle + X) reads as visually distinct from Warning
+(triangle + !), rather than reusing `warning` for both and blurring the exact distinction
+Alert exists to communicate.
+
+### Prop mapping
+
+| Figma property | React prop | Notes |
+| --- | --- | --- |
+| Status (Neutral/Info/Success/Warning/Danger) | `status?: 'neutral' \| 'info' \| 'success' \| 'warning' \| 'danger'` | Default `'info'`. |
+| — (internal, no Figma property — fixed per Status) | **not a prop** | Icon is derived from `status` via an internal `STATUS_ICON` map (`Alert.tsx`) — there is no `icon` prop, the same "owned, not provider-swappable" contract Checkbox uses for its check/dash marks. |
+| Title (TEXT) | `title?: React.ReactNode` | `Omit<HTMLAttributes<HTMLDivElement>, 'title'>` — the native `title` tooltip attribute is reserved for this richer prop instead, the same collision-avoidance pattern Input/Select use for `size`. |
+| Show title (BOOLEAN) | **not a prop** | Derived: no `title` passed → no title rendered. |
+| Description | `children: React.ReactNode` | Required. |
+| Dismissible (BOOLEAN) | `dismissible?: boolean` | Default `false`. |
+| — (native, no Figma equivalent) | `onDismiss?: () => void` | Called when the dismiss button is activated. Alert holds no open/closed state itself — the consumer removes it from the tree. |
+
+### Color tokens by Status
+
+| Status | Background | Icon | Title | Description |
+| --- | --- | --- | --- | --- |
+| Neutral | `surface.sunken` | `text.secondary` | `text.primary` | `text.primary` |
+| Info | `feedback.info.subtle` | `feedback.info.default` | `feedback.info.emphasis` | `text.primary` |
+| Success | `feedback.success.subtle` | `feedback.success.default` | `feedback.success.emphasis` | `text.primary` |
+| Warning | `feedback.warning.subtle` | `feedback.warning.default` | `feedback.warning.emphasis` | `text.primary` |
+| Danger | `feedback.danger.subtle` | `feedback.danger.default` | `feedback.danger.emphasis` | `text.primary` |
+
+Icon color uses `.default`, not `.emphasis` — the token source's own description says
+"Icon/accent use" for that exact step. Description is always `text.primary`, deliberately
+uncolored regardless of status, so long-form body text stays readable — only the icon and
+title carry the status hue. Dismiss icon uses `text.tertiary`. No new tokens were created.
+
+### Size parity
+
+| | Value |
+| --- | --- |
+| Padding | `space.inset.lg` — the token's own description literally says "Default card/panel padding" |
+| Icon-to-content gap | `space.inline.md` |
+| Title-to-description gap | `space.stack.xs` |
+| Radius | `radius.container` (panel-level, not `radius.control`) |
+| Status icon | `icon.md` (20px) |
+| Dismiss icon | `icon.sm` (16px) |
+
+One size only — no Sm/Md/Lg axis in V1.
+
+### Accessibility (implemented and spot-checked, not a certified audit)
+
+- No default ARIA live-region role. `role="alert"`/`role="status"` are meant for content
+  dynamically inserted after page load (a toast, a form-submit error) — applying either
+  unconditionally to a statically-rendered Alert would interrupt screen readers on every
+  page load, a documented ARIA anti-pattern. A consumer dynamically injecting an Alert
+  should pass `role` themselves; it passes through via `...rest` (see the `Dynamically
+  injected` Storybook story).
+- Status icon is `aria-hidden="true"` — decorative, since Title/Description already carry
+  the meaning.
+- The dismiss control is a real `<button type="button">` with a hardcoded
+  `aria-label="Dismiss"` (no i18n override prop in V1 — a documented limitation, not a
+  silent gap) and a native `:focus-visible` ring.
+- Not yet verified: screen-reader spot-check, 200% zoom/reflow, full WCAG 2.2 AA sweep —
+  per `governance/accessibility.md`, required before "stable."
+
+### Cross-platform contract (shared design intent, not yet implemented elsewhere)
+
+- **Shared**: Status color/icon intent, optional title, required description, optional
+  dismiss affordance.
+- **Not shared** (platform-owned): exact dismiss-button rendering, and whether/how a
+  platform surfaces a live-region equivalent for dynamically-inserted alerts.
+- **Not claimed**: an action-slot or solid/strong emphasis contract on any platform — both
+  are explicit V1 scope cuts, not gaps to paper over.
+
+## Textarea
+
+- React: `src/components/Textarea/Textarea.tsx`
+- Styles: `src/components/Textarea/Textarea.css`
+- Storybook: `src/components/Textarea/Textarea.stories.tsx` (`Components/Textarea`)
+- Figma: Textarea V1 (approved), flat 24-variant component set. Page `961:1669`
+  ("Textarea"), component set `961:1811`. See `CLAUDE.md`'s Canonical Figma Source table
+  for the current node references.
+
+### Reference component
+
+**Input** — same field-shell shape (label, support/error text, sizes, native states).
+
+### Figma architecture (current, authoritative)
+
+Flat component set — no nested Content layer, unlike Input:
+
+| Component set | Variant axes | Count | Owns |
+| --- | --- | --- | --- |
+| **Textarea** | Size × Interaction × Validation | 24 | Label/Show label, native `<textarea>` field (border/background per Interaction+Validation), Support text/Show support text |
+
+Same axis shape and count as Input's outer (24), but **flat** — Input's nested Content
+layer exists solely to own its 4-value Icon Layout axis and the asymmetric padding that
+comes with it; Textarea has no icon slots at all (see below), so there is no
+structurally-crossing axis to factor out, the same reasoning Checkbox/Radio/Switch used
+to stay flat.
+
+### Intentional divergence from Input: no icon slots
+
+Textarea has **no `leadingIcon`/`trailingIcon` props and no Icon Layout axis in Figma** —
+icons in a height-growing, multi-line field are not an established pattern in this system
+or elsewhere. This is a deliberate V1 scope decision, not an oversight.
+
+### Intentional divergence from Input/Button: no fixed height constant
+
+Unlike every other control in this system, Textarea has **no fixed height component
+constant**. A multi-line control's height is inherently content-driven (native `rows` ×
+line-height + padding), not a fixed control size — height parity is expressed through
+`rows` (a native attribute, defaulted to `3` by the component) and per-size padding, not a
+pixel constant.
+
+### Prop mapping
+
+| Figma property | React prop | Notes |
+| --- | --- | --- |
+| Size (Sm/Md/Lg) | `size?: 'sm' \| 'md' \| 'lg'` | Default `'md'`. No `Omit` needed — `<textarea>` has no native `size` attribute to collide with, unlike `<input>`. |
+| Interaction (Default/Hover/Focus/Disabled) | **not a prop** | Same convention as Input — Hover/Focus-visible are native CSS states; Disabled is the native `disabled` attribute. |
+| Validation (Default/Error) | `error?: boolean` | Default `false`. |
+| — | `errorText?: React.ReactNode` | Same one-region, helper-or-error pattern as Input. |
+| Label | `label?: React.ReactNode` | Renders a real `<label>` associated via `htmlFor`/`id`. |
+| Show label (nested boolean) | **not a prop** | Derived: no `label` passed → no `<label>` rendered. |
+| Support text | `helperText?: React.ReactNode` | Shown below the field unless superseded by `errorText`. |
+| Show support text (nested boolean) | **not a prop** | Derived: no `helperText`/`errorText` content → no support region rendered. |
+| — (native, no Figma equivalent) | `rows?: number` | Passed straight through; component defaults it to `3` when the caller doesn't supply one. |
+
+### Size parity
+
+| Size | Padding (all sides) | Label typography | Value typography | Support typography |
+| --- | --- | --- | --- | --- |
+| Sm | `space.inset.md` (12px) | `text.label.sm.medium` | `text.body.sm.regular` | `text.caption.sm.regular` |
+| Md | `space.inset.lg` (16px) | `text.label.md.medium` | `text.body.md.regular` | `text.caption.md.regular` |
+| Lg | `space.inset.xl` (20px) | `text.label.lg.medium` | `text.body.lg.regular` | `text.caption.md.regular` (no `caption.lg` token exists — same gap Input already documents) |
+
+Padding is symmetric on all four sides — unlike Input, which only varies horizontal
+padding to make room for icons, Textarea has no icon-adjacent asymmetry, so each size
+reuses Input's own "no icon" horizontal inset value applied uniformly. Radius uses
+`radius.control` (4px) at every size, same as Input.
+
+### Color tokens by Interaction/Validation
+
+Identical token set and precedence rules to Input's own table: `border.default` (Default),
+`border.strong` (Hover), `border.danger` (Error, wins over Hover), focus ring layers on
+top via `focus.ring`/`focus.ring-offset`, `border.subtle` + `surface.disabled` +
+`text.disabled` (Disabled, always wins — Disabled+Error renders identically to
+Disabled+Default). No new tokens were created.
+
+### Accessibility (implemented and spot-checked, not a certified audit)
+
+- Native `<textarea>` — never a styled `<div>`.
+- `<label>` renders only when `label` is passed, associated via `htmlFor`/`id`.
+- `aria-describedby` points at the generated support-text id only when support content is
+  rendered.
+- `aria-invalid="true"` set when `error` is true.
+- `disabled` is the native HTML attribute.
+- Focus-visible uses the native `:focus-visible` pseudo-class directly on the textarea
+  (simpler than Input's `:has()` indirection, since there's no separate icon-bearing
+  wrapper to target).
+- **Resize stays enabled** (`resize: vertical`, never `resize: none`) — disabling it is a
+  documented accessibility anti-pattern that removes a user's ability to see more of what
+  they typed. The one exception is `:disabled`, where the browser itself prevents
+  interaction.
+- Not yet verified: screen-reader spot-check, 200% zoom/reflow, full WCAG 2.2 AA sweep —
+  per `governance/accessibility.md`, required before "stable."
+
+### Cross-platform contract (shared design intent, not yet implemented elsewhere)
+
+- **Shared**: Size, label, validation, disabled, support/error text, and the same
+  spacing/color/typography contract as Input.
+- **Not shared** (platform-owned): exact resize affordance/handle rendering, and native
+  multi-line text input behavior/keyboard handling per platform.
+- **Not claimed**: icon slots on any platform — explicitly out of scope for this
+  component shape, not a gap.
+
+## Select
+
+- React: `src/components/Select/Select.tsx`
+- Styles: `src/components/Select/Select.css`
+- Storybook: `src/components/Select/Select.stories.tsx` (`Components/Select`)
+- Figma: Select V1 (approved), flat 24-variant component set. Page `961:1846` ("Select"),
+  component set `961:2074`. See `CLAUDE.md`'s Canonical Figma Source table for the
+  current node references.
+
+### Reference component
+
+Input's field shell plus native form-control semantics — the selection/listbox behavior
+itself is new, not inherited from Input.
+
+### Confirmed architecture decision: native `<select>`
+
+Presented as an open decision during the architecture pass and confirmed: **native
+`<select>`**, not a custom listbox/combobox. Matches this system's consistent native-first
+philosophy (Button/Input/Checkbox/Radio/Switch all wrap a real native element rather than
+a custom ARIA widget) — full keyboard nav, mobile OS pickers, and screen-reader support
+for free, with zero custom ARIA. Trade-off, accepted: the open option list is OS-rendered
+chrome and cannot be styled.
+
+### Figma architecture (current, authoritative)
+
+Flat component set — no nested Content layer:
+
+| Component set | Variant axes | Count | Owns |
+| --- | --- | --- | --- |
+| **Select** | Size × Interaction × Validation | 24 | Label/Show label, field container (border/background per Interaction+Validation), internally-owned chevron, optional leading icon (Show leading icon + Leading icon instance-swap), Support text/Show support text |
+
+Same axis shape and count as Input's outer (24). The chevron is a fixed, always-present
+internal vector — the named example in `docs/foundations/icons.md` ("use `<Icon
+name="..." />` where the component itself owns a specific semantic icon, e.g. a Select's
+chevron") — never a variant or property. The optional leading icon is a boolean +
+instance-swap property pair (mirroring Input's Show label pattern), not a variant axis —
+this is why the set stays flat instead of nesting a Content layer the way Input did for
+its 4-value Icon Layout (a single optional icon has no asymmetric-padding cross-product to
+factor out).
+
+### Prop mapping
+
+| Figma property | React prop | Notes |
+| --- | --- | --- |
+| Size (Sm/Md/Lg) | `size?: 'sm' \| 'md' \| 'lg'` | Default `'md'`. `Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size'>` is required — `<select>` has its own native `size` attribute (visible-row count), the same collision Input already solved for `<input>`. |
+| Interaction (Default/Hover/Focus/Disabled) | **not a prop** | Same convention as Input. |
+| Validation (Default/Error) | `error?: boolean` | Default `false`, plus `errorText?: React.ReactNode`. |
+| Label / Show label | `label?: React.ReactNode` | Same pattern as Input. |
+| Support text / Show support text | `helperText?: React.ReactNode` | Same pattern as Input. |
+| Show leading icon (BOOLEAN) + Leading icon (INSTANCE_SWAP) | `leadingIcon?: React.ReactNode` | Derived from `Boolean(leadingIcon)`. Provider-neutral — Select never imports an icon library for this slot. |
+| Chevron (internal, fixed) | **not a prop** | Internally owned — `<Icon name="chevron-down" />` inside `Select.tsx`, always rendered, `aria-hidden` + `pointer-events: none`. |
+| — (Figma has no equivalent — native `<select>` has no placeholder attribute) | **not a prop** | The consumer supplies a disabled, empty-value `<option>` themselves — Select does not clone/inspect `children`, matching RadioGroup's "don't reach into children" philosophy. |
+| Items (`<option>`/`<optgroup>`) | `children: React.ReactNode` | Required. Passed straight through to the native `<select>`. |
+
+No `trailingIcon` prop exists — the trailing slot is owned by the internal chevron, not
+consumer-provided, an intentional divergence from Input. `multiple` is not a supported V1
+use case (not type-blocked via `Omit`, just out of the visual/architectural scope the 24
+variants and chevron overlay assume).
+
+### Size parity
+
+| Size | Field height | Label typography | Value typography | Support typography | Icon |
+| --- | --- | --- | --- | --- | --- |
+| Sm | 32px (component constant, not a token — same convention as Input) | `text.label.sm.medium` | `text.body.sm.regular` | `text.caption.sm.regular` | `icon.sm` (16px) |
+| Md | 40px (component constant) | `text.label.md.medium` | `text.body.md.regular` | `text.caption.md.regular` | `icon.md` (20px) |
+| Lg | 48px (component constant) | `text.label.lg.medium` | `text.body.lg.regular` | `text.caption.md.regular` (no `caption.lg` token — same gap Input documents) | `icon.lg` (24px) |
+
+Radius uses `radius.control` (4px) at every size, same as Input. Icon-to-text gap uses
+`space.inline.sm`.
+
+### Color tokens by Interaction/Validation
+
+Identical token set and precedence rules to Input's own table — `border.default` /
+`.strong` (Hover) / `.danger` (Error) / `.subtle` + `surface.disabled` (Disabled, always
+wins), focus ring via `focus.ring`/`focus.ring-offset`. Chevron and leading icon use
+`text.tertiary` normally, `text.disabled` when disabled — same fixed-per-state foreground
+pattern Input's own icon slots use. No new tokens were created.
+
+### Accessibility (implemented and spot-checked, not a certified audit)
+
+- Native `<select>` — full role/state/keyboard semantics (arrow-key navigation, type-
+  ahead, screen-reader announcement of value and position) for free, with **zero custom
+  ARIA** — the single biggest accessibility win of the native-element decision above.
+- `<label>` renders only when `label` is passed, associated via `htmlFor`/`id`.
+- `aria-describedby`/`aria-invalid` — same pattern as Input.
+- `disabled` is the native HTML attribute.
+- Chevron is `aria-hidden="true"` and `pointer-events: none` — purely decorative overlay;
+  clicks pass through to the native control beneath it, which is what actually opens the
+  option list.
+- Not yet verified: screen-reader spot-check, 200% zoom/reflow, full WCAG 2.2 AA sweep —
+  per `governance/accessibility.md`, required before "stable."
+
+### Cross-platform contract (shared design intent, not yet implemented elsewhere)
+
+- **Shared**: Size, label, validation, disabled, an internally-owned "expand" affordance,
+  and the intent "choose one from a fixed set of options."
+- **Not shared** (platform-owned): the exact picker UI — other platforms should use their
+  own native picker (SwiftUI `Picker`, Jetpack Compose `DropdownMenu`/`Spinner`) rather
+  than reimplementing a web-style dropdown; the *shared* contract is "a native OS picker
+  for one-of-many," not a pixel-identical popup.
+- **Not claimed**: search/filter or multi-select on any platform — both are out of V1
+  scope, not gaps.

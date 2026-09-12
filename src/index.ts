@@ -46,3 +46,15 @@ export type { RadioGroupProps } from './components/RadioGroup';
 
 export { Switch } from './components/Switch';
 export type { SwitchProps } from './components/Switch';
+
+export { Textarea } from './components/Textarea';
+export type { TextareaProps, TextareaSize } from './components/Textarea';
+
+export { Select } from './components/Select';
+export type { SelectProps, SelectSize } from './components/Select';
+
+export { Badge } from './components/Badge';
+export type { BadgeProps, BadgeStatus, BadgeEmphasis } from './components/Badge';
+
+export { Alert } from './components/Alert';
+export type { AlertProps, AlertStatus } from './components/Alert';

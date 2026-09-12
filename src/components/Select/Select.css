@@ -1,0 +1,261 @@
+/**
+ * Select (V1). Consumes generated token custom properties from
+ * src/tokens/build/css/{variables,typography}.css — run `npm run tokens:build` first, or
+ * these custom properties are undefined. See docs/design-to-code-mappings.md for the full
+ * Figma <-> code parity table.
+ *
+ * Height (32/40/48px) is a component-owned constant, not a token — same convention as
+ * Input/Button (see governance/decisions/0010) — no second control has asked for these
+ * heights yet.
+ *
+ * Border/background/radius live on the native <select> itself (`.ds-select__control`),
+ * not on `.ds-select__field` — `.ds-select__field` is purely a positioning context
+ * (`position: relative`) for the icon overlays, which sit on top of the native control's
+ * own padding rather than as flex siblings, since a native <select> cannot contain
+ * arbitrary child elements the way Input's wrapping <div> can.
+ */
+
+.ds-select {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.ds-select * {
+  box-sizing: border-box;
+}
+
+/* ---- Label ---- */
+
+.ds-select__label {
+  display: block;
+  margin-bottom: var(--space-stack-sm);
+  color: var(--color-text-primary);
+}
+
+/* ---- Field (positioning context only — no visual styling of its own) ---- */
+
+.ds-select__field {
+  position: relative;
+  display: flex;
+}
+
+/* ---- The native control itself owns border/background/radius/typography ---- */
+
+.ds-select__control {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-control);
+  background-color: var(--color-surface-default);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  transition:
+    border-color var(--motion-micro),
+    background-color var(--motion-micro),
+    box-shadow var(--motion-micro);
+}
+
+/* Hover — native CSS, not a React prop. Comes before .ds-select--error below so error's
+   border color wins the cascade tie when both apply. */
+.ds-select__control:hover {
+  border-color: var(--color-border-strong);
+}
+
+/* Focus-visible — same box-shadow double-ring technique as Input/Button. */
+.ds-select__control:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-focus-ring-offset),
+    0 0 0 4px var(--color-focus-ring);
+}
+
+/* ---- Validation (error prop — not native CSS, an explicit controlled flag) ---- */
+
+.ds-select--error .ds-select__control {
+  border-color: var(--color-border-danger);
+}
+.ds-select--error .ds-select__control:hover {
+  border-color: var(--color-border-danger);
+}
+.ds-select--error .ds-select__control:focus-visible {
+  border-color: var(--color-border-danger);
+}
+.ds-select--error .ds-select__support {
+  color: var(--color-text-danger);
+}
+
+/* ---- Disabled — native :disabled, styled last so it always wins over hover/error
+   (Disabled + Error renders identically to Disabled + Default, same precedence rule as
+   Input). ---- */
+
+.ds-select:has(.ds-select__control:disabled) .ds-select__label {
+  color: var(--color-text-disabled);
+}
+.ds-select__control:disabled {
+  background-color: var(--color-surface-disabled);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+.ds-select:has(.ds-select__control:disabled) .ds-select__icon {
+  color: var(--color-text-disabled);
+}
+.ds-select:has(.ds-select__control:disabled) .ds-select__support {
+  color: var(--color-text-disabled);
+}
+
+/* ---- Icon overlays (leading icon + chevron) ----
+   Absolutely positioned on top of the native control, pointer-events: none so clicks
+   always reach the <select> underneath — decorative only, the control's own full-size
+   box is what opens the native option list. */
+
+.ds-select__icon {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  color: var(--color-text-tertiary);
+}
+.ds-select__icon > svg,
+.ds-select__icon > img {
+  width: 100%;
+  height: 100%;
+}
+.ds-select__icon--chevron {
+  right: 0;
+}
+.ds-select__icon--leading {
+  left: 0;
+}
+
+/* ---- Sizes ---- */
+
+.ds-select--sm .ds-select__label {
+  font-family: var(--text-label-sm-medium-font-family);
+  font-size: var(--text-label-sm-medium-font-size);
+  font-weight: var(--text-label-sm-medium-font-weight);
+  line-height: var(--text-label-sm-medium-line-height);
+  letter-spacing: var(--text-label-sm-medium-letter-spacing);
+}
+.ds-select--sm .ds-select__control {
+  height: 32px;
+  padding-inline: var(--space-inset-md);
+  padding-inline-end: calc(var(--icon-md) + var(--space-inline-sm) + var(--space-inset-md));
+  font-family: var(--text-body-sm-regular-font-family);
+  font-size: var(--text-body-sm-regular-font-size);
+  font-weight: var(--text-body-sm-regular-font-weight);
+  line-height: var(--text-body-sm-regular-line-height);
+  letter-spacing: var(--text-body-sm-regular-letter-spacing);
+}
+.ds-select--sm .ds-select__icon {
+  width: var(--icon-sm);
+}
+.ds-select--sm .ds-select__icon--chevron {
+  margin-inline-end: var(--space-inset-md);
+}
+.ds-select--sm .ds-select__icon--leading {
+  margin-inline-start: var(--space-inset-md);
+}
+.ds-select--sm.ds-select--has-leading-icon .ds-select__control {
+  padding-inline-start: calc(var(--icon-sm) + var(--space-inline-sm) + var(--space-inset-md));
+}
+.ds-select--sm .ds-select__support {
+  margin-top: var(--space-stack-sm);
+  font-family: var(--text-caption-sm-regular-font-family);
+  font-size: var(--text-caption-sm-regular-font-size);
+  font-weight: var(--text-caption-sm-regular-font-weight);
+  line-height: var(--text-caption-sm-regular-line-height);
+  letter-spacing: var(--text-caption-sm-regular-letter-spacing);
+}
+
+.ds-select--md .ds-select__label {
+  font-family: var(--text-label-md-medium-font-family);
+  font-size: var(--text-label-md-medium-font-size);
+  font-weight: var(--text-label-md-medium-font-weight);
+  line-height: var(--text-label-md-medium-line-height);
+  letter-spacing: var(--text-label-md-medium-letter-spacing);
+}
+.ds-select--md .ds-select__control {
+  height: 40px;
+  padding-inline: var(--space-inset-lg);
+  padding-inline-end: calc(var(--icon-md) + var(--space-inline-sm) + var(--space-inset-lg));
+  font-family: var(--text-body-md-regular-font-family);
+  font-size: var(--text-body-md-regular-font-size);
+  font-weight: var(--text-body-md-regular-font-weight);
+  line-height: var(--text-body-md-regular-line-height);
+  letter-spacing: var(--text-body-md-regular-letter-spacing);
+}
+.ds-select--md .ds-select__icon {
+  width: var(--icon-md);
+}
+.ds-select--md .ds-select__icon--chevron {
+  margin-inline-end: var(--space-inset-lg);
+}
+.ds-select--md .ds-select__icon--leading {
+  margin-inline-start: var(--space-inset-lg);
+}
+.ds-select--md.ds-select--has-leading-icon .ds-select__control {
+  padding-inline-start: calc(var(--icon-md) + var(--space-inline-sm) + var(--space-inset-lg));
+}
+.ds-select--md .ds-select__support {
+  margin-top: var(--space-stack-sm);
+  font-family: var(--text-caption-md-regular-font-family);
+  font-size: var(--text-caption-md-regular-font-size);
+  font-weight: var(--text-caption-md-regular-font-weight);
+  line-height: var(--text-caption-md-regular-line-height);
+  letter-spacing: var(--text-caption-md-regular-letter-spacing);
+}
+
+.ds-select--lg .ds-select__label {
+  font-family: var(--text-label-lg-medium-font-family);
+  font-size: var(--text-label-lg-medium-font-size);
+  font-weight: var(--text-label-lg-medium-font-weight);
+  line-height: var(--text-label-lg-medium-line-height);
+  letter-spacing: var(--text-label-lg-medium-letter-spacing);
+}
+.ds-select--lg .ds-select__control {
+  height: 48px;
+  padding-inline: var(--space-inset-xl);
+  padding-inline-end: calc(var(--icon-lg) + var(--space-inline-sm) + var(--space-inset-xl));
+  font-family: var(--text-body-lg-regular-font-family);
+  font-size: var(--text-body-lg-regular-font-size);
+  font-weight: var(--text-body-lg-regular-font-weight);
+  line-height: var(--text-body-lg-regular-line-height);
+  letter-spacing: var(--text-body-lg-regular-letter-spacing);
+}
+.ds-select--lg .ds-select__icon {
+  width: var(--icon-lg);
+}
+.ds-select--lg .ds-select__icon--chevron {
+  margin-inline-end: var(--space-inset-xl);
+}
+.ds-select--lg .ds-select__icon--leading {
+  margin-inline-start: var(--space-inset-xl);
+}
+.ds-select--lg.ds-select--has-leading-icon .ds-select__control {
+  padding-inline-start: calc(var(--icon-lg) + var(--space-inline-sm) + var(--space-inset-xl));
+}
+.ds-select--lg .ds-select__support {
+  /* No caption/lg token exists — Lg reuses caption/md, same gap as Input. */
+  margin-top: var(--space-stack-sm);
+  font-family: var(--text-caption-md-regular-font-family);
+  font-size: var(--text-caption-md-regular-font-size);
+  font-weight: var(--text-caption-md-regular-font-weight);
+  line-height: var(--text-caption-md-regular-line-height);
+  letter-spacing: var(--text-caption-md-regular-letter-spacing);
+}
+
+/* ---- Support text (helper or error) ---- */
+
+.ds-select__support {
+  color: var(--color-text-tertiary);
+}
