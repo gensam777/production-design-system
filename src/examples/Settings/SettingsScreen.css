@@ -1,0 +1,82 @@
+/**
+ * SettingsScreen (example composition, not a DS component). Consumes generated token
+ * custom properties from src/tokens/build/css/variables.css / typography.css — run
+ * `npm run tokens:build` first.
+ */
+
+.ds-example-settings__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-xs);
+  margin-bottom: var(--space-stack-lg);
+}
+.ds-example-settings__heading h1 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-family: var(--text-heading-sm-semibold-font-family);
+  font-size: var(--text-heading-sm-semibold-font-size);
+  font-weight: var(--text-heading-sm-semibold-font-weight);
+  line-height: var(--text-heading-sm-semibold-line-height);
+  letter-spacing: var(--text-heading-sm-semibold-letter-spacing);
+}
+.ds-example-settings__heading p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-family: var(--text-body-sm-regular-font-family);
+  font-size: var(--text-body-sm-regular-font-size);
+  font-weight: var(--text-body-sm-regular-font-weight);
+  line-height: var(--text-body-sm-regular-line-height);
+  letter-spacing: var(--text-body-sm-regular-letter-spacing);
+}
+
+.ds-example-settings__panel-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-lg);
+}
+
+.ds-example-settings__section-heading {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-family: var(--text-label-lg-semibold-font-family);
+  font-size: var(--text-label-lg-semibold-font-size);
+  font-weight: var(--text-label-lg-semibold-font-weight);
+  line-height: var(--text-label-lg-semibold-line-height);
+  letter-spacing: var(--text-label-lg-semibold-letter-spacing);
+}
+
+.ds-example-settings__name-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-inline-md);
+}
+.ds-example-settings__name-row > * {
+  flex: 1 1 0%;
+}
+/* Mirrors --viewport-md (768px) — see AppShell.css for why this is hardcoded. */
+@media (min-width: 768px) {
+  .ds-example-settings__name-row {
+    flex-direction: row;
+  }
+}
+
+.ds-example-settings__divider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--color-border-subtle);
+  margin: 0;
+}
+
+.ds-example-settings__switch-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-md);
+}
+
+.ds-example-settings__footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-inline-md);
+  padding-top: var(--space-stack-lg);
+  border-top: 1px solid var(--color-border-subtle);
+}
