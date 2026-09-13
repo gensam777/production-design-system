@@ -1,0 +1,175 @@
+/**
+ * DashboardScreen (example composition, not a DS component). Consumes generated token
+ * custom properties from src/tokens/build/css/variables.css / typography.css — run
+ * `npm run tokens:build` first.
+ */
+
+.ds-example-dashboard__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-xs);
+}
+.ds-example-dashboard__heading h1 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-family: var(--text-heading-sm-semibold-font-family);
+  font-size: var(--text-heading-sm-semibold-font-size);
+  font-weight: var(--text-heading-sm-semibold-font-weight);
+  line-height: var(--text-heading-sm-semibold-line-height);
+  letter-spacing: var(--text-heading-sm-semibold-letter-spacing);
+}
+.ds-example-dashboard__heading p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-family: var(--text-body-sm-regular-font-family);
+  font-size: var(--text-body-sm-regular-font-size);
+  font-weight: var(--text-body-sm-regular-font-weight);
+  line-height: var(--text-body-sm-regular-line-height);
+  letter-spacing: var(--text-body-sm-regular-letter-spacing);
+}
+
+/* ---- Stat row ----
+   Intrinsic layout first (per docs/foundations/responsive.md): flex-wrap does the
+   reflow work on its own — no breakpoint needed for 3 cards -> stacked single column,
+   it falls out of each card's flex-basis vs. the row's available width. Gap mirrors the
+   Grid guidance table's Wide/Compact internal-gap values (primitive space tokens, used
+   directly — intentional, see docs/foundations/responsive.md's Grid guidance). */
+.ds-example-dashboard__stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xl);
+}
+.ds-example-dashboard__stat-card {
+  flex: 1 1 240px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-xs);
+}
+.ds-example-dashboard__stat-label {
+  color: var(--color-text-tertiary);
+  font-family: var(--text-caption-md-regular-font-family);
+  font-size: var(--text-caption-md-regular-font-size);
+  font-weight: var(--text-caption-md-regular-font-weight);
+  line-height: var(--text-caption-md-regular-line-height);
+  letter-spacing: var(--text-caption-md-regular-letter-spacing);
+}
+.ds-example-dashboard__stat-value {
+  color: var(--color-text-primary);
+  font-family: var(--text-heading-md-bold-font-family);
+  font-size: var(--text-heading-md-bold-font-size);
+  font-weight: var(--text-heading-md-bold-font-weight);
+  line-height: var(--text-heading-md-bold-line-height);
+  letter-spacing: var(--text-heading-md-bold-letter-spacing);
+}
+.ds-example-dashboard__stat-delta {
+  font-family: var(--text-body-sm-regular-font-family);
+  font-size: var(--text-body-sm-regular-font-size);
+  font-weight: var(--text-body-sm-regular-font-weight);
+  line-height: var(--text-body-sm-regular-line-height);
+  letter-spacing: var(--text-body-sm-regular-letter-spacing);
+}
+.ds-example-dashboard__stat-delta--positive {
+  color: var(--color-text-success);
+}
+.ds-example-dashboard__stat-delta--neutral {
+  color: var(--color-text-secondary);
+}
+
+/* ---- Activity / status row ----
+   Mobile-first: a single column by default. Switching to a two-column row is the one
+   real breakpoint decision intrinsic layout can't express on its own (a genuine
+   direction change, not a reflow) — see docs/foundations/responsive.md's own framing of
+   this exact distinction. 1024px mirrors --viewport-lg; hardcoded because @media
+   conditions cannot consume var(). */
+.ds-example-dashboard__lower-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+.ds-example-dashboard__activity-card,
+.ds-example-dashboard__status-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-lg);
+}
+@media (min-width: 1024px) {
+  .ds-example-dashboard__lower-row {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .ds-example-dashboard__activity-card {
+    flex: 2 1 0%;
+  }
+  .ds-example-dashboard__status-card {
+    flex: 0 0 360px;
+  }
+}
+
+.ds-example-dashboard__card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ds-example-dashboard__card-header h2,
+.ds-example-dashboard__status-card h2 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-family: var(--text-label-lg-semibold-font-family);
+  font-size: var(--text-label-lg-semibold-font-size);
+  font-weight: var(--text-label-lg-semibold-font-weight);
+  line-height: var(--text-label-lg-semibold-line-height);
+  letter-spacing: var(--text-label-lg-semibold-letter-spacing);
+}
+
+.ds-example-dashboard__activity-list,
+.ds-example-dashboard__status-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-md);
+}
+
+.ds-example-dashboard__activity-list li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-xs);
+  padding-top: var(--space-stack-md);
+}
+.ds-example-dashboard__activity-list li:first-child {
+  padding-top: 0;
+}
+.ds-example-dashboard__activity-list li + li {
+  border-top: 1px solid var(--color-border-subtle);
+}
+.ds-example-dashboard__activity-text {
+  color: var(--color-text-primary);
+  font-family: var(--text-body-sm-regular-font-family);
+  font-size: var(--text-body-sm-regular-font-size);
+  font-weight: var(--text-body-sm-regular-font-weight);
+  line-height: var(--text-body-sm-regular-line-height);
+  letter-spacing: var(--text-body-sm-regular-letter-spacing);
+}
+.ds-example-dashboard__activity-time {
+  color: var(--color-text-tertiary);
+  font-family: var(--text-caption-sm-regular-font-family);
+  font-size: var(--text-caption-sm-regular-font-size);
+  font-weight: var(--text-caption-sm-regular-font-weight);
+  line-height: var(--text-caption-sm-regular-line-height);
+  letter-spacing: var(--text-caption-sm-regular-letter-spacing);
+}
+
+.ds-example-dashboard__status-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ds-example-dashboard__status-label {
+  color: var(--color-text-primary);
+  font-family: var(--text-body-sm-regular-font-family);
+  font-size: var(--text-body-sm-regular-font-size);
+  font-weight: var(--text-body-sm-regular-font-weight);
+  line-height: var(--text-body-sm-regular-line-height);
+  letter-spacing: var(--text-body-sm-regular-letter-spacing);
+}

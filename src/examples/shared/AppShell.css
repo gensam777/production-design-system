@@ -1,0 +1,84 @@
+/**
+ * AppShell (example composition, not a DS component). Consumes generated token custom
+ * properties from src/tokens/build/css/variables.css — run `npm run tokens:build` first.
+ */
+
+.ds-example-app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--color-surface-canvas);
+  box-sizing: border-box;
+}
+
+.ds-example-app-shell__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  flex-shrink: 0;
+  padding-inline: var(--space-layout-lg);
+  background-color: var(--color-surface-default);
+  border-bottom: 1px solid var(--color-border-subtle);
+  box-sizing: border-box;
+}
+
+.ds-example-app-shell__brand {
+  color: var(--color-text-primary);
+  font-family: var(--text-label-lg-semibold-font-family);
+  font-size: var(--text-label-lg-semibold-font-size);
+  font-weight: var(--text-label-lg-semibold-font-weight);
+  line-height: var(--text-label-lg-semibold-line-height);
+  letter-spacing: var(--text-label-lg-semibold-letter-spacing);
+}
+
+.ds-example-app-shell__nav-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-inline-md);
+}
+
+.ds-example-app-shell__user-name {
+  color: var(--color-text-secondary);
+  font-family: var(--text-body-sm-medium-font-family);
+  font-size: var(--text-body-sm-medium-font-size);
+  font-weight: var(--text-body-sm-medium-font-weight);
+  line-height: var(--text-body-sm-medium-line-height);
+  letter-spacing: var(--text-body-sm-medium-letter-spacing);
+  white-space: nowrap;
+}
+
+.ds-example-app-shell__body {
+  width: 100%;
+  max-width: var(--layout-container-max-width);
+  margin-inline: auto;
+  box-sizing: border-box;
+  padding-block: var(--space-layout-lg);
+  padding-inline: var(--space-layout-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-2xl);
+}
+
+/* Mirrors --viewport-md (768px). CSS @media conditions cannot consume var(), so the
+   threshold is hardcoded here — see docs/foundations/responsive.md, which documents the
+   same inherent limitation on the Figma side. Below this width the nav's secondary,
+   genuinely non-essential items (plan badge, user name) are hidden rather than reflowed;
+   a real hamburger/menu affordance is out of scope, since this system has no Menu/
+   IconButton component yet (documented gap, not invented here). */
+@media (max-width: 767px) {
+  .ds-example-app-shell__nav {
+    padding-inline: var(--space-layout-sm);
+  }
+
+  .ds-example-app-shell__plan-badge,
+  .ds-example-app-shell__user-name {
+    display: none;
+  }
+
+  .ds-example-app-shell__body {
+    padding-block: var(--space-layout-sm);
+    padding-inline: var(--space-layout-sm);
+    gap: var(--space-stack-xl);
+  }
+}
