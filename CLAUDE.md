@@ -15,7 +15,7 @@ src/
   components/   # React components (exported from index.ts)
   patterns/     # documented pattern/template compositions — NOT exported (see docs/patterns/)
   examples/     # product example screens built from components + patterns (not exported)
-  tokens/       # token source (primitive/, semantic/, themes/) + generated build/ output
+  tokens/       # token source (core/, brands/<brand>/, semantic/) + generated build/ output
   index.ts      # public entry point / barrel export
 .storybook/     # Storybook config
 docs/           # design-to-code-mappings.md + foundations/ + patterns/ documentation
@@ -26,8 +26,12 @@ governance/     # accessibility, lifecycle, versioning rules + ADRs (decisions/)
 ## Source of truth
 
 - **Figma** = design intent (what something should look like).
-- **`src/tokens/{primitive,semantic}/*.json`** = shipped token values. Figma should mirror
+- **`src/tokens/{core,brands/*,semantic}/*.json`** = shipped token values. Figma should mirror
   these; if they disagree, code wins for anything already released.
+- **Multi-brand**: components consume semantic tokens only and never know the brand; brands
+  differ only in the `brand.*` contract (primary ramp, sans family, control/container radius).
+  Runtime switch: `data-brand="brand-a|brand-b"` on `<html>` or any container; no attribute =
+  Brand A. See `docs/foundations/theming.md` and ADR 0011.
 - **React (`src/components/`)** = component behavior and public API.
 - **Storybook** = the coded documentation of how components actually behave — treat a
   story as more authoritative than a written description if they conflict.
@@ -58,7 +62,7 @@ this file exclusively.
 | Button | `180:10` ("Button") | Outer: `115:224` (72 variants — Variant × Size × State). Nested: `678:802` ("Button Content", 36 variants — Size × Icon Layout × Tone). | See `docs/design-to-code-mappings.md` (Button section) for the full architecture. Outer set's own properties are Variant/Size/State only — Label and icons live on the exposed nested `content` instance (three unwired outer duplicates removed 2026-09-29). |
 | Input | `714:10` ("Input") | Outer: `722:305` (24 variants — Size × Interaction × Validation). Nested Input Content, six sets (one per Size × Tone, 8 variants each = 48 total): `736:1018` (Sm/Default), `746:9` (Md/Default), `746:1018` (Lg/Default), `736:1019` (Sm/Disabled), `746:1017` (Md/Disabled), `746:1019` (Lg/Disabled). | See `docs/design-to-code-mappings.md` (Input section) for the full architecture. React `trailingAction` slot (interactive, not aria-hidden) added 2026-09-29 — no Figma property. |
 | Password Input (verified 2026-09-29) | `1036:9` ("Password Input") | `1039:86` (4 variants — Visibility × Toggle) | Dedicated component built on Input (not an Input axis): each variant wraps an exposed nested Input instance named `input`, trailing icon swapped to Lucide `eye`/`eye-off`. React: `src/components/PasswordInput/PasswordInput.tsx`. |
-| Checkbox | `769:9` ("Checkbox") | `769:74` (12 variants — Selection × Interaction) | Flat set, no nesting. |
+| Checkbox | `769:9` ("Checkbox") | `769:74` (12 variants — Selection × Interaction) | Flat set, no nesting. Box radius bound to shared `Semantic Radius/checkbox` (not the brandable `radius/control`) so it stays square in every brand. |
 | Radio (Figma only — React not yet built, verified 2026-09-11) | `903:9` ("Radio") | `905:44` (8 variants — Selected × Interaction) | Flat set, no nesting — mirrors Checkbox minus Indeterminate. Reference component: Checkbox. |
 | Radio Group (Figma only — React not yet built, verified 2026-09-11) | `907:1396` ("Radio Group") | `907:1435` (2 variants — Validation) | Composes Radio instances; maps to native `<fieldset>`/`<legend>` in code, not `role="radiogroup"` (user-confirmed decision). No `docs/design-to-code-mappings.md` entry yet — deferred until the React implementation pass per the component-production skill's step ordering. |
 | Switch (Figma only — React not yet built, verified 2026-09-11) | `934:9` ("Switch") | `934:50` (8 variants — State × Interaction) | Flat set, no nesting — mirrors Checkbox/Radio. Reference components: Checkbox, Radio. Off-track fill uses new component-scoped tokens `switch.track.background.off.{default,hover,disabled}` (`src/tokens/semantic/color.json`, deliberately not a shared `action.neutral.*` family — Switch-only until a second consumer justifies promotion); On-track fill reuses `action.primary.*` directly, no new token. Future React implementation must use `<input type="checkbox" role="switch">` (user-confirmed architecture), not a custom widget. No `docs/design-to-code-mappings.md` entry yet — deferred until the React implementation pass. |
@@ -72,6 +76,7 @@ this file exclusively.
 | Tabs (verified 2026-09-12) | `968:1781` ("Tabs") | `968:1847` ("Tab", 8 variants — State × Interaction) | Flat set, no nesting. Automatic activation (arrow keys switch panels immediately), per WAI-ARIA's own "recommended in most instances" guidance. Compound API: `Tabs`/`TabList`/`Tab`/`TabPanels`/`TabPanel`. Horizontal only in V1. React: `src/components/Tabs/{Tabs,TabList,Tab,TabPanels,TabPanel}.tsx`. |
 | Link (verified 2026-09-29) | `1036:11` ("Link") | `1038:15` (3 variants — Interaction) | Flat set, `Label` text property. Native `<a href>` (href required), one visual style, no router dependency. React: `src/components/Link/Link.tsx`. |
 | Divider (verified 2026-09-29) | `1036:10` ("Divider") | `1037:11` (single component) | 1px `border/subtle`, horizontal only. `<hr>` by default; `decorative` adds `aria-hidden` (code-only). React: `src/components/Divider/Divider.tsx`. |
+| Token collections (verified 2026-09-29) | — | `Core` (renamed from `Primitive`; shared scales + hue ramps incl. `color/violet/*`), `Brand` (modes **Brand A / Brand B**: `color/primary/*`, `font/family/sans`, `font/weight/*` style-name adapters, `radius/control`, `radius/container`), `Semantic Color/Space/Radius/Motion/Layout/Icon` (unchanged names, resolve through Brand + Core) | Preview a brand by setting a frame's **Brand** collection mode — see the "Brand B preview" section on Examples / Playground (`1063:1925`). ADR 0011. |
 | Product examples (verified 2026-09-29) | `180:11` ("Examples / Playground") | Frames: `998:9` (01 Login), `1001:1726` (01b Login · Error), `998:10` (02 Dashboard), `1006:242` (02b Dashboard · Mobile), `998:11` (03 Settings · Profile tab), `1045:468` (03b Settings · Notifications), `1045:509` (03c Settings · Plan), `998:12` (04 Success) | Moved from Templates 2026-09-29. Built from DS instances (Card via its `Content` slot; PasswordInput, Link, Divider). One settings domain per tab. React counterparts: `src/examples/`. |
 | Patterns (verified 2026-09-29) | `150:83` ("Patterns") | Doc frames: `1048:216` Form validation, `1048:275` Action group, `1048:309` Settings section, `1048:330` Page header | Documented compositions (not components). Guidelines: `docs/patterns/`. React reference compositions: `src/patterns/`. |
 | Templates (verified 2026-09-29) | `150:84` ("Templates") | App shell (doc + Wide 1440 / Compact 375 specimens), Centered card layout (doc + narrow 400 / regular 440 specimens) | Same status as Patterns. ButtonLink has no Figma component — it is the Button component; `<a>` vs `<button>` is code-only. |
@@ -84,10 +89,14 @@ has been edited since the date above.
 
 - `npm run build` — build the library (tsup) → `dist/`
 - `npm run typecheck` — `tsc --noEmit`
-- `npm run lint` — ESLint (includes `eslint-plugin-jsx-a11y`)
+- `npm run lint` — ESLint (includes `eslint-plugin-jsx-a11y`) + `scripts/check-token-usage.mjs`
+  (components/patterns may not use Core primitives, `--brand-*`, or raw hex colors)
 - `npm run format` / `npm run format:check` — Prettier
-- `npm run tokens:build` — Style Dictionary: `src/tokens/{primitive,semantic}` → `src/tokens/build/`
-  (CSS output is split across three files: `css/variables.css` for most tokens
+- `npm run tokens:build` — `scripts/build-tokens.mjs`: Style Dictionary once per brand over
+  `src/tokens/{core,brands/<brand>,semantic}` → `src/tokens/build/`. Fails on an incomplete
+  brand contract, a shared token that differs between brands, or a per-brand contrast pair
+  below WCAG minimums. Brand-dependent tokens go to `css/brands/<brand>.css`
+  (ADR 0011); shared CSS is split across three files: `css/variables.css` for most tokens
   (colors, typography primitives, spacing, radius, elevation, motion),
   `css/typography.css` for the expanded composite typography roles (see
   `governance/decisions/0003-typography-token-architecture.md`), and
@@ -118,5 +127,7 @@ has been edited since the date above.
 ## Currently deferred (do not assume these exist)
 
 Vitest/Testing Library, Changesets automation, CI/CD, npm publishing, monorepo tooling,
-Figma Code Connect, dark mode/theming implementation, custom Claude skills. See
+Figma Code Connect, dark mode (Light/Dark color scheme — multi-brand theming IS implemented,
+see ADR 0011), brand-specific neutrals, native (RN/SwiftUI/Compose) token outputs, custom
+Claude skills. See
 `governance/decisions/0001-single-package-structure.md` for why.

@@ -8,7 +8,7 @@ in their own `Semantic Radius` Figma collection.
 
 ## Primitives
 
-Raw scale in `src/tokens/primitive/radius.json`. No meaning attached.
+Raw scale in `src/tokens/core/radius.json`. No meaning attached.
 
 | Token (code) | Figma variable | Value |
 | --- | --- | --- |
@@ -66,7 +66,7 @@ root font-size preference the way spacing and typography intentionally do.
 - **JS/TS output** (`src/tokens/build/js/tokens.js`): plain px numbers, e.g.
   `export const RadiusControl = 4;`.
 
-## Future theming: remap Semantic, not Primitive
+## Brands: remap Semantic, not Primitive
 
 The primitive `radius.*` scale is the fixed raw ramp — sharp/soft/brand variants are
 expressed by repointing which primitive each **semantic role** aliases, not by mutating
@@ -79,9 +79,13 @@ primitive values. Semantic role names never change.
 | `radius.container` | `radius.lg` (12) | `radius.sm` (4) | `radius.xl` (16) |
 | `radius.full` | `radius.max` | `radius.max` | `radius.max` |
 
-**Documented as the intended future mechanism only — no Sharp/Soft Figma modes and no
-code theme files exist yet.** V1 ships with exactly the Default column, single mode,
-matching every other foundation so far.
+**Implemented through brands** ([ADR 0011](../../governance/decisions/0011-multi-brand-token-architecture.md)):
+`radius.control` and `radius.container` alias `brand.radius.*` — Brand A uses the Default
+column (4 / 12), Brand B the Soft column (8 / 16). `radius.flat`, `radius.full` and the
+primitive scale are shared. There are no Sharp/Soft modes on `Semantic Radius`; a "sharp"
+look would be a brand choice. **`radius.checkbox`** (component-scoped, shared, 4px) keeps
+the 16px Checkbox box square in every brand, so a rounder `radius.control` never makes it
+look like Radio.
 
 ## Accessibility/usability notes
 
@@ -96,7 +100,7 @@ matching every other foundation so far.
 
 ## Figma Variables (implemented)
 
-- **`Primitive` collection**, single `Value` mode, scope `["CORNER_RADIUS"]`:
+- **`Core` collection**, single `Value` mode, scope `["CORNER_RADIUS"]`:
   `radius/none`, `radius/sm`, `radius/md`, `radius/lg`, `radius/xl`, `radius/full`.
 - **`Semantic Radius` collection**, single `Default` mode, scope `["CORNER_RADIUS"]`,
   each an **alias** to a Primitive variable: `flat`, `control`, `container`, `full`.

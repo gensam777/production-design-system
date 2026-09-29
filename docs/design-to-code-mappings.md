@@ -509,7 +509,13 @@ prop. `Checkbox.tsx` synchronizes it imperatively:
 | --- | --- |
 | Visual box | 16×16 (component constant, not a token — same convention as Button/Input's control heights) |
 | Interaction target | 24×24 minimum (component constant), via a `position: absolute; inset: 0` native `<input>` sized to the full hit area, invisible (`opacity: 0`) but real and interactive |
-| Radius | `radius.control` (4px) |
+| Radius | `radius.checkbox` (4px) — was `radius.control` until 2026-09-29 (same value) |
+
+**Radius token change (multi-brand, ADR 0011).** `radius.control` became brandable (Brand B:
+8px), and 8px on a 16px box is a circle — Checkbox would look like Radio. Checkbox now uses a
+component-scoped, shared `radius.checkbox` (→ `radius.sm`, 4px) in both code
+(`--radius-checkbox`) and Figma (`Semantic Radius/checkbox`, bound on all 12 variants' box).
+Identical Brand A rendering; square in every brand.
 
 One size only — Checkbox has no Sm/Md/Lg axis in the approved Figma architecture (a
 checkbox stays visually stable relative to whatever body/label text size it sits beside,

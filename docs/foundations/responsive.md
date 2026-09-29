@@ -10,7 +10,7 @@ inventing new ones.
 
 ## Primitives
 
-Raw viewport breakpoint thresholds in `src/tokens/primitive/viewport.json`. Mobile-first
+Raw viewport breakpoint thresholds in `src/tokens/core/viewport.json`. Mobile-first
 **`min-width`** scale — a breakpoint marks where a layout becomes viable at a larger
 size, not where it breaks at a smaller one.
 
@@ -205,15 +205,15 @@ it, not a replacement for it.
 Built Figma-first, like spacing and radius — Variables and the Responsive Specimen were
 created and approved before this code mirror.
 
-- **`Primitive` collection**, single `Value` mode: `viewport/md`, `viewport/lg`,
+- **`Core` collection**, single `Value` mode: `viewport/md`, `viewport/lg`,
   `viewport/xl` — `FLOAT`, scope `["WIDTH_HEIGHT"]` (real usable scope, not hidden — used
   to size the specimen's reference frames themselves).
 - **`Semantic Layout` collection** (new, single `Default` mode): `container/maxWidth`,
-  aliasing `Primitive`'s `viewport/xl` — the one-collection-per-concern pattern from
+  aliasing `Core`'s `viewport/xl` — the one-collection-per-concern pattern from
   `governance/decisions/0005-semantic-collection-split.md` applied here too.
 - **Three named Figma Grid Styles** (`Grid/Compact`, `Grid/Medium`, `Grid/Wide`) — reusable
   style assets, not Variables. Margin bound live to `Semantic Space`'s `layout/sm·md·lg`;
-  internal gap bound live to `Primitive`'s `space/md`/`space/xl`. Applied to the
+  internal gap bound live to `Core`'s `space/md`/`space/xl`. Applied to the
   Responsive Specimen's reference frames via `setGridStyleIdAsync`.
 - A **"Responsive Specimen — V1"** frame documents the primitive/semantic values and
   contains four static reference frames (375/768/1024/1280px) showing viewport width,
