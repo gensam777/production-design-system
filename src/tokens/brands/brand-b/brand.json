@@ -1,0 +1,50 @@
+{
+  "brand": {
+    "color": {
+      "primary": {
+        "50": {
+          "$value": "{color.violet.50}",
+          "$type": "color",
+          "$description": "Brand B — a clearly fictional demo brand that exists to prove white-label capability. Primary ramp selects the Core violet ramp (hue 262°, clear of every feedback hue)."
+        },
+        "100": { "$value": "{color.violet.100}", "$type": "color" },
+        "200": { "$value": "{color.violet.200}", "$type": "color" },
+        "300": { "$value": "{color.violet.300}", "$type": "color" },
+        "400": { "$value": "{color.violet.400}", "$type": "color" },
+        "500": { "$value": "{color.violet.500}", "$type": "color" },
+        "600": { "$value": "{color.violet.600}", "$type": "color" },
+        "700": { "$value": "{color.violet.700}", "$type": "color" },
+        "800": { "$value": "{color.violet.800}", "$type": "color" },
+        "900": { "$value": "{color.violet.900}", "$type": "color" }
+      }
+    },
+    "font": {
+      "family": {
+        "sans": {
+          "$value": [
+            "Figtree",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ],
+          "$type": "fontFamily",
+          "$description": "Brand B primary UI typeface (Figtree, OFL-1.1). Same fallbacks as Brand A."
+        }
+      }
+    },
+    "radius": {
+      "control": {
+        "$value": "{radius.md}",
+        "$type": "dimension",
+        "$description": "Brand B control radius (8px)."
+      },
+      "container": {
+        "$value": "{radius.xl}",
+        "$type": "dimension",
+        "$description": "Brand B container radius (16px)."
+      }
+    }
+  }
+}

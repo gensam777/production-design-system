@@ -1,4 +1,38 @@
 import StyleDictionary from 'style-dictionary';
+import { fileHeader, formattedVariables } from 'style-dictionary/utils';
+
+/**
+ * Sub-values of a DTCG composite `typography` token, in output order, paired with the
+ * CSS custom-property suffix each one is emitted under.
+ */
+export const TYPOGRAPHY_SUBS = [
+  ['fontFamily', 'font-family'],
+  ['fontSize', 'font-size'],
+  ['fontWeight', 'font-weight'],
+  ['lineHeight', 'line-height'],
+  ['letterSpacing', 'letter-spacing'],
+];
+
+/**
+ * Expands typography tokens into one longhand custom property per sub-value.
+ * `include(token, subKey)` decides per sub-value whether it belongs in this file — the
+ * multi-brand build (scripts/build-tokens.mjs) uses it to put brand-dependent sub-values
+ * (today only `fontFamily`, via brand.font.family.sans) in the brand files and everything
+ * else in the shared typography.css. The token's description is attached to the first
+ * emitted line.
+ */
+function typographyLines(tokens, include = () => true) {
+  return tokens.flatMap((token) => {
+    const value = token.value ?? token.$value;
+    const join = (v) => (Array.isArray(v) ? v.join(', ') : v);
+    const lines = TYPOGRAPHY_SUBS.filter(([key]) => include(token, key)).map(
+      ([key, suffix]) =>
+        `  --${token.name}-${suffix}: ${key === 'fontFamily' ? join(value[key]) : value[key]};`,
+    );
+    if (lines.length && token.$description) lines[0] += ` /** ${token.$description} */`;
+    return lines;
+  });
+}
 
 /**
  * The built-in `css/variables` format collapses a DTCG composite `typography` token into
@@ -10,23 +44,33 @@ import StyleDictionary from 'style-dictionary';
  */
 StyleDictionary.registerFormat({
   name: 'css/typography-expanded',
-  format: ({ dictionary }) => {
-    const lines = dictionary.allTokens.flatMap((token) => {
-      const value = token.value ?? token.$value;
-      const join = (v) => (Array.isArray(v) ? v.join(', ') : v);
-      const props = [
-        ['font-family', join(value.fontFamily)],
-        ['font-size', value.fontSize],
-        ['font-weight', value.fontWeight],
-        ['line-height', value.lineHeight],
-        ['letter-spacing', value.letterSpacing],
-      ];
-      return props.map(([suffix, v], i) => {
-        const comment = i === 0 && token.$description ? ` /** ${token.$description} */` : '';
-        return `  --${token.name}-${suffix}: ${v};${comment}`;
-      });
-    });
+  format: ({ dictionary, options = {} }) => {
+    const lines = typographyLines(dictionary.allTokens, options.include);
     return `/**\n * Do not edit directly, this file was auto-generated.\n */\n\n:root {\n${lines.join('\n')}\n}\n`;
+  },
+});
+
+/**
+ * Multi-brand: one brand's brand-dependent semantic tokens, scoped to `options.selector`
+ * (see scripts/build-tokens.mjs and governance/decisions/0011-multi-brand-token-
+ * architecture.md). Non-typography tokens use Style Dictionary's own CSS line formatter
+ * (identical output to `css/variables`); typography tokens emit only their
+ * brand-dependent sub-values via `options.includeTypography`.
+ */
+StyleDictionary.registerFormat({
+  name: 'css/brand-scope',
+  format: async ({ dictionary, options = {}, file }) => {
+    const header = await fileHeader({ file, options });
+    const plain = dictionary.allTokens.filter((t) => t.$type !== 'typography');
+    const typography = dictionary.allTokens.filter((t) => t.$type === 'typography');
+    const vars = formattedVariables({
+      format: 'css',
+      dictionary: { ...dictionary, allTokens: plain },
+      outputReferences: false,
+      usesDtcg: options.usesDtcg,
+    });
+    const lines = [vars, ...typographyLines(typography, options.includeTypography)].filter(Boolean);
+    return `${header}${options.selector} {\n${lines.join('\n')}\n}\n`;
   },
 });
 
@@ -54,7 +98,9 @@ StyleDictionary.registerTransform({
   type: 'value',
   transitive: true,
   filter: (token) =>
-    token.$type === 'dimension' && typeof token.original.$value === 'number' && token.path[0] === 'space',
+    token.$type === 'dimension' &&
+    typeof token.original.$value === 'number' &&
+    token.path[0] === 'space',
   transform: (token, config) => {
     const base = (config && config.basePxFontSize) || 16;
     const px = token.original.$value;
@@ -78,7 +124,9 @@ StyleDictionary.registerTransform({
   type: 'value',
   transitive: true,
   filter: (token) =>
-    token.$type === 'dimension' && typeof token.original.$value === 'number' && token.path[0] === 'radius',
+    token.$type === 'dimension' &&
+    typeof token.original.$value === 'number' &&
+    token.path[0] === 'radius',
   transform: (token) => {
     const px = token.original.$value;
     return px === 0 ? '0' : `${px}px`;
@@ -106,7 +154,9 @@ StyleDictionary.registerTransform({
   type: 'value',
   transitive: true,
   filter: (token) =>
-    token.$type === 'dimension' && typeof token.original.$value === 'number' && token.path[0] === 'shadow',
+    token.$type === 'dimension' &&
+    typeof token.original.$value === 'number' &&
+    token.path[0] === 'shadow',
   transform: (token) => {
     const px = token.original.$value;
     return px === 0 ? '0' : `${px}px`;
@@ -138,7 +188,9 @@ StyleDictionary.registerTransform({
   type: 'value',
   transitive: true,
   filter: (token) =>
-    token.$type === 'dimension' && typeof token.original.$value === 'number' && token.path[0] === 'viewport',
+    token.$type === 'dimension' &&
+    typeof token.original.$value === 'number' &&
+    token.path[0] === 'viewport',
   transform: (token) => {
     const px = token.original.$value;
     return px === 0 ? '0' : `${px}px`;
@@ -221,95 +273,66 @@ StyleDictionary.registerFormat({
   format: ({ dictionary }) => {
     const lines = dictionary.allTokens
       .filter((token) => token.$type === 'duration' || token.$type === 'transition')
-      .map((token) => `    --${token.name}: ${token.$type === 'duration' ? '0ms' : '0ms linear 0ms'};`);
+      .map(
+        (token) => `    --${token.name}: ${token.$type === 'duration' ? '0ms' : '0ms linear 0ms'};`,
+      );
     return `/**\n * Do not edit directly, this file was auto-generated.\n *\n * Forces every motion duration/transition custom property to an effectively-instant\n * value under prefers-reduced-motion. Components that consume any --motion-* custom\n * property (primitive or semantic) automatically respect reduced-motion, as long as\n * they use var(--motion-*) rather than a hardcoded duration.\n */\n\n@media (prefers-reduced-motion: reduce) {\n  :root {\n${lines.join('\n')}\n  }\n}\n`;
   },
 });
 
 /**
- * Style Dictionary config.
+ * Transform lists used by the multi-brand token build (scripts/build-tokens.mjs), which
+ * runs Style Dictionary once per brand over src/tokens/{core, brands/<brand>, semantic}.
  *
- * Source of truth for token *values* is this directory (src/tokens/primitive, src/tokens/semantic).
- * Figma mirrors these values for design intent; this pipeline is what actually ships.
- *
- * Output in src/tokens/build/ is generated — never hand-edit it.
+ * Source of truth for token *values* is src/tokens/. Figma mirrors these values for design
+ * intent; this pipeline is what actually ships. Output in src/tokens/build/ is generated —
+ * never hand-edit it.
  */
-export default {
-  source: ['src/tokens/primitive/**/*.json', 'src/tokens/semantic/**/*.json'],
-  platforms: {
-    css: {
-      // Same as the built-in 'css' transformGroup, minus 'typography/css/shorthand' —
-      // that transform collapses composite typography tokens into a CSS `font` shorthand
-      // string (dropping letter-spacing) before any per-file `filter` runs, which would
-      // corrupt the value our custom 'css/typography-expanded' format depends on.
-      // 'size/px-to-rem' (custom, see above) runs before the built-in 'size/rem' so bare
-      // px-number spacing tokens are actually scaled, not just unit-suffixed.
-      // 'size/radius-px' (custom, see above) runs the same way for radius, but formats to
-      // px instead of rem — radius stays fixed geometry, not font-size-relative.
-      // 'size/shadow-px' (custom, see above) does the same for shadow geometry, and also
-      // makes sure 'shadow/css/shorthand' below sees already-unitted values.
-      // 'time/duration-ms' (custom, see above) does the analogous thing for motion
-      // durations — 'ms' instead of 'px' — and also makes sure 'transition/css/shorthand'
-      // below (dormant until motion) sees already-unitted duration values.
-      // 'size/viewport-px' (custom, see above) does the same for viewport/layout
-      // breakpoint geometry — px, never rem, matching radius/shadow's reasoning.
-      // 'size/icon-px' (custom, see above) does the same for icon size geometry — px,
-      // never rem, matching radius/shadow/viewport's reasoning.
-      transforms: [
-        'attribute/cti',
-        'name/kebab',
-        'time/seconds',
-        'html/icon',
-        'size/px-to-rem',
-        'size/radius-px',
-        'size/shadow-px',
-        'size/viewport-px',
-        'size/icon-px',
-        'time/duration-ms',
-        'size/rem',
-        'color/css',
-        'asset/url',
-        'fontFamily/css',
-        'cubicBezier/css',
-        'strokeStyle/css/shorthand',
-        'border/css/shorthand',
-        'transition/css/shorthand',
-        'shadow/css/shorthand',
-      ],
-      buildPath: 'src/tokens/build/css/',
-      files: [
-        {
-          destination: 'variables.css',
-          format: 'css/variables',
-          filter: (token) => token.$type !== 'typography',
-        },
-        {
-          destination: 'typography.css',
-          format: 'css/typography-expanded',
-          filter: (token) => token.$type === 'typography',
-        },
-        {
-          destination: 'motion-reduced-motion.css',
-          format: 'css/reduced-motion',
-        },
-      ],
-    },
-    js: {
-      // Same as the built-in 'js' transformGroup, minus 'size/rem'. That transform
-      // appends a "rem" unit to any bare-number dimension token without scaling it —
-      // harmless for typography (already pre-formatted rem strings in source, so it's a
-      // no-op pass-through) but would corrupt spacing's raw px numbers (e.g. 4 -> "4rem").
-      // JS/TS output keeps spacing as plain px numbers on purpose — only the CSS platform
-      // converts to rem (see 'size/px-to-rem' above). See
-      // governance/decisions/0004-spacing-token-architecture.md.
-      transforms: ['attribute/cti', 'name/pascal', 'color/hex'],
-      buildPath: 'src/tokens/build/js/',
-      files: [
-        {
-          destination: 'tokens.js',
-          format: 'javascript/es6',
-        },
-      ],
-    },
-  },
-};
+
+// Same as the built-in 'css' transformGroup, minus 'typography/css/shorthand' —
+// that transform collapses composite typography tokens into a CSS `font` shorthand
+// string (dropping letter-spacing) before any per-file `filter` runs, which would
+// corrupt the value our custom 'css/typography-expanded' format depends on.
+// 'size/px-to-rem' (custom, see above) runs before the built-in 'size/rem' so bare
+// px-number spacing tokens are actually scaled, not just unit-suffixed.
+// 'size/radius-px' (custom, see above) runs the same way for radius, but formats to
+// px instead of rem — radius stays fixed geometry, not font-size-relative.
+// 'size/shadow-px' (custom, see above) does the same for shadow geometry, and also
+// makes sure 'shadow/css/shorthand' below sees already-unitted values.
+// 'time/duration-ms' (custom, see above) does the analogous thing for motion
+// durations — 'ms' instead of 'px' — and also makes sure 'transition/css/shorthand'
+// below (dormant until motion) sees already-unitted duration values.
+// 'size/viewport-px' (custom, see above) does the same for viewport/layout
+// breakpoint geometry — px, never rem, matching radius/shadow's reasoning.
+// 'size/icon-px' (custom, see above) does the same for icon size geometry — px,
+// never rem, matching radius/shadow/viewport's reasoning.
+export const CSS_TRANSFORMS = [
+  'attribute/cti',
+  'name/kebab',
+  'time/seconds',
+  'html/icon',
+  'size/px-to-rem',
+  'size/radius-px',
+  'size/shadow-px',
+  'size/viewport-px',
+  'size/icon-px',
+  'time/duration-ms',
+  'size/rem',
+  'color/css',
+  'asset/url',
+  'fontFamily/css',
+  'cubicBezier/css',
+  'strokeStyle/css/shorthand',
+  'border/css/shorthand',
+  'transition/css/shorthand',
+  'shadow/css/shorthand',
+];
+
+// Same as the built-in 'js' transformGroup, minus 'size/rem'. That transform
+// appends a "rem" unit to any bare-number dimension token without scaling it —
+// harmless for typography (already pre-formatted rem strings in source, so it's a
+// no-op pass-through) but would corrupt spacing's raw px numbers (e.g. 4 -> "4rem").
+// JS/TS output keeps spacing as plain px numbers on purpose — only the CSS platform
+// converts to rem (see 'size/px-to-rem' above). See
+// governance/decisions/0004-spacing-token-architecture.md.
+export const JS_TRANSFORMS = ['attribute/cti', 'name/pascal', 'color/hex'];

@@ -67,7 +67,9 @@
   justify-content: center;
   pointer-events: none;
   border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-control);
+  /* Shared, component-scoped radius (not the brandable radius.control): keeps the 16px box
+     visibly square — distinct from Radio — in every brand. See ADR 0011. */
+  border-radius: var(--radius-checkbox);
   background-color: var(--color-surface-default);
   color: var(--color-action-primary-on-color); /* mark color when checked/indeterminate */
   transition:

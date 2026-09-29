@@ -1,0 +1,50 @@
+{
+  "brand": {
+    "color": {
+      "primary": {
+        "50": {
+          "$value": "{color.blue.50}",
+          "$type": "color",
+          "$description": "Brand A (default / current Production Design System) primary ramp — selects the Core blue ramp. Semantic action.primary.*, text.link*, focus.ring resolve through brand.color.primary.*."
+        },
+        "100": { "$value": "{color.blue.100}", "$type": "color" },
+        "200": { "$value": "{color.blue.200}", "$type": "color" },
+        "300": { "$value": "{color.blue.300}", "$type": "color" },
+        "400": { "$value": "{color.blue.400}", "$type": "color" },
+        "500": { "$value": "{color.blue.500}", "$type": "color" },
+        "600": { "$value": "{color.blue.600}", "$type": "color" },
+        "700": { "$value": "{color.blue.700}", "$type": "color" },
+        "800": { "$value": "{color.blue.800}", "$type": "color" },
+        "900": { "$value": "{color.blue.900}", "$type": "color" }
+      }
+    },
+    "font": {
+      "family": {
+        "sans": {
+          "$value": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ],
+          "$type": "fontFamily",
+          "$description": "Brand A primary UI typeface. Consumers load the webfont themselves (see docs/foundations/typography.md)."
+        }
+      }
+    },
+    "radius": {
+      "control": {
+        "$value": "{radius.sm}",
+        "$type": "dimension",
+        "$description": "Brand A control radius (4px)."
+      },
+      "container": {
+        "$value": "{radius.lg}",
+        "$type": "dimension",
+        "$description": "Brand A container radius (12px)."
+      }
+    }
+  }
+}

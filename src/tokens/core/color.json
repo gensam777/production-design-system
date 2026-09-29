@@ -16,7 +16,7 @@
       "50": {
         "$value": "#EFF6FF",
         "$type": "color",
-        "$description": "Brand primitive scale. Blue is the default working brand hue for this template — a future consuming product may replace this entire scale and remap semantic tokens to a different hue without touching semantic token names."
+        "$description": "Hue ramp (Core, shared). Brand A selects it as its primary in src/tokens/brands/brand-a — semantic tokens never alias a hue ramp directly, only brand.color.primary.*."
       },
       "100": { "$value": "#DBEAFE", "$type": "color" },
       "200": { "$value": "#BFDBFE", "$type": "color" },
@@ -27,6 +27,22 @@
       "700": { "$value": "#1D4ED8", "$type": "color" },
       "800": { "$value": "#1E40AF", "$type": "color" },
       "900": { "$value": "#1E3A8A", "$type": "color" }
+    },
+    "violet": {
+      "50": {
+        "$value": "#F5F3FF",
+        "$type": "color",
+        "$description": "Hue ramp (Core, shared). Brand B (fictional demo brand) selects it as its primary in src/tokens/brands/brand-b."
+      },
+      "100": { "$value": "#EDE9FE", "$type": "color" },
+      "200": { "$value": "#DDD6FE", "$type": "color" },
+      "300": { "$value": "#C4B5FD", "$type": "color" },
+      "400": { "$value": "#A78BFA", "$type": "color" },
+      "500": { "$value": "#8B5CF6", "$type": "color" },
+      "600": { "$value": "#7C3AED", "$type": "color" },
+      "700": { "$value": "#6D28D9", "$type": "color" },
+      "800": { "$value": "#5B21B6", "$type": "color" },
+      "900": { "$value": "#4C1D95", "$type": "color" }
     },
     "red": {
       "50": { "$value": "#FEF2F2", "$type": "color", "$description": "Feedback primitive — danger/error. Reduced scale (subtle/default/emphasis only, no full ramp)." },
