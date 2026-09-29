@@ -12,11 +12,13 @@ app projects.
 
 ```
 src/
-  components/   # React components (none yet)
+  components/   # React components (exported from index.ts)
+  patterns/     # documented pattern/template compositions — NOT exported (see docs/patterns/)
+  examples/     # product example screens built from components + patterns (not exported)
   tokens/       # token source (primitive/, semantic/, themes/) + generated build/ output
   index.ts      # public entry point / barrel export
 .storybook/     # Storybook config
-docs/           # design-to-code-mappings.md + foundations documentation
+docs/           # design-to-code-mappings.md + foundations/ + patterns/ documentation
 governance/     # accessibility, lifecycle, versioning rules + ADRs (decisions/)
 .claude/skills/ # custom Claude Code skills (none yet)
 ```
@@ -70,7 +72,9 @@ this file exclusively.
 | Tabs (verified 2026-09-12) | `968:1781` ("Tabs") | `968:1847` ("Tab", 8 variants — State × Interaction) | Flat set, no nesting. Automatic activation (arrow keys switch panels immediately), per WAI-ARIA's own "recommended in most instances" guidance. Compound API: `Tabs`/`TabList`/`Tab`/`TabPanels`/`TabPanel`. Horizontal only in V1. React: `src/components/Tabs/{Tabs,TabList,Tab,TabPanels,TabPanel}.tsx`. |
 | Link (verified 2026-09-29) | `1036:11` ("Link") | `1038:15` (3 variants — Interaction) | Flat set, `Label` text property. Native `<a href>` (href required), one visual style, no router dependency. React: `src/components/Link/Link.tsx`. |
 | Divider (verified 2026-09-29) | `1036:10` ("Divider") | `1037:11` (single component) | 1px `border/subtle`, horizontal only. `<hr>` by default; `decorative` adds `aria-hidden` (code-only). React: `src/components/Divider/Divider.tsx`. |
-| Product examples (verified 2026-09-29) | `180:11` ("Examples / Playground") | Frames: `998:9` (01 Login), `1001:1726` (01b Login · Error), `998:10` (02 Dashboard), `1006:242` (02b Dashboard · Mobile), `998:11` (03 Settings), `998:12` (04 Success) | Moved from Templates 2026-09-29. Built from DS instances (Card via its `Content` slot). React counterparts: `src/examples/`. |
+| Product examples (verified 2026-09-29) | `180:11` ("Examples / Playground") | Frames: `998:9` (01 Login), `1001:1726` (01b Login · Error), `998:10` (02 Dashboard), `1006:242` (02b Dashboard · Mobile), `998:11` (03 Settings · Profile tab), `1045:468` (03b Settings · Notifications), `1045:509` (03c Settings · Plan), `998:12` (04 Success) | Moved from Templates 2026-09-29. Built from DS instances (Card via its `Content` slot; PasswordInput, Link, Divider). One settings domain per tab. React counterparts: `src/examples/`. |
+| Patterns (verified 2026-09-29) | `150:83` ("Patterns") | Doc frames: `1048:216` Form validation, `1048:275` Action group, `1048:309` Settings section, `1048:330` Page header | Documented compositions (not components). Guidelines: `docs/patterns/`. React reference compositions: `src/patterns/`. |
+| Templates (verified 2026-09-29) | `150:84` ("Templates") | App shell (doc + Wide 1440 / Compact 375 specimens), Centered card layout (doc + narrow 400 / regular 440 specimens) | Same status as Patterns. ButtonLink has no Figma component — it is the Button component; `<a>` vs `<button>` is code-only. |
 
 Node IDs are internal Figma identifiers, not a stable public API — re-verify with the
 Figma MCP tools (`get_metadata`/`get_design_context`) before relying on them if this file

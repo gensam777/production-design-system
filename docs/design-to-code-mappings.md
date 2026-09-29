@@ -23,6 +23,7 @@ this table is updated by hand whenever a component ships or a mapping changes.
 | Accordion | Accordion V1, page `968:1638`, component set `968:1736` ("Accordion Item") — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Accordion/Accordion.tsx`, `AccordionItem.tsx` | See [Accordion](#accordion) below. |
 | Tabs | Tabs V1, page `968:1781`, component set `968:1847` ("Tab") — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Tabs/Tabs.tsx`, `TabList.tsx`, `Tab.tsx`, `TabPanels.tsx`, `TabPanel.tsx` | See [Tabs](#tabs) below. |
 | Link | Link V1, page `1036:11`, component set `1038:15` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Link/Link.tsx` | See [Link](#link) below. |
+| Button (navigation) | Same Figma **Button** component (`115:224`) — no separate Figma component | `src/components/ButtonLink/ButtonLink.tsx` | See [ButtonLink](#buttonlink) below. Element difference (`<a href>` vs `<button>`) is code-only. |
 | Divider | Divider V1, page `1036:10`, component `1037:11` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Divider/Divider.tsx` | See [Divider](#divider) below. |
 | Password Input | Password Input V1, page `1036:9`, component set `1039:86` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/PasswordInput/PasswordInput.tsx` | See [PasswordInput](#passwordinput) below. Built on Input's new `trailingAction` slot. |
 
@@ -2072,14 +2073,14 @@ transition: `motion.micro` (code only).
   owns nav styling).
 - Not yet verified: screen-reader spot-check, 200% zoom/reflow, full WCAG 2.2 AA sweep.
 
-### Audit usages (for the later product-example migration)
+### Audit usages (migrated 2026-09-29)
 
-| Current | Becomes | Note |
+| Before | Now | Note |
 | --- | --- | --- |
-| "Forgot password?" (hand-styled `<button>`) | `Link` | Navigates to the reset flow. |
-| "View all" (tertiary Button) | `Link` | Add context (`aria-label="View all activity"`). |
-| App-shell "Settings" (tertiary Button) | `Link` | Nav styling + `aria-current` belong to the App shell template. |
-| "Back to dashboard" (primary Button) | **stays Button for now** | Designed as a primary CTA; Link must not imitate Button. Needs a separate Button-as-link (`href`) decision. |
+| "Forgot password?" (hand-styled `<button>`) | `Link` | Figma 01/01b: Link instance. |
+| "View all" (tertiary Button) | `Link` (`aria-label="View all activity"`) | Figma 02/02b: Link instance. |
+| App-shell "Settings" (tertiary Button) | `Link`s "Dashboard" + "Settings" in a labelled `<nav>`, `aria-current` | App shell template; Figma nav uses Link instances. |
+| "Back to dashboard" (primary Button) | `ButtonLink` | Decided: navigation with button emphasis → [ButtonLink](#buttonlink); Link never imitates Button. Figma keeps the Button component. |
 
 ### Cross-platform contract (shared design intent, not yet implemented elsewhere)
 
@@ -2245,3 +2246,39 @@ page) per ADR 0010.
 - **Not shared** (platform-owned): native secure-entry fields (`SecureField`,
   `PasswordVisualTransformation`), platform password-manager integration, keyboard
   autocorrect flags.
+
+## ButtonLink
+
+- React: `src/components/ButtonLink/ButtonLink.tsx` (styles: `Button.css` + a two-line
+  `ButtonLink.css` anchor reset)
+- Storybook: `src/components/ButtonLink/ButtonLink.stories.tsx` (`Components/ButtonLink`)
+- Figma: **none of its own** — designers use the regular Button component (`115:224`).
+  Whether a button-styled control is a `<button>` or an `<a href>` is a semantic decision
+  made in code.
+
+### Why this component exists (decided 2026-09-29)
+
+The Success screen's "Back to dashboard" navigates but is designed as a primary,
+full-width button. Options considered: Button with `href` (polymorphic Button — rejected:
+its props would become a union where `loading`/`disabled`/`type` are meaningless with an
+`href`), a styled Link (rejected: Link must never imitate Button), or a small dedicated
+component (**chosen**).
+
+### Prop mapping
+
+| Figma (Button) property | React prop | Notes |
+| --- | --- | --- |
+| Variant (Primary / Secondary / Tertiary) | `variant?: 'primary' \| 'secondary' \| 'tertiary'` | Default `'primary'`. `danger` excluded — navigation is never destructive. |
+| Size (Sm / Md / Lg) | `size?: 'sm' \| 'md' \| 'lg'` | Default `'md'`. |
+| State = Hover / Pressed / Focus-visible | **not a prop** | Same native CSS states as Button (`.ds-button*` rules). |
+| State = Disabled / Loading | **not supported** | An anchor can't be disabled; don't render a link to somewhere the user can't go. No async action → no loading. |
+| content → Label, Leading/Trailing icon | `children`, `leadingIcon`, `trailingIcon` | Icons decorative (`aria-hidden`), same as Button. |
+| — | `href: string` (required) + native anchor attributes, `ref` | |
+
+### Tokens & accessibility
+
+Identical to Button — it renders the same classes (`ds-button ds-button--{variant}
+ds-button--{size}`), so every color/typography/spacing/focus token row in the
+[Button](#button) section applies unchanged. Role `link`, accessible name = label, Enter
+activates, `:focus-visible` double ring. Use it only when a navigation target must carry
+button emphasis; otherwise use Link.
