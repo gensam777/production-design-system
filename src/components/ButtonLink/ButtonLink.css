@@ -1,0 +1,10 @@
+/**
+ * ButtonLink (V1). All visuals come from Button.css (same `.ds-button*` classes and
+ * tokens). This file only neutralizes the anchor defaults Button.css never had to handle.
+ */
+
+.ds-button-link,
+.ds-button-link:hover,
+.ds-button-link:visited {
+  text-decoration: none;
+}
