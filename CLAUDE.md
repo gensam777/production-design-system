@@ -90,7 +90,8 @@ has been edited since the date above.
 - `npm run build` — build the library (tsup) → `dist/`
 - `npm run typecheck` — `tsc --noEmit`
 - `npm run lint` — ESLint (includes `eslint-plugin-jsx-a11y`) + `scripts/check-token-usage.mjs`
-  (components/patterns may not use Core primitives, `--brand-*`, or raw hex colors)
+  (components/patterns/examples may not use Core primitives, `--brand-*`, or raw hex colors;
+  documented exceptions only via `scripts/token-usage-exceptions.json`)
 - `npm run format` / `npm run format:check` — Prettier
 - `npm run tokens:build` — `scripts/build-tokens.mjs`: Style Dictionary once per brand over
   `src/tokens/{core,brands/<brand>,semantic}` → `src/tokens/build/`. Fails on an incomplete

@@ -65,12 +65,12 @@ never looks like Radio).
 
 ## Guardrails
 
-| Check                       | Where                                    | Fails when                                                                 |
-| --------------------------- | ---------------------------------------- | -------------------------------------------------------------------------- |
-| Brand contract completeness | `tokens:build`                           | a brand is missing or adds a `brand.*` token, or defines non-brand roots   |
-| Shared-token consistency    | `tokens:build`                           | a brand-independent token resolves differently between brands              |
-| Per-brand contrast (WCAG)   | `tokens:build`                           | any of 14 pairs is below its minimum (4.5:1 text, 3:1 non-text/focus)      |
-| Semantic-only consumption   | `lint` (`scripts/check-token-usage.mjs`) | a component/pattern uses a Core primitive, `--brand-*`, or a raw hex color |
+| Check                       | Where                                    | Fails when                                                                                                                                                                                                                                   |
+| --------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Brand contract completeness | `tokens:build`                           | a brand is missing or adds a `brand.*` token, or defines non-brand roots                                                                                                                                                                     |
+| Shared-token consistency    | `tokens:build`                           | a brand-independent token resolves differently between brands                                                                                                                                                                                |
+| Per-brand contrast (WCAG)   | `tokens:build`                           | any of 14 pairs is below its minimum (4.5:1 text, 3:1 non-text/focus)                                                                                                                                                                        |
+| Semantic-only consumption   | `lint` (`scripts/check-token-usage.mjs`) | a component, pattern or example uses a Core primitive, `--brand-*`, or a raw hex color — unless it is an explicit exception in `scripts/token-usage-exceptions.json` (file, token, exact count, reason, doc link; a changed count fails too) |
 
 ## Figma
 

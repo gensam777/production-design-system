@@ -73,7 +73,10 @@ properties, which the brand files scope — no provider, no context, no componen
 3. **Per-brand WCAG contrast** (build): 14 pairs (primary label ≥4.5, links ≥4.5 on
    default/canvas/sunken, focus ring ≥3, selected-control fill ≥3, text ramps ≥4.5).
 4. **Token usage** (`scripts/check-token-usage.mjs`, part of `npm run lint`/CI):
-   components and patterns may not reference Core primitives, `--brand-*`, or raw hex.
+   components, patterns and examples may not reference Core primitives, `--brand-*`, or
+   raw hex — except explicit, documented entries in `scripts/token-usage-exceptions.json`
+   (file + token + exact occurrence count + reason + doc link). Today there is one: the
+   Dashboard example's grid-column gap (`--space-xl`, per responsive.md's grid-gap rule).
 
 ### Figma (hybrid)
 

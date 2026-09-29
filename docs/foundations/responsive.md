@@ -171,7 +171,10 @@ draft of the Figma work and were deliberately split):
   grid columns" specifically, and inventing one would be exactly the kind of
   grid-specific spacing token this foundation was explicitly told not to create. Reusing
   the primitive scale directly keeps the number traceable to a real existing token
-  without stretching another category's meaning.
+  without stretching another category's meaning. Because the token-usage guard (ADR 0011)
+  otherwise rejects primitives, each such use is registered as an explicit exception in
+  `scripts/token-usage-exceptions.json` (today: the Dashboard example's stat-row gap and
+  its side-by-side activity/status gap).
 
 Both mappings match the live variable bindings used in the three Figma Grid Styles
 exactly — verified during the Figma↔code audit for this foundation (see the Final audit
