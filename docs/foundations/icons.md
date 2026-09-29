@@ -41,6 +41,8 @@ API in this codebase exposes a Lucide-specific name.
 | `trash`        | `Trash`               |
 | `edit`         | `Pencil`              |
 | `settings`     | `Settings`            |
+| `eye`          | `Eye`                 |
+| `eye-off`      | `EyeOff`              |
 
 This is a small starter set, not the full Lucide catalog. Add a name only when a real
 component/product needs it — see `governance/decisions/0010-icon-token-architecture.md`
@@ -51,6 +53,11 @@ internally (fixed per `status`, not a consumer-facing prop), and needed a distin
 for each status distinguishable from `warning`'s triangle. Both parallel the existing
 `info`/`warning` precedent of a DS name that is simultaneously a status vocabulary word
 and an icon name.
+
+`eye` and `eye-off` were added alongside PasswordInput V1, which owns its show/hide control
+icon internally (`eye` while the value is hidden — the control's action is "show";
+`eye-off` while it is shown). In Figma both are real Lucide Icons (Community) library
+instances (`eye`, `eye-off`), added to the Icons page's Reference Icons section.
 
 ## Sizes
 

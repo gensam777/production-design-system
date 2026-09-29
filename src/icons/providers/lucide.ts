@@ -27,6 +27,8 @@ import {
   Trash,
   Pencil,
   Settings,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 import type { IconName } from '../types';
@@ -55,4 +57,6 @@ export const lucideIconMap: Record<IconName, LucideIconComponent> = {
   trash: Trash,
   edit: Pencil,
   settings: Settings,
+  eye: Eye,
+  'eye-off': EyeOff,
 };

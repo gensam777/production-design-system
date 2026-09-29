@@ -126,7 +126,8 @@
 .ds-input__field-input:disabled::placeholder {
   color: var(--color-text-disabled);
 }
-.ds-input:has(.ds-input__field-input:disabled) .ds-input__icon {
+.ds-input:has(.ds-input__field-input:disabled) .ds-input__icon,
+.ds-input:has(.ds-input__field-input:disabled) .ds-input__action {
   color: var(--color-text-disabled);
 }
 .ds-input:has(.ds-input__field-input:disabled) .ds-input__support {
@@ -154,7 +155,8 @@
   line-height: var(--text-body-sm-regular-line-height);
   letter-spacing: var(--text-body-sm-regular-letter-spacing);
 }
-.ds-input--sm .ds-input__icon {
+.ds-input--sm .ds-input__icon,
+.ds-input--sm .ds-input__action {
   width: var(--icon-sm);
   height: var(--icon-sm);
 }
@@ -186,7 +188,8 @@
   line-height: var(--text-body-md-regular-line-height);
   letter-spacing: var(--text-body-md-regular-letter-spacing);
 }
-.ds-input--md .ds-input__icon {
+.ds-input--md .ds-input__icon,
+.ds-input--md .ds-input__action {
   width: var(--icon-md);
   height: var(--icon-md);
 }
@@ -218,7 +221,8 @@
   line-height: var(--text-body-lg-regular-line-height);
   letter-spacing: var(--text-body-lg-regular-letter-spacing);
 }
-.ds-input--lg .ds-input__icon {
+.ds-input--lg .ds-input__icon,
+.ds-input--lg .ds-input__action {
   width: var(--icon-lg);
   height: var(--icon-lg);
 }
@@ -243,19 +247,22 @@
 .ds-input--sm.ds-input--has-leading-icon .ds-input__field {
   padding-inline-start: var(--space-inset-sm);
 }
-.ds-input--sm.ds-input--has-trailing-icon .ds-input__field {
+.ds-input--sm.ds-input--has-trailing-icon .ds-input__field,
+.ds-input--sm.ds-input--has-trailing-action .ds-input__field {
   padding-inline-end: var(--space-inset-sm);
 }
 .ds-input--md.ds-input--has-leading-icon .ds-input__field {
   padding-inline-start: var(--space-inset-md);
 }
-.ds-input--md.ds-input--has-trailing-icon .ds-input__field {
+.ds-input--md.ds-input--has-trailing-icon .ds-input__field,
+.ds-input--md.ds-input--has-trailing-action .ds-input__field {
   padding-inline-end: var(--space-inset-md);
 }
 .ds-input--lg.ds-input--has-leading-icon .ds-input__field {
   padding-inline-start: var(--space-inset-lg);
 }
-.ds-input--lg.ds-input--has-trailing-icon .ds-input__field {
+.ds-input--lg.ds-input--has-trailing-icon .ds-input__field,
+.ds-input--lg.ds-input--has-trailing-action .ds-input__field {
   padding-inline-end: var(--space-inset-lg);
 }
 
@@ -274,6 +281,61 @@
 .ds-input__icon > img {
   width: 100%;
   height: 100%;
+}
+
+/* ---- Trailing action slot (interactive — NOT aria-hidden) ----
+   Same box, color and icon-adjacent padding as a trailing icon (see the size and padding
+   blocks above), so swapping a decorative trailing icon for an action causes no layout
+   shift and no visual regression. Figma draws the same thing: Input Content's trailing
+   icon position (see PasswordInput). Everything below is interaction-only. */
+.ds-input__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-text-tertiary);
+}
+.ds-input__action > button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+/* 24×24 minimum interactive target (WCAG 2.2 SC 2.5.8) centered on the icon-sized box —
+   same component-owned constant as Checkbox/Radio's hit area. An invisible pseudo-element
+   rather than padding, so the visual box (and therefore the field layout) is unchanged. At
+   Lg the icon is already 24px, so the target equals the visual box. */
+.ds-input__action > button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  transform: translate(-50%, -50%);
+}
+.ds-input__action > button > svg,
+.ds-input__action > button > img {
+  width: 100%;
+  height: 100%;
+}
+.ds-input__action > button:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-focus-ring-offset),
+    0 0 0 4px var(--color-focus-ring);
+}
+.ds-input__action > button:disabled {
+  cursor: not-allowed;
 }
 
 /* ---- Support text (helper or error) ---- */

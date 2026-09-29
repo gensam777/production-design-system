@@ -33,6 +33,20 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   leadingIcon?: ReactNode;
   /** Icon rendered after the value/placeholder text. Same contract as `leadingIcon`. */
   trailingIcon?: ReactNode;
+  /**
+   * Interactive control rendered at the trailing end of the field, after `trailingIcon`
+   * (e.g. PasswordInput's show/hide toggle, a future clear/search action). Unlike
+   * `leadingIcon`/`trailingIcon` — which are always decorative and wrapped in
+   * `aria-hidden` — this slot is **not** hidden from assistive technology.
+   *
+   * Pass a single real `<button type="button">` with its own accessible name
+   * (`aria-label`) and, for a stateful toggle, `aria-pressed`. Input sizes it to the
+   * field's icon size (no layout shift versus a trailing icon), gives it an invisible
+   * 24×24 minimum hit area (WCAG 2.2 SC 2.5.8), its own focus ring and the disabled
+   * color. Input cannot disable arbitrary content itself — pass `disabled` to your button
+   * when the input is disabled (PasswordInput does this for you).
+   */
+  trailingAction?: ReactNode;
 }
 
 /**
@@ -49,6 +63,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     errorText,
     leadingIcon,
     trailingIcon,
+    trailingAction,
     id,
     className,
     disabled,
@@ -68,6 +83,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   // approved per-size values. Mirrors Button's leadingIcon/trailingIcon-derived layout.
   const hasLeadingIcon = Boolean(leadingIcon);
   const hasTrailingIcon = Boolean(trailingIcon);
+  const hasTrailingAction = Boolean(trailingAction);
 
   // Validation content priority: errorText while erroring, otherwise helperText. If
   // error is true but errorText wasn't provided, helperText still shows — error never
@@ -80,6 +96,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     `ds-input--${size}`,
     hasLeadingIcon && 'ds-input--has-leading-icon',
     hasTrailingIcon && 'ds-input--has-trailing-icon',
+    hasTrailingAction && 'ds-input--has-trailing-action',
     error && 'ds-input--error',
     className,
   ]
@@ -113,6 +130,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
             {trailingIcon}
           </span>
         )}
+        {/* Deliberately NOT aria-hidden — this slot holds a real interactive control. */}
+        {trailingAction && <span className="ds-input__action">{trailingAction}</span>}
       </div>
       {hasSupportContent && (
         <span id={supportTextId} className="ds-input__support">

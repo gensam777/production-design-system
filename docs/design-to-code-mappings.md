@@ -22,6 +22,9 @@ this table is updated by hand whenever a component ships or a mapping changes.
 | Tooltip | Tooltip V1, page `968:9`, single component `968:10` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Tooltip/Tooltip.tsx` | See [Tooltip](#tooltip) below. |
 | Accordion | Accordion V1, page `968:1638`, component set `968:1736` ("Accordion Item") — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Accordion/Accordion.tsx`, `AccordionItem.tsx` | See [Accordion](#accordion) below. |
 | Tabs | Tabs V1, page `968:1781`, component set `968:1847` ("Tab") — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Tabs/Tabs.tsx`, `TabList.tsx`, `Tab.tsx`, `TabPanels.tsx`, `TabPanel.tsx` | See [Tabs](#tabs) below. |
+| Link | Link V1, page `1036:11`, component set `1038:15` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Link/Link.tsx` | See [Link](#link) below. |
+| Divider | Divider V1, page `1036:10`, component `1037:11` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Divider/Divider.tsx` | See [Divider](#divider) below. |
+| Password Input | Password Input V1, page `1036:9`, component set `1039:86` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/PasswordInput/PasswordInput.tsx` | See [PasswordInput](#passwordinput) below. Built on Input's new `trailingAction` slot. |
 
 - **Figma component** — the component/variant name as it appears in the Figma library.
 - **Figma link** — direct link to the node in the library file.
@@ -303,6 +306,32 @@ working). Icon Layout/Content require drilling into the nested instance.
 | Tone (nested, Default/Disabled) | **not a prop, internal Figma implementation only** | Not designer-facing even in Figma (see Figma architecture above). In code, disabled foreground comes from the native `:disabled` pseudo-class resolving to `text.disabled` — there is no `tone` concept in code at all. |
 | Leading icon slot | `leadingIcon?: React.ReactNode` | Provider-neutral — accepts `<Icon name="..." />`, a raw provider element, or any other node. See `governance/decisions/0010-icon-token-architecture.md`. |
 | Trailing icon slot | `trailingIcon?: React.ReactNode` | Same contract as `leadingIcon`. |
+| — (Input Content's trailing position, drawn by the consumer component — see PasswordInput) | `trailingAction?: React.ReactNode` | **Added 2026-09-29 for PasswordInput.** Interactive slot, rendered after `trailingIcon`, **not** `aria-hidden`. See [Trailing action slot](#trailing-action-slot-added-2026-09-29) below. No Figma property: Figma draws the same visual in Input Content's trailing icon position; interactivity has no Figma equivalent. |
+
+### Trailing action slot (added 2026-09-29)
+
+Added so PasswordInput (and future clear/search actions) can place a real control inside
+the field without being hidden from assistive technology — the existing `trailingIcon`
+slot is, correctly, always `aria-hidden` and stays exactly as it was.
+
+- **Two slots, two meanings, no ambiguity.** `trailingIcon` = decorative, `aria-hidden`,
+  never interactive. `trailingAction` = one real control (a `<button type="button">` with
+  its own `aria-label`, plus `aria-pressed` if it's a toggle), never hidden. Both may be
+  present; the action renders last.
+- **No visual regression.** `.ds-input__action` reuses the trailing icon's box size
+  (`icon.sm`/`md`/`lg`), color (`text.tertiary`, `text.disabled` when the input is
+  disabled) and trailing-adjacent padding (`ds-input--has-trailing-action` shares the
+  `has-trailing-icon` padding rules) — so an action occupies exactly the space a trailing
+  icon would. Every existing Input without `trailingAction` renders byte-for-byte the same
+  markup as before.
+- **Interaction layer (code-only).** Button reset; invisible 24×24 minimum hit area via a
+  centered `::before` (WCAG 2.2 SC 2.5.8 — same component-owned constant as Checkbox/Radio,
+  and equal to the visual box at Lg); its own `:focus-visible` double ring (the field's
+  ring only appears when the *input* has focus, so the two never show together);
+  `cursor: not-allowed` when disabled.
+- **Disabled is the consumer's job for arbitrary content.** Input cannot disable a node it
+  didn't create; pass `disabled` to your button when the input is disabled. PasswordInput
+  does this itself.
 
 ### Size parity
 
@@ -378,8 +407,19 @@ only the border and support text do.
   container) — never suppressed.
 - Leading/trailing icons are `aria-hidden="true"` — the visible label/value text already
   carries the accessible name; icons never contribute a second, redundant one.
+- `trailingAction` is deliberately **not** `aria-hidden` — it holds a real control that
+  must be reachable and named (see Trailing action slot above).
 - Not yet verified: screen-reader spot-check, 200% zoom/reflow, full WCAG 2.2 AA sweep —
   per `governance/accessibility.md`, required before "stable," not claimed here.
+
+### Figma icon-size binding fix (2026-09-29)
+
+During the PasswordInput Layer 1 (Figma authoring parity) audit, Input Content's leading/
+trailing icon instances were found **unbound** (raw 16/20/24px) in all six Input Content
+sets, while code already used `var(--icon-sm|md|lg)` and Badge's Figma icon was already
+bound to `icon/sm`. Figma was the outlier: all 96 icon instances (48 variants × 2) were
+bound to `icon/sm|md|lg` by size. Resolved values were identical, so there was no visual
+change.
 
 ### Icon size mapping / provider-neutral icon behavior
 
@@ -1510,6 +1550,13 @@ Flat component set — no nested Content layer:
 
 Variant (Outlined/Elevated) × Padding (None/Md/Lg) are the only two axes.
 
+**Content slot (added 2026-09-29, Pattern Audit cleanup).** Every variant now wraps its
+sample title/body in a native Figma **slot** property, `Content` — the Figma equivalent of
+React's `children`, so a Card instance can hold real content (forms, lists, stat text).
+Variants, tokens, padding and visuals were unchanged; the 14 hand-built card frames in the
+product examples (Examples / Playground page) were replaced with Card instances using it.
+No React change — `children` already was the contract.
+
 ### Typography token-parity fix applied post-implementation
 
 An audit of the live Figma Card node found its demo "title"/"body" text layers had an
@@ -1943,3 +1990,258 @@ Accordion's trigger (adjacent siblings sitting flush against each other). No new
   verbatim.
 - **Not claimed**: vertical orientation or manual activation on any platform — both are
   stated V1 scope cuts, not gaps.
+
+## Link
+
+- React: `src/components/Link/Link.tsx`
+- Styles: `src/components/Link/Link.css`
+- Storybook: `src/components/Link/Link.stories.tsx` (`Components/Link`)
+- Figma: Link V1, page `1036:11` ("Link", under Navigation), component set `1038:15`.
+
+### Why this component exists
+
+Introduced by the Pattern Audit (P0). Navigation in the product examples was built from
+Buttons ("View all", app-shell "Settings", "Back to dashboard") or hand-styled plain text
+("Forgot password?", `.ds-example-login__link`). Link gives navigation a real `<a href>`.
+Product examples are **not** migrated yet (separate step).
+
+### Reference component
+
+No close ancestor — the visual evidence is the approved "Forgot password?" text
+(`text/body/sm/medium`, `text/link`, no underline) and the example's hand-built link CSS;
+focus treatment follows Button/Input.
+
+### Figma architecture (current, authoritative)
+
+Flat component set — no nesting:
+
+| Component set | Variant axes | Count | Owns |
+| --- | --- | --- | --- |
+| **Link** | Interaction (Default / Hover / Focus-visible) | 3 | Label (TEXT property), text color per state, hover underline, focus ring |
+
+Interaction is a documentation axis only (same as Input/Checkbox). No Pressed, Visited or
+Disabled variant — see Accessibility.
+
+### Prop mapping
+
+| Figma property | React prop | Notes |
+| --- | --- | --- |
+| Label (TEXT) | `children: React.ReactNode` | Required. Also the accessible name. |
+| Interaction | **not a prop** | Native `:hover` / `:focus-visible`. |
+| — | `href: string` | **Required** — a Link always navigates. No Figma equivalent. |
+| — | native anchor attributes | `target`, `rel`, `download`, `onClick`, `aria-current`, … pass through via `...rest`; `ref` forwards to the `<a>`. |
+
+**Not a prop, on purpose:** `variant` (one style in V1 — decided), `disabled` (a
+destination that isn't available should not render as a link), `as`/`asChild` (router
+integration deferred — decided: plain `<a>` + `forwardRef`; an app can intercept
+`onClick` or wrap the component later, and `asChild` remains a possible additive change).
+
+### Color & typography tokens by state
+
+| State | Text | Decoration | Focus ring |
+| --- | --- | --- | --- |
+| Default | `text.link` (5.17:1) | none | — |
+| Hover | `text.link-hover` (6.70:1) | underline | — |
+| Focus-visible | `text.link` | none | `focus.ring-offset` 2px + `focus.ring` 4px (code); 2px `focus/ring` stroke (Figma) |
+
+Typography: `text.body.sm.medium` (all states). Ring radius: `radius.control`. Color
+transition: `motion.micro` (code only).
+
+### Intentional platform differences
+
+- **Hover underline**: CSS `text-decoration: underline`; Figma draws a 1px `underline`
+  layer bound to `text/link-hover`. Figma couples a text layer's decoration across every
+  variant that shares the same TEXT component property (verified: setting it on one
+  variant set it on all three), so a real text decoration on Hover only is not possible
+  while `Label` remains a working property.
+- **Focus ring**: 2px `focus/ring` OUTSIDE stroke in Figma (Button Tertiary's technique
+  for transparent controls) vs. the offset + ring `box-shadow` in CSS — the same
+  difference already documented for Button.
+
+### Accessibility (implemented and spot-checked, not a certified audit)
+
+- Native `<a href>`: role `link`, in the tab order, activated with Enter. `href` is
+  required by the type, so a Link is never an un-focusable `<a>` without `href`.
+- Accessible name = visible text. Make it meaningful out of context; where the visible
+  text is short ("View all"), pass `aria-label` ("View all activity").
+- Standalone links rely on color + position at rest and gain an underline on hover. A
+  future **inline-in-paragraph** use needs an always-visible underline (WCAG 1.4.1) —
+  deliberately not built in V1 (no current consumer).
+- Visible `:focus-visible` ring; never suppressed.
+- `aria-current="page"` for the current nav item passes through (the App shell template
+  owns nav styling).
+- Not yet verified: screen-reader spot-check, 200% zoom/reflow, full WCAG 2.2 AA sweep.
+
+### Audit usages (for the later product-example migration)
+
+| Current | Becomes | Note |
+| --- | --- | --- |
+| "Forgot password?" (hand-styled `<button>`) | `Link` | Navigates to the reset flow. |
+| "View all" (tertiary Button) | `Link` | Add context (`aria-label="View all activity"`). |
+| App-shell "Settings" (tertiary Button) | `Link` | Nav styling + `aria-current` belong to the App shell template. |
+| "Back to dashboard" (primary Button) | **stays Button for now** | Designed as a primary CTA; Link must not imitate Button. Needs a separate Button-as-link (`href`) decision. |
+
+### Cross-platform contract (shared design intent, not yet implemented elsewhere)
+
+- **Shared**: "navigates, doesn't act"; one standalone style; link color roles
+  (`text.link`/`text.link-hover`); accessible name = visible text.
+- **Not shared** (platform-owned): hover (none on touch platforms), focus treatment,
+  navigation mechanics (router / NavigationStack / NavController).
+
+## Divider
+
+- React: `src/components/Divider/Divider.tsx`
+- Styles: `src/components/Divider/Divider.css`
+- Storybook: `src/components/Divider/Divider.stories.tsx` (`Components/Divider`)
+- Figma: Divider V1, page `1036:10` ("Divider", under Containers & Disclosure), single
+  component `1037:11`.
+
+### Why this component exists
+
+Pattern Audit P0: dividers were built three different ways in React (`<hr>`, `li + li`
+borders, a footer `border-top`) and as ~9 hand-drawn rectangles in Figma — all
+`border/subtle`, all horizontal, all 1px.
+
+### Figma architecture (current, authoritative)
+
+| Component | Variant axes | Count | Owns |
+| --- | --- | --- | --- |
+| **Divider** | none | 1 | 1px top stroke bound to `border/subtle`; used at Fill width |
+
+No component properties: the semantic/decorative choice has no visual difference.
+
+### Prop mapping
+
+| Figma property | React prop | Notes |
+| --- | --- | --- |
+| — | `decorative?: boolean` | Default `false`. Code-only (no visual difference, so no Figma property). |
+| Fill width | — | `width: 100%` + `align-self: stretch`. |
+| — | native `<hr>` attributes | Pass through; `ref` forwards to the `<hr>`. |
+
+### Semantics decision
+
+- **Default — native `<hr>`**: a meaningful break between distinct content groups (e.g.
+  Settings sections). Announced as a separator.
+- **`decorative`** — the same `<hr>` plus `aria-hidden="true"`: visual rhythm inside
+  something already structured (list rows, the rule above an action bar). Not announced.
+- **Horizontal only.** No vertical evidence exists; a future vertical divider would use
+  `role="separator"` + `aria-orientation="vertical"`.
+
+### Tokens
+
+| Property | Token | Notes |
+| --- | --- | --- |
+| Color | `border.subtle` | Decorative/structural role (doesn't need 3:1 — not a UI-component boundary). |
+| Thickness | 1px | Component constant (same as every 1px border — Input, Card). |
+| Spacing | none | Owns no margin; the parent gap (`space.stack.*`) controls spacing, as in Figma. |
+
+### Accessibility (implemented and spot-checked, not a certified audit)
+
+- Semantic by default (native `<hr>`); decorative via `aria-hidden`. Don't use a Divider
+  in place of headings, spacing, or a Card boundary.
+- Inside a list, put a decorative divider inside the `<li>` (not as a direct `<ul>` child).
+
+### Cross-platform contract (shared design intent, not yet implemented elsewhere)
+
+- **Shared**: 1px `border.subtle` rule, full width, no own spacing, semantic vs.
+  decorative distinction.
+- **Not shared**: how each platform exposes a separator to accessibility APIs.
+
+## PasswordInput
+
+- React: `src/components/PasswordInput/PasswordInput.tsx` (no own stylesheet — all
+  styling is Input's, including the new `trailingAction` slot)
+- Storybook: `src/components/PasswordInput/PasswordInput.stories.tsx`
+  (`Components/PasswordInput`)
+- Figma: Password Input V1, page `1036:9` ("Password Input", under Form Controls),
+  component set `1039:86`.
+
+### Why this component exists (approved exception)
+
+Pattern Audit P0. Promoted despite one current consumer (Login) as an explicit, approved
+exception to "don't promote on one appearance": show/hide has real interaction behavior,
+its accessibility shouldn't be re-implemented by consumers, and sign-up / reset-password /
+change-password are predictable next consumers. Architecture (approved): a **dedicated
+component built on Input** — not an Input variant axis, not a consumer composition.
+
+### Figma architecture (current, authoritative)
+
+| Component set | Variant axes | Count | Owns |
+| --- | --- | --- | --- |
+| **Password Input** | Visibility (Hidden / Shown) × Toggle (Default / Focus-visible) | 4 | Masked vs. plain value, eye / eye-off icon, focus ring on the show/hide control |
+
+Each variant wraps one **exposed** nested Input instance named `input` (Size, Interaction,
+Validation, Label and Support text are edited on it — Input's own properties; no new Input
+axis). Inside it, Input Content uses Icon Layout = Trailing with the trailing icon swapped
+to Lucide `eye` (Hidden) / `eye-off` (Shown). Verified: the icon and value survive nested
+Size / Validation / Interaction changes.
+
+**Figma limitation (documented):** the Toggle = Focus-visible ring is an override on the
+nested trailing icon, authored at Md. Changing the nested Input's Size (or Interaction)
+swaps to a different Input Content component set and resets that override; the doc frame
+includes Sm/Lg focus specimens for reference. Disabled can't show it anyway (a disabled
+control can't be focused).
+
+### Prop mapping
+
+| Figma property | React prop | Notes |
+| --- | --- | --- |
+| `input` → Size / Validation / Label / Support text / Interaction=Disabled | Input's props (`size`, `error`, `errorText`, `label`, `helperText`, `disabled`, …) | `PasswordInputProps` = `InputProps` minus `type`, `trailingIcon`, `trailingAction`. |
+| Visibility | **not a prop** | Internal state (`useState`), starts hidden. |
+| Toggle | **not a prop** | Native `:focus-visible` on the control. |
+| — | `visibilityToggleLabel?: string` | Default `'Show password'`. Static accessible name; override only to localize. |
+| — | `autoComplete` | Passes through (`current-password` / `new-password`); no default. |
+| — | `ref` | Forwards to the `<input>`. |
+
+`type` is owned by the component (`password` ⇄ `text`). `trailingIcon` is omitted (a
+second decorative icon next to the control would be ambiguous); `leadingIcon` is allowed.
+
+### Behavior
+
+- **Toggle** — `<button type="button">` (never submits a form) in Input's
+  `trailingAction` slot; flips `type` between `password` and `text`. React keeps the value;
+  the selection captured before the switch is restored in a layout effect (some browsers
+  reset the caret on a type change).
+- **Focus** — a pointer press on the control keeps focus in the field when the field
+  already had it (`mousedown` default prevented only then), so typing continues; keyboard
+  users Tab to the control and focus stays on it, so its `aria-pressed` change is
+  announced.
+- **Disabled** — `disabled` disables both the input and the control.
+- **Revealed-text hygiene** — `autoCapitalize="none"`, `autoCorrect="off"`,
+  `spellCheck={false}` always, so a revealed password isn't capitalized, auto-corrected or
+  spell-checked.
+- Not built (V1): auto re-hide on submit/blur, caps-lock warning, strength meter.
+
+### Tokens
+
+Everything is Input's (field, label, support, error, sizes — see [Input](#input)) plus the
+`trailingAction` slot: icon `text.tertiary` (`text.disabled` when disabled), box
+`icon.sm`/`md`/`lg`, focus ring `focus.ring-offset` + `focus.ring`, radius
+`radius.control`. No new tokens. Icons: `eye` / `eye-off` added to the icon catalog
+(`src/icons/types.ts`, `providers/lucide.ts`, `docs/foundations/icons.md`, Figma Icons
+page) per ADR 0010.
+
+### Accessibility (implemented and spot-checked, not a certified audit)
+
+- **Name/state (decided): static name + `aria-pressed`.** The control is always named
+  "Show password"; `aria-pressed="false"` while hidden, `"true"` while shown — announced as
+  e.g. "Show password, toggle button, pressed". The name never flips to "Hide password"
+  (that would be a second, competing way to express the same state). `aria-controls`
+  points at the input.
+- Icon is decorative (`aria-hidden`, from `Icon`).
+- 24×24 minimum target (WCAG 2.2 SC 2.5.8) via the slot's hit area; the visual box stays
+  icon-sized.
+- Label and helper/error association (`aria-describedby`, `aria-invalid`) inherited from
+  Input.
+- No live region: the pressed-state change is announced on the focused control.
+- Not yet verified: screen-reader spot-check (NVDA/VoiceOver), mobile keyboards, 200%
+  zoom/reflow, full WCAG 2.2 AA sweep.
+
+### Cross-platform contract (shared design intent, not yet implemented elsewhere)
+
+- **Shared**: masked by default; a single show/hide control inside the field, trailing;
+  static name + pressed state; value and caret preserved; disabled together; eye/eye-off
+  semantics (eye = "show").
+- **Not shared** (platform-owned): native secure-entry fields (`SecureField`,
+  `PasswordVisualTransformation`), platform password-manager integration, keyboard
+  autocorrect flags.

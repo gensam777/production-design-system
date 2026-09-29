@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Input } from './Input';
@@ -37,6 +38,7 @@ const meta: Meta<typeof Input> = {
     // (leadingIconName/trailingIconName) instead — see below.
     leadingIcon: { control: false },
     trailingIcon: { control: false },
+    trailingAction: { control: false },
   },
   args: {
     size: 'md',
@@ -279,5 +281,60 @@ export const ErrorAndFocus: Story = {
           'own ring. No `autoFocus` is used.',
       },
     },
+  },
+};
+
+export const TrailingAction: Story = {
+  name: 'Trailing action (interactive slot)',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The `trailingAction` slot holds a real, focusable control (not aria-hidden), ' +
+          'unlike the decorative `trailingIcon`. Same box and padding as a trailing ' +
+          'icon, invisible 24×24 minimum hit area, own focus ring. Here: a generic clear ' +
+          'action at every size, plus the decorative icon for comparison (no layout shift). ' +
+          'PasswordInput is the first production consumer.',
+      },
+    },
+  },
+  render: function TrailingActionStory(args) {
+    const [values, setValues] = useState<Record<InputSize, string>>({
+      sm: 'Query',
+      md: 'Query',
+      lg: 'Query',
+    });
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: 320 }}>
+        {(['sm', 'md', 'lg'] as InputSize[]).map((size) => (
+          <Input
+            key={size}
+            {...args}
+            size={size}
+            label={`Search (${size})`}
+            helperText={undefined}
+            value={values[size]}
+            onChange={(event) => setValues((v) => ({ ...v, [size]: event.target.value }))}
+            trailingAction={
+              <button
+                type="button"
+                aria-label="Clear search"
+                disabled={args.disabled}
+                onClick={() => setValues((v) => ({ ...v, [size]: '' }))}
+              >
+                <Icon name="close" />
+              </button>
+            }
+          />
+        ))}
+        <Input
+          {...args}
+          label="Decorative trailing icon (comparison)"
+          helperText={undefined}
+          defaultValue="Query"
+          trailingIcon={<Icon name="close" />}
+        />
+      </div>
+    );
   },
 };
