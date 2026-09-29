@@ -4,30 +4,6 @@
  * `npm run tokens:build` first.
  */
 
-.ds-example-dashboard__heading {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-stack-xs);
-}
-.ds-example-dashboard__heading h1 {
-  margin: 0;
-  color: var(--color-text-primary);
-  font-family: var(--text-heading-sm-semibold-font-family);
-  font-size: var(--text-heading-sm-semibold-font-size);
-  font-weight: var(--text-heading-sm-semibold-font-weight);
-  line-height: var(--text-heading-sm-semibold-line-height);
-  letter-spacing: var(--text-heading-sm-semibold-letter-spacing);
-}
-.ds-example-dashboard__heading p {
-  margin: 0;
-  color: var(--color-text-secondary);
-  font-family: var(--text-body-sm-regular-font-family);
-  font-size: var(--text-body-sm-regular-font-size);
-  font-weight: var(--text-body-sm-regular-font-weight);
-  line-height: var(--text-body-sm-regular-line-height);
-  letter-spacing: var(--text-body-sm-regular-letter-spacing);
-}
-
 /* ---- Stat row ----
    Intrinsic layout first (per docs/foundations/responsive.md): flex-wrap does the
    reflow work on its own — no breakpoint needed for 3 cards -> stacked single column,
@@ -134,14 +110,24 @@
 .ds-example-dashboard__activity-list li {
   display: flex;
   flex-direction: column;
+  gap: var(--space-stack-md);
+}
+
+/* Activity row — matches Figma: stacked (text over time, space.stack.xs) on Compact
+   (02b), text left / time right on one line from Medium up (02). A real composition
+   change, so an explicit breakpoint; 768px mirrors --viewport-md (@media can't use var()). */
+.ds-example-dashboard__activity-row {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-stack-xs);
-  padding-top: var(--space-stack-md);
 }
-.ds-example-dashboard__activity-list li:first-child {
-  padding-top: 0;
-}
-.ds-example-dashboard__activity-list li + li {
-  border-top: 1px solid var(--color-border-subtle);
+@media (min-width: 768px) {
+  .ds-example-dashboard__activity-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-inline-md);
+  }
 }
 .ds-example-dashboard__activity-text {
   color: var(--color-text-primary);
@@ -152,6 +138,7 @@
   letter-spacing: var(--text-body-sm-regular-letter-spacing);
 }
 .ds-example-dashboard__activity-time {
+  white-space: nowrap;
   color: var(--color-text-tertiary);
   font-family: var(--text-caption-sm-regular-font-family);
   font-size: var(--text-caption-sm-regular-font-size);

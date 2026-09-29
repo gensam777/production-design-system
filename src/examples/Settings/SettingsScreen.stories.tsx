@@ -10,12 +10,11 @@ const meta: Meta<typeof SettingsScreen> = {
     docs: {
       description: {
         component:
-          'Settings screen — composed from Card, Input, Textarea, Select, Switch, ' +
-          'RadioGroup/Radio, Button, Alert, and the real interactive Tabs compound ' +
-          'component, plus the shared AppShell. Click between Profile / Notifications / ' +
-          'Security to exercise real tab switching (roving tabindex, automatic ' +
-          'activation via arrow keys) — unlike the static Figma mock, every tab here has ' +
-          'a real, distinct panel.',
+          'Settings screen — the App shell, Page header and Settings section patterns with ' +
+          'Input, Textarea, Select, Switch, RadioGroup/Radio, Alert and Tabs. Each tab is ' +
+          'one settings domain = one `<form>` = one save scope: edit Profile, switch to Plan ' +
+          'and press Cancel there — only the Plan draft resets. Save submits only that tab. ' +
+          'Matches Figma 03 (Profile), 03b (Notifications) and 03c (Plan).',
       },
     },
   },

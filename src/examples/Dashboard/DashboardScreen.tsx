@@ -1,8 +1,9 @@
 import { Badge } from '../../components/Badge';
 import type { BadgeStatus } from '../../components/Badge';
-import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
-import { AppShell } from '../shared/AppShell';
+import { Divider } from '../../components/Divider';
+import { Link } from '../../components/Link';
+import { AppShell, PageHeader } from '../../patterns';
 import './DashboardScreen.css';
 
 interface Stat {
@@ -44,24 +45,40 @@ const STATUS: StatusItem[] = [
 
 export interface DashboardScreenProps {
   userName?: string;
-  onNavigateSettings?: () => void;
-  onViewAllActivity?: () => void;
+  dashboardHref?: string;
+  settingsHref?: string;
+  viewAllActivityHref?: string;
 }
 
 /**
- * Dashboard screen — composed from Card, Badge, Button, and the shared AppShell. Matches
- * the approved Figma "02 — Dashboard" frame. Responsive behavior (stat row wrap, the
- * activity/status row switching from a column to a row) is implemented directly in
- * DashboardScreen.css, not as separate mobile markup — see the file for the one real
- * breakpoint decision (row -> column) that intrinsic wrap can't express on its own.
+ * Dashboard screen — Card, Badge, Link and Divider inside the App shell template, with
+ * the Page header pattern. Matches the approved Figma "02 — Dashboard" and "02b —
+ * Dashboard · Mobile (375)" frames; responsive behavior is real CSS (see
+ * DashboardScreen.css and src/patterns/AppShell/AppShell.css), not separate mobile markup.
  */
-export function DashboardScreen({ userName, onNavigateSettings, onViewAllActivity }: DashboardScreenProps) {
+export function DashboardScreen({
+  userName = 'Jordan Lee',
+  dashboardHref = '#dashboard',
+  settingsHref = '#settings',
+  viewAllActivityHref = '#activity',
+}: DashboardScreenProps) {
   return (
-    <AppShell userName={userName} onNavigateSettings={onNavigateSettings}>
-      <div className="ds-example-dashboard__heading">
-        <h1>Good afternoon, Jordan</h1>
-        <p>Here&apos;s what&apos;s happening with your workspace today.</p>
-      </div>
+    <AppShell
+      navItems={[
+        { label: 'Dashboard', href: dashboardHref, current: true },
+        { label: 'Settings', href: settingsHref },
+      ]}
+      secondary={
+        <>
+          <Badge>Free plan</Badge>
+          <span>{userName}</span>
+        </>
+      }
+    >
+      <PageHeader
+        title="Good afternoon, Jordan"
+        description="Here's what's happening with your workspace today."
+      />
 
       <div className="ds-example-dashboard__stat-row">
         {STATS.map((stat) => (
@@ -86,15 +103,20 @@ export function DashboardScreen({ userName, onNavigateSettings, onViewAllActivit
         <Card variant="outlined" padding="lg" className="ds-example-dashboard__activity-card">
           <div className="ds-example-dashboard__card-header">
             <h2>Recent activity</h2>
-            <Button variant="tertiary" size="sm" onClick={onViewAllActivity}>
+            {/* Short visible text + a full accessible name so it makes sense out of context. */}
+            <Link href={viewAllActivityHref} aria-label="View all activity">
               View all
-            </Button>
+            </Link>
           </div>
           <ul className="ds-example-dashboard__activity-list">
-            {ACTIVITY.map((item) => (
+            {ACTIVITY.map((item, index) => (
               <li key={item.text}>
-                <span className="ds-example-dashboard__activity-text">{item.text}</span>
-                <span className="ds-example-dashboard__activity-time">{item.time}</span>
+                {/* The list already conveys structure → decorative divider inside the item. */}
+                {index > 0 && <Divider decorative />}
+                <div className="ds-example-dashboard__activity-row">
+                  <span className="ds-example-dashboard__activity-text">{item.text}</span>
+                  <span className="ds-example-dashboard__activity-time">{item.time}</span>
+                </div>
               </li>
             ))}
           </ul>

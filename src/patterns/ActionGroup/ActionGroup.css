@@ -1,0 +1,31 @@
+/**
+ * Action group (pattern, not a DS component). Matches the Figma Settings footer: divider,
+ * then end-aligned actions with space.inline.md between them and space.stack.lg above.
+ *
+ * Responsive: a container query (reusable pieces respond to their container, not the
+ * viewport — docs/foundations/responsive.md). Below 24rem of available width the actions
+ * stack full-width in DOM order (primary last = bottom), so visual and focus order never
+ * diverge. 24rem is a composition constant, not a token.
+ */
+
+.ds-pattern-action-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-lg);
+  container-type: inline-size;
+}
+
+.ds-pattern-action-group__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-inline-md);
+}
+
+@container (min-width: 24rem) {
+  .ds-pattern-action-group__actions {
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+  }
+}

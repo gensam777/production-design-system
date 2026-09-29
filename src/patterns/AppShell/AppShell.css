@@ -1,29 +1,66 @@
 /**
- * AppShell (example composition, not a DS component). Consumes generated token custom
- * properties from src/tokens/build/css/variables.css — run `npm run tokens:build` first.
+ * App shell template (pattern, not a DS component). Consumes generated token custom
+ * properties — run `npm run tokens:build` first.
+ *
+ * Mobile-first, viewport media queries only (page/app-shell level is the one place
+ * docs/foundations/responsive.md allows them). Page gutter = the Grid guidance page margin:
+ * space.layout.sm (Compact) → space.layout.md (Medium, ≥768) → space.layout.lg (Wide,
+ * ≥1024). The gutter sits OUTSIDE the content cap: .__main owns the gutter padding and
+ * .__container owns max-width: layout.container.maxWidth (1280). Breakpoints mirror
+ * --viewport-md / --viewport-lg; @media cannot consume var(), so they are hardcoded.
  */
 
-.ds-example-app-shell {
+.ds-pattern-app-shell {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: var(--color-surface-canvas);
   box-sizing: border-box;
+  background-color: var(--color-surface-canvas);
+  --ds-pattern-app-shell-gutter: var(--space-layout-sm);
 }
 
-.ds-example-app-shell__nav {
+/* ---- Skip link: off-screen until focused (WCAG 2.4.1) ---- */
+.ds-pattern-app-shell__skip {
+  position: absolute;
+  left: var(--space-inset-md);
+  top: var(--space-inset-md);
+  z-index: 1;
+  transform: translateY(-200%);
+  padding: var(--space-inset-sm) var(--space-inset-md);
+  border-radius: var(--radius-control);
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-link);
+  font-family: var(--text-body-sm-medium-font-family);
+  font-size: var(--text-body-sm-medium-font-size);
+  font-weight: var(--text-body-sm-medium-font-weight);
+  line-height: var(--text-body-sm-medium-line-height);
+  letter-spacing: var(--text-body-sm-medium-letter-spacing);
+}
+.ds-pattern-app-shell__skip:focus-visible {
+  transform: none;
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-focus-ring-offset),
+    0 0 0 4px var(--color-focus-ring);
+}
+
+/* ---- Nav bar ---- */
+.ds-pattern-app-shell__nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
+  gap: var(--space-inline-md);
+  /* 56px (Compact) / 64px (≥768) — composition constants matching the approved Figma
+     02b / 02 nav bars; not tokens (same convention as control heights). */
+  height: 56px;
   flex-shrink: 0;
-  padding-inline: var(--space-layout-lg);
+  box-sizing: border-box;
+  padding-inline: var(--ds-pattern-app-shell-gutter);
   background-color: var(--color-surface-default);
   border-bottom: 1px solid var(--color-border-subtle);
-  box-sizing: border-box;
 }
 
-.ds-example-app-shell__brand {
+.ds-pattern-app-shell__brand {
   color: var(--color-text-primary);
   font-family: var(--text-label-lg-semibold-font-family);
   font-size: var(--text-label-lg-semibold-font-size);
@@ -32,13 +69,26 @@
   letter-spacing: var(--text-label-lg-semibold-letter-spacing);
 }
 
-.ds-example-app-shell__nav-right {
+.ds-pattern-app-shell__nav-end {
   display: flex;
   align-items: center;
   gap: var(--space-inline-md);
 }
 
-.ds-example-app-shell__user-name {
+.ds-pattern-app-shell__nav-list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-inline-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Non-essential context is hidden (not reflowed) on Compact — never navigation. */
+.ds-pattern-app-shell__secondary {
+  display: none;
+  align-items: center;
+  gap: var(--space-inline-md);
   color: var(--color-text-secondary);
   font-family: var(--text-body-sm-medium-font-family);
   font-size: var(--text-body-sm-medium-font-size);
@@ -48,37 +98,47 @@
   white-space: nowrap;
 }
 
-.ds-example-app-shell__body {
+/* ---- Main: gutter outside the content cap ---- */
+.ds-pattern-app-shell__main {
+  flex: 1 0 auto;
+  box-sizing: border-box;
+  padding-inline: var(--ds-pattern-app-shell-gutter);
+  padding-block: var(--space-layout-sm);
+  outline: none; /* programmatic focus target of the skip link only */
+}
+
+.ds-pattern-app-shell__container {
   width: 100%;
   max-width: var(--layout-container-max-width);
   margin-inline: auto;
   box-sizing: border-box;
-  padding-block: var(--space-layout-lg);
-  padding-inline: var(--space-layout-lg);
   display: flex;
   flex-direction: column;
-  gap: var(--space-stack-2xl);
+  gap: var(--space-stack-xl);
 }
 
-/* Mirrors --viewport-md (768px). CSS @media conditions cannot consume var(), so the
-   threshold is hardcoded here — see docs/foundations/responsive.md, which documents the
-   same inherent limitation on the Figma side. Below this width the nav's secondary,
-   genuinely non-essential items (plan badge, user name) are hidden rather than reflowed;
-   a real hamburger/menu affordance is out of scope, since this system has no Menu/
-   IconButton component yet (documented gap, not invented here). */
-@media (max-width: 767px) {
-  .ds-example-app-shell__nav {
-    padding-inline: var(--space-layout-sm);
+/* Medium (≥ --viewport-md 768px) */
+@media (min-width: 768px) {
+  .ds-pattern-app-shell {
+    --ds-pattern-app-shell-gutter: var(--space-layout-md);
   }
-
-  .ds-example-app-shell__plan-badge,
-  .ds-example-app-shell__user-name {
-    display: none;
+  .ds-pattern-app-shell__nav {
+    height: 64px;
   }
+  .ds-pattern-app-shell__secondary {
+    display: flex;
+  }
+  .ds-pattern-app-shell__main {
+    padding-block: var(--space-layout-lg);
+  }
+  .ds-pattern-app-shell__container {
+    gap: var(--space-stack-2xl);
+  }
+}
 
-  .ds-example-app-shell__body {
-    padding-block: var(--space-layout-sm);
-    padding-inline: var(--space-layout-sm);
-    gap: var(--space-stack-xl);
+/* Wide (≥ --viewport-lg 1024px) */
+@media (min-width: 1024px) {
+  .ds-pattern-app-shell {
+    --ds-pattern-app-shell-gutter: var(--space-layout-lg);
   }
 }

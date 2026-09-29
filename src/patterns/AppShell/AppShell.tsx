@@ -1,51 +1,75 @@
 import type { ReactNode } from 'react';
 
-import { Badge } from '../../components/Badge';
-import { Button } from '../../components/Button';
+import { Link } from '../../components/Link';
 import './AppShell.css';
 
+export interface AppShellNavItem {
+  label: string;
+  href: string;
+  /** Marks the item for the page currently shown (`aria-current="page"`). */
+  current?: boolean;
+}
+
 export interface AppShellProps {
-  /** Page content, rendered inside the capped/centered main region. */
+  /** Page content, rendered inside the gutter + 1280px content container. */
   children: ReactNode;
-  /** Shown in the nav bar; hidden below the mobile breakpoint (non-essential context —
-   * see AppShell.css). Defaults to a neutral placeholder name. */
-  userName?: string;
-  /** Plan Badge label; hidden below the mobile breakpoint alongside `userName`. */
-  planLabel?: string;
-  onNavigateSettings?: () => void;
+  /** Product name / wordmark shown at the start of the nav bar. */
+  brand?: ReactNode;
+  /** Primary navigation. Rendered as `Link`s inside a labelled `<nav>` landmark. */
+  navItems: AppShellNavItem[];
+  /**
+   * Non-essential context at the end of the nav bar (plan badge, user name). Hidden below
+   * the `viewport.md` breakpoint rather than reflowed — never put navigation here.
+   */
+  secondary?: ReactNode;
+  /** Id of the `<main>` element — the skip link's target. */
+  mainId?: string;
   className?: string;
 }
 
 /**
- * Shared nav + capped/centered content shell for the multi-screen product flow example
- * (Dashboard, Settings). Not a design-system component — a local composition pattern
- * built from Badge/Button plus this system's `layout.container.maxWidth` and
- * `space.layout.*` tokens, matching the "App shell: nav + capped container" pattern
- * identified during the Figma flow pass. Lives under `src/examples/`, not exported from
- * `src/index.ts`.
+ * App shell template (pattern — documented composition, not an exported DS component).
+ * Skip link → header with brand, labelled primary `<nav>` of Links and optional secondary
+ * content → `<main>` with the page gutter *outside* the 1280px content cap
+ * (viewport → gutter → `layout.container.maxWidth` → content). See
+ * `docs/patterns/app-shell.md`.
  */
 export function AppShell({
   children,
-  userName = 'Jordan Lee',
-  planLabel = 'Free plan',
-  onNavigateSettings,
+  brand = 'Workspace',
+  navItems,
+  secondary,
+  mainId = 'main-content',
   className,
 }: AppShellProps) {
-  const rootClasses = ['ds-example-app-shell', className].filter(Boolean).join(' ');
+  const rootClasses = ['ds-pattern-app-shell', className].filter(Boolean).join(' ');
 
   return (
     <div className={rootClasses}>
-      <header className="ds-example-app-shell__nav">
-        <span className="ds-example-app-shell__brand">Workspace</span>
-        <div className="ds-example-app-shell__nav-right">
-          <Badge className="ds-example-app-shell__plan-badge">{planLabel}</Badge>
-          <Button variant="tertiary" size="sm" onClick={onNavigateSettings}>
-            Settings
-          </Button>
-          <span className="ds-example-app-shell__user-name">{userName}</span>
+      <a className="ds-pattern-app-shell__skip" href={`#${mainId}`}>
+        Skip to main content
+      </a>
+      <header className="ds-pattern-app-shell__nav">
+        <span className="ds-pattern-app-shell__brand">{brand}</span>
+        <div className="ds-pattern-app-shell__nav-end">
+          <nav aria-label="Main">
+            <ul className="ds-pattern-app-shell__nav-list">
+              {navItems.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} aria-current={item.current ? 'page' : undefined}>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          {secondary && <div className="ds-pattern-app-shell__secondary">{secondary}</div>}
         </div>
       </header>
-      <main className="ds-example-app-shell__body">{children}</main>
+      {/* tabIndex={-1} lets the skip link move focus here in every browser. */}
+      <main id={mainId} tabIndex={-1} className="ds-pattern-app-shell__main">
+        <div className="ds-pattern-app-shell__container">{children}</div>
+      </main>
     </div>
   );
 }
