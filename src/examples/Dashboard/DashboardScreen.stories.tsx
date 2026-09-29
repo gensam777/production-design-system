@@ -26,7 +26,7 @@ type Story = StoryObj<typeof DashboardScreen>;
 export const Default: Story = {};
 
 export const Mobile: Story = {
-  render: () => {
+  render: (_args, { globals }) => {
     // AppShell/DashboardScreen use real viewport `@media` queries (per
     // docs/foundations/responsive.md's page/app-shell convention — never container
     // queries at this level), so a plain narrow wrapper `<div>` does NOT trigger them:
@@ -35,7 +35,9 @@ export const Mobile: Story = {
     // size, so this is the correct way to demonstrate real viewport-query reflow inside
     // Storybook without an addon-viewport dependency (not installed — see
     // .storybook/main.ts) or an actual resized browser window.
-    const src = `${window.location.pathname}?id=examples-dashboard--default&viewMode=story`;
+    // The active brand is forwarded: the nested frame is a separate document with its own
+    // Storybook globals, so it would otherwise always render the default brand.
+    const src = `${window.location.pathname}?id=examples-dashboard--default&viewMode=story&globals=brand:${globals.brand ?? 'brand-a'}`;
     return (
       <iframe
         title="Dashboard at a Compact (375px) viewport"
