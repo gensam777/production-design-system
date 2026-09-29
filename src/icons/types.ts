@@ -18,7 +18,9 @@ export type IconName =
   | 'danger'
   | 'trash'
   | 'edit'
-  | 'settings';
+  | 'settings'
+  | 'eye'
+  | 'eye-off';
 
 // Approved design-system display sizes — mirrors the semantic icon.sm/md/lg tokens
 // (16/20/24px). Never introduce an arbitrary numeric size here.

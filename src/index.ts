@@ -32,8 +32,14 @@ export type { IconProps, IconName, IconSize } from './icons';
 export { Button } from './components/Button';
 export type { ButtonProps, ButtonVariant, ButtonSize } from './components/Button';
 
+export { ButtonLink } from './components/ButtonLink';
+export type { ButtonLinkProps, ButtonLinkVariant } from './components/ButtonLink';
+
 export { Input } from './components/Input';
 export type { InputProps, InputSize } from './components/Input';
+
+export { PasswordInput } from './components/PasswordInput';
+export type { PasswordInputProps } from './components/PasswordInput';
 
 export { Checkbox } from './components/Checkbox';
 export type { CheckboxProps } from './components/Checkbox';
@@ -62,6 +68,9 @@ export type { AlertProps, AlertStatus } from './components/Alert';
 export { Card } from './components/Card';
 export type { CardProps, CardVariant, CardPadding } from './components/Card';
 
+export { Divider } from './components/Divider';
+export type { DividerProps } from './components/Divider';
+
 export { Tooltip } from './components/Tooltip';
 export type { TooltipProps, TooltipPlacement } from './components/Tooltip';
 
@@ -76,3 +85,6 @@ export type {
   TabPanelsProps,
   TabPanelProps,
 } from './components/Tabs';
+
+export { Link } from './components/Link';
+export type { LinkProps } from './components/Link';

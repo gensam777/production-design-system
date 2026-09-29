@@ -1,0 +1,144 @@
+/**
+ * App shell template (pattern, not a DS component). Consumes generated token custom
+ * properties — run `npm run tokens:build` first.
+ *
+ * Mobile-first, viewport media queries only (page/app-shell level is the one place
+ * docs/foundations/responsive.md allows them). Page gutter = the Grid guidance page margin:
+ * space.layout.sm (Compact) → space.layout.md (Medium, ≥768) → space.layout.lg (Wide,
+ * ≥1024). The gutter sits OUTSIDE the content cap: .__main owns the gutter padding and
+ * .__container owns max-width: layout.container.maxWidth (1280). Breakpoints mirror
+ * --viewport-md / --viewport-lg; @media cannot consume var(), so they are hardcoded.
+ */
+
+.ds-pattern-app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  box-sizing: border-box;
+  background-color: var(--color-surface-canvas);
+  --ds-pattern-app-shell-gutter: var(--space-layout-sm);
+}
+
+/* ---- Skip link: off-screen until focused (WCAG 2.4.1) ---- */
+.ds-pattern-app-shell__skip {
+  position: absolute;
+  left: var(--space-inset-md);
+  top: var(--space-inset-md);
+  z-index: 1;
+  transform: translateY(-200%);
+  padding: var(--space-inset-sm) var(--space-inset-md);
+  border-radius: var(--radius-control);
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-link);
+  font-family: var(--text-body-sm-medium-font-family);
+  font-size: var(--text-body-sm-medium-font-size);
+  font-weight: var(--text-body-sm-medium-font-weight);
+  line-height: var(--text-body-sm-medium-line-height);
+  letter-spacing: var(--text-body-sm-medium-letter-spacing);
+}
+.ds-pattern-app-shell__skip:focus-visible {
+  transform: none;
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-focus-ring-offset),
+    0 0 0 4px var(--color-focus-ring);
+}
+
+/* ---- Nav bar ---- */
+.ds-pattern-app-shell__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-inline-md);
+  /* 56px (Compact) / 64px (≥768) — composition constants matching the approved Figma
+     02b / 02 nav bars; not tokens (same convention as control heights). */
+  height: 56px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  padding-inline: var(--ds-pattern-app-shell-gutter);
+  background-color: var(--color-surface-default);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.ds-pattern-app-shell__brand {
+  color: var(--color-text-primary);
+  font-family: var(--text-label-lg-semibold-font-family);
+  font-size: var(--text-label-lg-semibold-font-size);
+  font-weight: var(--text-label-lg-semibold-font-weight);
+  line-height: var(--text-label-lg-semibold-line-height);
+  letter-spacing: var(--text-label-lg-semibold-letter-spacing);
+}
+
+.ds-pattern-app-shell__nav-end {
+  display: flex;
+  align-items: center;
+  gap: var(--space-inline-md);
+}
+
+.ds-pattern-app-shell__nav-list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-inline-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Non-essential context is hidden (not reflowed) on Compact — never navigation. */
+.ds-pattern-app-shell__secondary {
+  display: none;
+  align-items: center;
+  gap: var(--space-inline-md);
+  color: var(--color-text-secondary);
+  font-family: var(--text-body-sm-medium-font-family);
+  font-size: var(--text-body-sm-medium-font-size);
+  font-weight: var(--text-body-sm-medium-font-weight);
+  line-height: var(--text-body-sm-medium-line-height);
+  letter-spacing: var(--text-body-sm-medium-letter-spacing);
+  white-space: nowrap;
+}
+
+/* ---- Main: gutter outside the content cap ---- */
+.ds-pattern-app-shell__main {
+  flex: 1 0 auto;
+  box-sizing: border-box;
+  padding-inline: var(--ds-pattern-app-shell-gutter);
+  padding-block: var(--space-layout-sm);
+  outline: none; /* programmatic focus target of the skip link only */
+}
+
+.ds-pattern-app-shell__container {
+  width: 100%;
+  max-width: var(--layout-container-max-width);
+  margin-inline: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-xl);
+}
+
+/* Medium (≥ --viewport-md 768px) */
+@media (min-width: 768px) {
+  .ds-pattern-app-shell {
+    --ds-pattern-app-shell-gutter: var(--space-layout-md);
+  }
+  .ds-pattern-app-shell__nav {
+    height: 64px;
+  }
+  .ds-pattern-app-shell__secondary {
+    display: flex;
+  }
+  .ds-pattern-app-shell__main {
+    padding-block: var(--space-layout-lg);
+  }
+  .ds-pattern-app-shell__container {
+    gap: var(--space-stack-2xl);
+  }
+}
+
+/* Wide (≥ --viewport-lg 1024px) */
+@media (min-width: 1024px) {
+  .ds-pattern-app-shell {
+    --ds-pattern-app-shell-gutter: var(--space-layout-lg);
+  }
+}

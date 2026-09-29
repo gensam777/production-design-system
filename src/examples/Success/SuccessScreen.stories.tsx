@@ -10,8 +10,10 @@ const meta: Meta<typeof SuccessScreen> = {
     docs: {
       description: {
         component:
-          'Success / confirmation screen — composed from Card, Alert, and Button. ' +
-          'Matches the approved Figma "04 — Success" frame.',
+          'Success / confirmation screen — Alert and ButtonLink inside the Centered card ' +
+          'layout template. "Back to dashboard" is navigation, so it is a ButtonLink ' +
+          '(`<a href>`) with the approved primary-button design. Matches the approved Figma ' +
+          '"04 — Success" frame.',
       },
     },
   },

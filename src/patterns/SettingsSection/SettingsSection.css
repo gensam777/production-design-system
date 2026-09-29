@@ -1,0 +1,63 @@
+/**
+ * Settings section / form layout (pattern, not a DS component). Matches the Figma
+ * Settings panel card: section title text.label.lg.semibold, fields stacked with
+ * space.stack.lg, paired fields with space.inline.md, action group at the bottom.
+ */
+
+.ds-pattern-settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-lg);
+  container-type: inline-size;
+}
+
+.ds-pattern-settings-section__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-xs);
+}
+
+.ds-pattern-settings-section__title {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-family: var(--text-label-lg-semibold-font-family);
+  font-size: var(--text-label-lg-semibold-font-size);
+  font-weight: var(--text-label-lg-semibold-font-weight);
+  line-height: var(--text-label-lg-semibold-line-height);
+  letter-spacing: var(--text-label-lg-semibold-letter-spacing);
+}
+
+.ds-pattern-settings-section__description {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-family: var(--text-body-sm-regular-font-family);
+  font-size: var(--text-body-sm-regular-font-size);
+  font-weight: var(--text-body-sm-regular-font-weight);
+  line-height: var(--text-body-sm-regular-line-height);
+  letter-spacing: var(--text-body-sm-regular-letter-spacing);
+}
+
+.ds-pattern-settings-section__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-lg);
+}
+
+/* ---- Field row: stacked by default, side by side from 30rem of container width.
+   Container query (the row lives inside a Card, not at page level) — replaces the old
+   viewport query that would have gone side-by-side inside a narrow panel. 30rem is a
+   composition constant, not a token. ---- */
+.ds-pattern-field-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-inline-md);
+}
+.ds-pattern-field-row > * {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+@container (min-width: 30rem) {
+  .ds-pattern-field-row {
+    flex-direction: row;
+  }
+}

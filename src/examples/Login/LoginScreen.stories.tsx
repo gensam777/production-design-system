@@ -11,11 +11,10 @@ const meta: Meta<typeof LoginScreen> = {
     docs: {
       description: {
         component:
-          'Login screen for the approved product flow — composed entirely from existing ' +
-          'DS components (Card, Input, Checkbox, Button, Alert). The error state is the ' +
-          'same component with an `error` message passed in, not a separate screen — see ' +
-          '`docs/design-to-code-mappings.md` is not updated for this (it is an example ' +
-          'composition, not a new DS component).',
+          'Login screen for the approved product flow — DS components (Input, ' +
+          'PasswordInput, Checkbox, Link, Button, Alert) inside the Centered card layout ' +
+          'template. The error state is the same component with an `error` message passed ' +
+          'in, not a separate screen. Example composition, not a DS component.',
       },
     },
   },
@@ -67,8 +66,9 @@ export const ErrorState: Story = {
     docs: {
       description: {
         story:
-          'The approved "Login · Error state" screen — a danger `Alert` plus the ' +
-          'password `Input`’s own `error`/`errorText` state, matching the Figma frame exactly.',
+          'The approved "Login · Error state" screen — a form-level danger `Alert` ' +
+          '(`role="alert"`) only. No field is marked invalid: an authentication failure ' +
+          'must not imply which credential was wrong (see docs/patterns/form-validation.md).',
       },
     },
   },
