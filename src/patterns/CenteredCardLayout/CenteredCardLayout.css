@@ -2,7 +2,7 @@
  * Centered card layout (template, not a DS component). Replaces the byte-identical
  * wrappers previously duplicated in the Login and Success examples. Matches Figma 01/01b/04:
  * canvas background, space.layout.xl top/bottom, space.layout.sm side gutter, card content
- * gap space.stack.lg.
+ * gap space.stack.lg (space.stack.md with the opt-in `compact` modifier — Login 01/01b).
  */
 
 .ds-pattern-centered-card {
@@ -29,6 +29,10 @@
 }
 .ds-pattern-centered-card__card--regular {
   max-width: 440px;
+}
+/* Opt-in tighter content spacing (Figma Login card Content slot: stack/md). */
+.ds-pattern-centered-card__card--compact {
+  gap: var(--space-stack-md);
 }
 
 .ds-pattern-centered-card__title {

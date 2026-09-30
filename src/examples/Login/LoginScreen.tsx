@@ -55,6 +55,7 @@ export function LoginScreen({
   return (
     <CenteredCardLayout
       width="regular"
+      compact
       title="Welcome back"
       description="Log in to your account to continue."
     >

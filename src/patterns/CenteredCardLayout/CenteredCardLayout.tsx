@@ -16,6 +16,12 @@ export interface CenteredCardLayoutProps {
    * match the approved Figma frames — not tokens.
    */
   width?: CenteredCardLayoutWidth;
+  /**
+   * Tighter card content spacing: `space.stack.md` (12px) between title, description and
+   * content instead of the default `space.stack.lg` (16px). Opt-in for form-dense screens
+   * (Login); not a general density system. Defaults to `false`.
+   */
+  compact?: boolean;
   children: ReactNode;
   className?: string;
 }
@@ -30,17 +36,21 @@ export function CenteredCardLayout({
   title,
   description,
   width = 'narrow',
+  compact = false,
   children,
   className,
 }: CenteredCardLayoutProps) {
   const classes = ['ds-pattern-centered-card', className].filter(Boolean).join(' ');
+  const cardClasses = [
+    'ds-pattern-centered-card__card',
+    `ds-pattern-centered-card__card--${width}`,
+    compact && 'ds-pattern-centered-card__card--compact',
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
     <main className={classes}>
-      <Card
-        variant="outlined"
-        padding="lg"
-        className={`ds-pattern-centered-card__card ds-pattern-centered-card__card--${width}`}
-      >
+      <Card variant="outlined" padding="lg" className={cardClasses}>
         <h1 className="ds-pattern-centered-card__title">{title}</h1>
         {description && <p className="ds-pattern-centered-card__description">{description}</p>}
         {children}
