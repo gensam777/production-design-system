@@ -4,10 +4,12 @@
  * form's own arrangement lives here.
  */
 
+/* stack.md matches the card's `compact` gap, so the flat Figma Content slot (one 12px gap
+   between every item) and this nested card → form structure space identically. */
 .ds-example-login__form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-stack-lg);
+  gap: var(--space-stack-md);
 }
 
 /* Remember me / Forgot password: opposite ends, wrapping instead of colliding when the
