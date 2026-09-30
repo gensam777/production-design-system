@@ -11,8 +11,8 @@ export interface CenteredCardLayoutProps {
   /** Optional supporting line below the title. */
   description?: ReactNode;
   /**
-   * `'narrow'` (400px) for short forms such as sign-in; `'regular'` (440px) for
-   * confirmation / message content. Defaults to `'narrow'`. Composition constants that
+   * `'regular'` (440px) for sign-in and confirmation / message content; `'narrow'`
+   * (400px) for very short forms. Defaults to `'narrow'`. Composition constants that
    * match the approved Figma frames — not tokens.
    */
   width?: CenteredCardLayoutWidth;

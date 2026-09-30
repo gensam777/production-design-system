@@ -53,7 +53,11 @@ export function LoginScreen({
   };
 
   return (
-    <CenteredCardLayout title="Welcome back" description="Log in to your account to continue.">
+    <CenteredCardLayout
+      width="regular"
+      title="Welcome back"
+      description="Log in to your account to continue."
+    >
       <form className="ds-example-login__form" onSubmit={handleSubmit}>
         {error && (
           // Alert has no default live-region role by design — this one is injected after

@@ -14,8 +14,10 @@ content (`space.stack.lg` between everything).
 - For **focused flows outside the app shell**: sign-in, password reset, confirmation.
   Inside the product, use the App shell.
 - The card title is the page's single `<h1>`.
-- **Widths (decided):** `narrow` = 400px for short forms (sign-in); `regular` = 440px for
-  confirmation/message content (Success). Composition constants matching Figma, not tokens.
+- **Widths (decided):** `regular` = 440px for sign-in (Login) and confirmation/message
+  content (Success); `narrow` = 400px remains available for very short forms. Composition
+  constants matching Figma, not tokens. (Login moved from `narrow` to `regular` on
+  2026-09-30 to match the updated Figma Login frames.)
 - Primary action is a single full-width Button (acts) or ButtonLink (navigates).
 - Confirmation: heading + description + primary action; add an Alert only for extra,
   different information (e.g. "you'll receive an email").
@@ -29,6 +31,6 @@ content (`space.stack.lg` between everything).
 ## Implementation
 
 - React: `src/patterns/CenteredCardLayout` (`width="narrow" | "regular"`); used by Login
-  (narrow) and Success (regular).
+  (regular) and Success (regular). `narrow` has no product-screen consumer today.
 - Storybook: `Patterns/Centered card layout`.
-- Figma: Templates page → "Centered card layout"; product frames 01/01b (400) and 04 (440).
+- Figma: Templates page → "Centered card layout"; product frames 01/01b (440) and 04 (440).
