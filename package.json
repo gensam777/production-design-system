@@ -21,10 +21,10 @@
   "scripts": {
     "build": "npm run tokens:build && tsup",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
+    "lint": "eslint . && node scripts/check-token-usage.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "tokens:build": "style-dictionary build --config style-dictionary.config.mjs",
+    "tokens:build": "node scripts/build-tokens.mjs",
     "prestorybook": "npm run build",
     "storybook": "storybook dev -p 6006",
     "prebuild-storybook": "npm run build",
@@ -38,6 +38,7 @@
     "node": ">=18"
   },
   "devDependencies": {
+    "@fontsource/figtree": "^5.3.0",
     "@fontsource/inter": "^5.3.0",
     "@storybook/addon-a11y": "^10.5.10",
     "@storybook/react-vite": "^10.5.10",

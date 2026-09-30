@@ -6,7 +6,7 @@ decisions behind this foundation.
 
 ## Primitives
 
-Two separate raw scales in `src/tokens/primitive/motion.json` — duration and easing are
+Two separate raw scales in `src/tokens/core/motion.json` — duration and easing are
 different physical dimensions, not points on one axis, so they stay separate scales
 rather than one composite.
 
@@ -118,7 +118,7 @@ implemented:
 Confirmed directly against the Plugin API types, not assumed:
 
 - `TIMING` and `EASING` **are** real Figma Variable types — unlike shadow, motion needed
-  no Effect-Style-style workaround. Both `Primitive` (duration/easing) and
+  no Effect-Style-style workaround. Both `Core` (duration/easing) and
   `Semantic Motion` (5 roles × 2 fields each, since Figma Variables are always scalar)
   are genuine Variables aliasing Variables.
 - **Figma's `VariableScope` enum has no entry for a prototype interaction's transition

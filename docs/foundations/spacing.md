@@ -7,7 +7,7 @@ naming is category-first (`space.*`) to match Figma (`space/*`).
 
 ## Primitives
 
-Raw hybrid 4px/8px rhythm in `src/tokens/primitive/spacing.json`. No meaning attached —
+Raw hybrid 4px/8px rhythm in `src/tokens/core/spacing.json`. No meaning attached —
 a primitive doesn't know it means "card padding" or "section gap."
 
 | Token | Value |
@@ -98,11 +98,11 @@ approved proposal referenced in ADR 0004).
 Unlike color and typography, this foundation was built **Figma-first** — the Variables
 below were created and approved in Figma before any code existed, then mirrored here.
 
-- **`Primitive` collection**, single `Value` mode, variables grouped by `/`:
+- **`Core` collection**, single `Value` mode, variables grouped by `/`:
   `space/none` … `space/5xl` plus `space/3xs` (added with Switch V1, sits below `2xs`),
   `FLOAT` type, scope `["GAP"]`.
 - **`Semantic Space` collection**, single `Default` mode, variables under `inset/*`,
-  `stack/*`, `inline/*`, `layout/*`, each an **alias** to a `Primitive` Variable,
+  `stack/*`, `inline/*`, `layout/*`, each an **alias** to a `Core` Variable,
   scope `["GAP"]`. Includes `inset/3xs` (added with Switch V1).
 - A "Spacing Specimen — V1" frame in the Figma file demonstrates every primitive step
   and semantic category with bound padding/gap values and px labels.

@@ -9,7 +9,8 @@
    reflow work on its own — no breakpoint needed for 3 cards -> stacked single column,
    it falls out of each card's flex-basis vs. the row's available width. Gap mirrors the
    Grid guidance table's Wide/Compact internal-gap values (primitive space tokens, used
-   directly — intentional, see docs/foundations/responsive.md's Grid guidance). */
+   directly — intentional, see docs/foundations/responsive.md's Grid guidance, and
+   registered as a documented exception in scripts/token-usage-exceptions.json). */
 .ds-example-dashboard__stat-row {
   display: flex;
   flex-wrap: wrap;
@@ -57,10 +58,12 @@
    direction change, not a reflow) — see docs/foundations/responsive.md's own framing of
    this exact distinction. 1024px mirrors --viewport-lg; hardcoded because @media
    conditions cannot consume var(). */
+/* Stacked (Compact/Medium): vertical rhythm between sub-sections — the semantic
+   space.stack.xl role, matching Figma 02b (Semantic Space/stack/xl). */
 .ds-example-dashboard__lower-row {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  gap: var(--space-stack-xl);
 }
 .ds-example-dashboard__activity-card,
 .ds-example-dashboard__status-card {
@@ -69,9 +72,13 @@
   gap: var(--space-stack-lg);
 }
 @media (min-width: 1024px) {
+  /* Side by side: a gap between grid columns — the documented primitive grid-gap
+     exception (docs/foundations/responsive.md, Grid guidance), matching Figma 02
+     (Core space/xl). Registered in scripts/token-usage-exceptions.json. */
   .ds-example-dashboard__lower-row {
     flex-direction: row;
     align-items: flex-start;
+    gap: var(--space-xl);
   }
   .ds-example-dashboard__activity-card {
     flex: 2 1 0%;

@@ -59,10 +59,12 @@ export const Compact: Story = {
       },
     },
   },
-  render: () => (
+  render: (_args, { globals }) => (
     <iframe
       title="App shell at a Compact (375px) viewport"
-      src={`${window.location.pathname}?id=patterns-app-shell--default&viewMode=story`}
+      // Forward the active brand: the nested frame is a separate document with its own
+      // Storybook globals, so it would otherwise always render the default brand.
+      src={`${window.location.pathname}?id=patterns-app-shell--default&viewMode=story&globals=brand:${globals.brand ?? 'brand-a'}`}
       style={{ width: 375, height: 480, border: '1px solid #d0d5dd' }}
     />
   ),

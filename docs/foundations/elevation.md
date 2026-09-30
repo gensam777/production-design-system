@@ -6,7 +6,7 @@ decisions behind this foundation.
 
 ## Primitives
 
-Raw shadow geometry in `src/tokens/primitive/shadow.json` — four scalar fields per step
+Raw shadow geometry in `src/tokens/core/shadow.json` — four scalar fields per step
 (`offset-x`, `offset-y`, `blur`, `spread`), no color. No meaning attached.
 
 | Token (code) | Figma variable | x | y | blur | spread |
@@ -42,7 +42,7 @@ array rather than an invisible zero-geometry shadow.
 ## Shadow color — part of Semantic Color, not a separate palette
 
 Three new entries in `src/tokens/semantic/color.json`, aliasing three new entries in
-`src/tokens/primitive/color.json`:
+`src/tokens/core/color.json`:
 
 | Semantic (code) | Figma | → Primitive | Value |
 | --- | --- | --- | --- |
@@ -125,7 +125,7 @@ There is no shadow-type Figma Variable. The semantic tier is represented as **Ef
 Styles**, not Variables — the same divergence typography has with Text Styles (ADR
 0003), not the Variable-aliases-Variable pattern color/space/radius use.
 
-- **`Primitive` collection** (shared): 20 FLOAT geometry variables
+- **`Core` collection** (shared): 20 FLOAT geometry variables
   (`shadow/none|sm|md|lg|xl` × `offset-x`/`offset-y`/`blur`/`spread`), scope
   `["EFFECT_FLOAT"]`; plus 3 COLOR overlay variables (`color/overlay/subtle|default|
   strong`), scope `[]`.

@@ -14,8 +14,8 @@
       "tertiary": { "$value": "{color.gray.500}", "$type": "color", "$description": "4.83:1 on surface.default. Helper/placeholder text." },
       "disabled": { "$value": "{color.gray.400}", "$type": "color", "$description": "2.54:1 on surface.default — below AA, exempt per WCAG for disabled content." },
       "inverse": { "$value": "{color.white}", "$type": "color", "$description": "Text on surface.inverse (dark surfaces)." },
-      "link": { "$value": "{color.blue.600}", "$type": "color", "$description": "5.17:1 on surface.default." },
-      "link-hover": { "$value": "{color.blue.700}", "$type": "color", "$description": "6.70:1 on surface.default." },
+      "link": { "$value": "{brand.color.primary.600}", "$type": "color", "$description": "Brandable (brand.color.primary.600). Must reach 4.5:1 on surface.default/canvas/sunken — enforced per brand by the token build (Brand A 5.17:1 on surface.default)." },
+      "link-hover": { "$value": "{brand.color.primary.700}", "$type": "color", "$description": "Brandable (brand.color.primary.700). Must reach 4.5:1 on surface.default — enforced per brand by the token build (Brand A 6.70:1)." },
       "danger": { "$value": "{color.red.700}", "$type": "color", "$description": "6.47:1 on surface.default." },
       "success": { "$value": "{color.green.700}", "$type": "color", "$description": "5.02:1 on surface.default." },
       "warning": { "$value": "{color.amber.800}", "$type": "color", "$description": "7.09:1 on surface.default." }
@@ -30,11 +30,11 @@
     },
     "action": {
       "primary": {
-        "default": { "$value": "{color.blue.600}", "$type": "color" },
-        "hover": { "$value": "{color.blue.700}", "$type": "color" },
-        "active": { "$value": "{color.blue.800}", "$type": "color" },
+        "default": { "$value": "{brand.color.primary.600}", "$type": "color" },
+        "hover": { "$value": "{brand.color.primary.700}", "$type": "color" },
+        "active": { "$value": "{brand.color.primary.800}", "$type": "color" },
         "disabled": { "$value": "{color.gray.300}", "$type": "color" },
-        "on-color": { "$value": "{color.white}", "$type": "color", "$description": "5.17:1 on action.primary.default, improves through hover/active." }
+        "on-color": { "$value": "{color.white}", "$type": "color", "$description": "Shared (not brandable). Must reach 4.5:1 on action.primary.default/hover/active for every brand — enforced by the token build (Brand A 5.17:1 on default)." }
       },
       "secondary": {
         "default": { "$value": "{color.white}", "$type": "color", "$description": "Paired with border.default as an outline button; no separate fill token needed." },
@@ -76,7 +76,7 @@
       }
     },
     "focus": {
-      "ring": { "$value": "{color.blue.600}", "$type": "color", "$description": "4.95:1 vs surface.canvas, 5.17:1 vs surface.raised — clears WCAG 2.4.11 3:1 minimum against both." },
+      "ring": { "$value": "{brand.color.primary.600}", "$type": "color", "$description": "Brandable (brand.color.primary.600). Must clear the WCAG 2.4.11 3:1 minimum against surface.canvas and surface.raised — enforced per brand by the token build (Brand A 4.95:1 / 5.17:1)." },
       "ring-offset": { "$value": "{color.gray.50}", "$type": "color", "$description": "Separation gap between an element and its focus ring." }
     },
     "shadow": {

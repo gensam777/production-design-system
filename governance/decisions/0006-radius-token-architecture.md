@@ -1,6 +1,6 @@
 # 0006: Radius token architecture — px-only, semantic-remap theming, primitive/semantic name collision
 
-- **Status**: Accepted
+- **Status**: Accepted — Sharp/Soft mode plan superseded by [0011](./0011-multi-brand-token-architecture.md) (brandable radius.control/container)
 - **Date**: 2026-09-04
 
 ## Context

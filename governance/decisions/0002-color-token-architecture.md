@@ -1,6 +1,6 @@
 # 0002: Color token architecture — semantic-only consumption, blue as default brand hue
 
-- **Status**: Accepted
+- **Status**: Accepted — brand-hue mechanism superseded by [0011](./0011-multi-brand-token-architecture.md) (brand layer + per-brand build)
 - **Date**: 2026-09-02
 
 ## Context

@@ -19,6 +19,11 @@ import '@fontsource/inter/400.css';
 import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/inter/700.css';
+// Brand B's sans (Figtree) — same Storybook-only reasoning as Inter above.
+import '@fontsource/figtree/400.css';
+import '@fontsource/figtree/500.css';
+import '@fontsource/figtree/600.css';
+import '@fontsource/figtree/700.css';
 
 // Generated token CSS (gitignored, produced by `npm run tokens:build`) — the same three
 // files, same order, that src/index.ts now imports to build the package's public
@@ -30,6 +35,8 @@ import '@fontsource/inter/700.css';
 // design system values.
 import '../src/tokens/build/css/variables.css';
 import '../src/tokens/build/css/typography.css';
+import '../src/tokens/build/css/brands/brand-a.css';
+import '../src/tokens/build/css/brands/brand-b.css';
 import '../src/tokens/build/css/motion-reduced-motion.css';
 
 // Deliberately importing these source files directly rather than the built
@@ -49,6 +56,16 @@ import '../src/tokens/build/css/motion-reduced-motion.css';
 // Storybook. Both paths ultimately read the identical generated files as their only
 // source of truth, so they can't drift into two different definitions of a token.
 
+// Multi-brand (ADR 0011). The toolbar only sets `data-brand` on <html> — the same runtime
+// switch a product app uses. Stories and components never read the brand: they keep
+// consuming semantic CSS custom properties, which the brand files scope by data-brand.
+// On <html> (not a wrapper div) so anything rendered outside #storybook-root still gets
+// the active brand.
+const BRANDS = [
+  { value: 'brand-a', title: 'Brand A (default)' },
+  { value: 'brand-b', title: 'Brand B (demo)' },
+];
+
 const preview: Preview = {
   parameters: {
     controls: {
@@ -57,7 +74,27 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
+    // One Chromatic snapshot per brand for every story.
+    chromatic: {
+      modes: {
+        'Brand A': { brand: 'brand-a' },
+        'Brand B': { brand: 'brand-b' },
+      },
+    },
   },
+  globalTypes: {
+    brand: {
+      description: 'Active brand (theme/token layer only)',
+      toolbar: { title: 'Brand', icon: 'paintbrush', items: BRANDS, dynamicTitle: true },
+    },
+  },
+  initialGlobals: { brand: 'brand-a' },
+  decorators: [
+    (Story, context) => {
+      document.documentElement.setAttribute('data-brand', context.globals.brand ?? 'brand-a');
+      return Story();
+    },
+  ],
 };
 
 export default preview;

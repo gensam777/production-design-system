@@ -1,6 +1,6 @@
 # 0005: Semantic collection split — concern-specific Figma collections
 
-- **Status**: Accepted
+- **Status**: Accepted — planned brand modes on `Semantic Color` superseded by [0011](./0011-multi-brand-token-architecture.md) (separate Brand collection)
 - **Date**: 2026-09-04
 
 ## Context

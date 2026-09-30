@@ -5,13 +5,14 @@ for the architectural decisions behind this foundation.
 
 ## Primitives
 
-Raw, un-opinionated hue scales in `src/tokens/primitive/color.json`. No meaning attached — a
+Raw, un-opinionated hue scales in `src/tokens/core/color.json`. No meaning attached — a
 primitive doesn't know it means "danger" or "brand." Named by hue, not role.
 
 | Hue | Steps | Role |
 | --- | --- | --- |
 | `gray` | 50–900 (full scale) | Neutral — surfaces, borders, text |
-| `blue` | 50–900 (full scale) | **Brand/primary hue — see "Brand & future theming" below** |
+| `blue` | 50–900 (full scale) | Hue ramp — Brand A's primary (via `brand.color.primary.*`, see "Brands" below) |
+| `violet` | 50–900 (full scale) | Hue ramp — Brand B's primary (fictional demo brand) |
 | `red` | 50, 100, 600, 700 (reduced) | Feedback — danger |
 | `green` | 50, 100, 600, 700 (reduced) | Feedback — success |
 | `amber` | 50, 100, 600, 700, 800 (reduced) | Feedback — warning |
@@ -153,26 +154,26 @@ token is meant to pair with):
 icon or text label in the component that consumes them — hue alone (especially
 red/green) isn't a reliable signal for all users.
 
-## Brand & future theming
+## Brands
 
-Blue is the **default working brand hue for this template**, not a permanent choice.
-A product built from this design system can replace the entire `color.blue.*`
-primitive scale with its own brand hue and remap the semantic action/focus/link
-tokens that currently alias it — semantic token names never change, only what they
-point to. This is the intended customization path; it does not require touching
-component code.
+The primary hue is a **brand choice** (multi-brand, [ADR 0011](../../governance/decisions/0011-multi-brand-token-architecture.md),
+[theming.md](./theming.md)). Semantic `action.primary.{default,hover,active}`,
+`text.link`, `text.link-hover` and `focus.ring` alias `brand.color.primary.*`, which
+each brand maps to a Core hue ramp: Brand A → `blue`, Brand B → `violet`. Semantic token
+names never change; neutrals, feedback colors and on-colors are shared by every brand, and
+the token build rejects any brand whose primary fails the per-brand contrast checks.
 
 Dark mode is still fully deferred (see ADR
 [0001](../../governance/decisions/0001-single-package-structure.md) and
 [0002](../../governance/decisions/0002-color-token-architecture.md)). When it's taken
-up: a `Dark` mode is added to the Figma semantic variable collection and a
-`src/tokens/themes/dark.json` file overrides the semantic aliases (and likely
+up: a `Dark` mode is added to the Figma `Semantic Color` collection (independent of
+the Brand collection's modes) and code gains a color-scheme dimension that overrides the semantic aliases (and likely
 introduces dark-specific primitive steps/ramps) — the semantic token names and the
 categories in this document stay the same.
 
 ## Figma Variables (implemented)
 
-- **`Primitive` collection**, single `Value` mode, variables grouped by "/" to match the
+- **`Core` collection**, single `Value` mode, variables grouped by "/" to match the
   token path, **category-first** (`color/gray/500`, `color/blue/600`, `color/white`).
 - **`Semantic Color` collection**, single `Light` mode, variables like `surface/canvas`,
   `action/primary/default`, each bound as a Figma **alias** to a Primitive

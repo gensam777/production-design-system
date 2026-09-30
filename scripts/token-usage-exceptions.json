@@ -1,0 +1,9 @@
+[
+  {
+    "file": "src/examples/Dashboard/DashboardScreen.css",
+    "token": "--space-xl",
+    "occurrences": 2,
+    "reason": "Gap between grid columns (stat row; activity/status row when side by side). Grid gaps intentionally use the primitive spacing scale — no semantic spacing category covers column gaps, and a grid-specific semantic token was deliberately not created. Matches Figma 02/02b (Core space/xl).",
+    "doc": "docs/foundations/responsive.md#page-margin-vs-grid-gap--different-tokens-on-purpose"
+  }
+]

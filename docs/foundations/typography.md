@@ -5,7 +5,7 @@ the architectural decisions behind this foundation.
 
 ## Primitives
 
-Raw, un-opinionated values in `src/tokens/primitive/typography.json`. No meaning attached
+Raw, un-opinionated values in `src/tokens/core/typography.json`. No meaning attached
 — a primitive doesn't know it's used for a heading or a caption.
 
 | Category | Values | Notes |
@@ -89,13 +89,16 @@ answers "what style." Components combine one token from each family when styling
 
 Typography uses two different Figma mechanisms, not one:
 
-- **Primitive variables** live in the existing `Primitive` collection (same one color uses,
-  still single `Value` mode): `font/family/sans` (STRING), `font/family/mono` (STRING),
-  `font/size/xs`…`4xl` (FLOAT, px), `font/lineHeight/tight`/`normal` (FLOAT),
-  `font/letterSpacing/tight`/`normal` (FLOAT), plus `font/weight/regular`/`medium`/
-  `semibold`/`bold` (STRING) holding the exact installed font style name — `"Semi Bold"`,
-  not `"SemiBold"` or `600` — since Figma binds text weight by style-name matching unless
-  the font is a variable font. 18 primitive variables total, unchanged since V1.
+- **Primitive variables** live in the `Core` collection (formerly `Primitive`, single
+  `Value` mode): `font/family/mono` (STRING), `font/size/xs`…`4xl` (FLOAT, px),
+  `font/lineHeight/tight`/`normal` (FLOAT), `font/letterSpacing/tight`/`normal` (FLOAT).
+- **Brand variables** (multi-brand, [ADR 0011](../../governance/decisions/0011-multi-brand-token-architecture.md))
+  live in the `Brand` collection (modes Brand A / Brand B): `font/family/sans` (STRING —
+  Inter / Figtree) and `font/weight/regular`/`medium`/`semibold`/`bold` (STRING) holding
+  the exact installed font **style name** per family — `"Semi Bold"` for Inter, `"SemiBold"`
+  for Figtree — since Figma binds text weight by style-name matching unless the font is a
+  variable font. This is a Figma-only adapter, not a brandable weight: code weights stay
+  shared numbers (400/500/600/700).
 - **No Semantic variable collection entries for typography.** A composite role can't be
   represented as a single Variable alias the way a color can. The semantic layer is one
   **Figma Text Style per role** — 35 styles named `text/<role>/<size>/<weight>` (e.g.
@@ -117,7 +120,7 @@ Typography uses two different Figma mechanisms, not one:
 
 ## Style Dictionary mapping
 
-- `src/tokens/primitive/typography.json` — DTCG types `fontFamily` (array of strings),
+- `src/tokens/core/typography.json` — DTCG types `fontFamily` (array of strings),
   `dimension` (sizes in rem, letter-spacing in em), `fontWeight` (numeric), `number`
   (line-height ratios).
 - `src/tokens/semantic/typography.json` — DTCG composite `$type: "typography"` tokens.
@@ -170,8 +173,8 @@ in this repo; a consuming product on the old names would need to rename referenc
 
 ## Font loading is a consumer responsibility
 
-This library defines Inter as the default `sans` family (`font.family.sans` — see
-Primitives above) and ships that as a **token value**, but does not bundle or serve the
+This library defines Inter as Brand A's `sans` family and Figtree as Brand B's
+(`brand.font.family.sans` — the sans family is a brand choice, see [theming.md](./theming.md)) and ships that as a **token value**, but does not bundle or serve the
 actual Inter font files as part of the published package. `src/index.ts` never imports a
 font, and no component imports one either — every component only ever consumes the
 `text.*`/`font.*` custom properties, which resolve to a `font-family` string
@@ -217,7 +220,8 @@ dependency of the published library.
 - Fluid/`clamp()`-based responsive type sizing — V1 is one static scale for all viewports.
 - Per-breakpoint semantic overrides (e.g. smaller `heading.lg` on mobile).
 - Dark-mode-specific type adjustments (e.g. lighter weight to offset halation).
-- Additional/alternate brand typefaces for multi-brand theming.
+- Brand-specific weights or letter-spacing (V1 brands only the sans family — see
+  [theming.md](./theming.md)).
 - Variable-font axis tokens (optical size, fine-grained weight interpolation).
 - RTL/bidi-specific spacing adjustments.
 - Paragraph measure/max-width (`ch`-based line length) — a layout, not a token, concern.

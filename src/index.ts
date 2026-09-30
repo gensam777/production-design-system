@@ -5,11 +5,15 @@
 // src/tokens/build/). Imported first, in this exact order, so tsup's esbuild-based CSS
 // bundling (which concatenates in module-graph traversal order, not alphabetically)
 // places every custom property component CSS below depends on before it in dist/index.css:
-//   1. variables.css   — color/spacing/radius/icon/motion primitives & most semantics
-//   2. typography.css  — the 35 composite text.* roles, split out because the built-in
-//                         `css/variables` shorthand can't express letter-spacing (see
-//                         governance/decisions/0003)
-//   3. motion-reduced-motion.css — the `prefers-reduced-motion` override. Must load LAST:
+//   1. variables.css   — brand-independent tokens: core primitives & shared semantics
+//   2. typography.css  — brand-independent sub-values of the 35 composite text.* roles,
+//                         split out because the built-in `css/variables` shorthand can't
+//                         express letter-spacing (see governance/decisions/0003)
+//   3. brands/*.css    — brand-dependent semantic tokens per brand (ADR 0011). brand-a is
+//                         the default (`:root`); brand-b applies under data-brand="brand-b"
+//                         on <html> or any container. Selectors are specificity-ordered, so
+//                         these two files don't depend on each other's load order.
+//   4. motion-reduced-motion.css — the `prefers-reduced-motion` override. Must load LAST:
 //                         it re-declares the same --motion-* custom properties inside an
 //                         `@media` block at equal specificity to variables.css's :root
 //                         block, so source order (not specificity) decides which wins
@@ -22,6 +26,8 @@
 // with undefined custom properties, which was the original bug this fixes).
 import './tokens/build/css/variables.css';
 import './tokens/build/css/typography.css';
+import './tokens/build/css/brands/brand-a.css';
+import './tokens/build/css/brands/brand-b.css';
 import './tokens/build/css/motion-reduced-motion.css';
 
 export const DESIGN_SYSTEM_VERSION = '0.0.0';

@@ -44,4 +44,10 @@ export default [
       '@typescript-eslint/no-unused-vars': 'error',
     },
   },
+  {
+    // Build/guardrail scripts (token build, token-usage check) run under Node, not in the
+    // browser.
+    files: ['scripts/**/*.mjs'],
+    languageOptions: { globals: globals.node },
+  },
 ];

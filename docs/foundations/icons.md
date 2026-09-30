@@ -69,7 +69,7 @@ Approved display sizes, matching the Figma Icons foundation exactly:
 | `md` (default) | 20px  | `icon.md`      | `size.icon.md`  |
 | `lg`           | 24px  | `icon.lg`      | `size.icon.lg`  |
 
-- `size.icon.*` (`src/tokens/primitive/icon.json`) is the raw scale, no meaning attached.
+- `size.icon.*` (`src/tokens/core/icon.json`) is the raw scale, no meaning attached.
 - `icon.*` (`src/tokens/semantic/icon.json`) is what `Icon.tsx` actually consumes, as a
   CSS custom property (`var(--icon-sm)`, `var(--icon-md)`, `var(--icon-lg)`) — the same
   consumption pattern as every other semantic token in this system.
@@ -171,7 +171,7 @@ record.
 
 ## Figma Variables (implemented)
 
-- **`Primitive` collection**, scope `["WIDTH_HEIGHT"]`: `size/icon/sm` (16), `size/icon/md`
+- **`Core` collection**, scope `["WIDTH_HEIGHT"]`: `size/icon/sm` (16), `size/icon/md`
   (20), `size/icon/lg` (24).
 - **`Semantic Icon` collection** (dedicated, single `Default` mode): `icon/sm`, `icon/md`,
   `icon/lg`, each aliasing the matching primitive above.
