@@ -6,3 +6,6 @@ src/tokens/build/
 .DS_Store
 .env
 .env.local
+
+# design audit JSON report (npm run design:audit) — regenerated on every run
+design-audit-report.json

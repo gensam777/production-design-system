@@ -20,7 +20,8 @@ src/
 .storybook/     # Storybook config
 docs/           # design-to-code-mappings.md + foundations/ + patterns/ documentation
 governance/     # accessibility, lifecycle, versioning rules + ADRs (decisions/)
-.claude/skills/ # custom Claude Code skills (none yet)
+scripts/        # token build, token-usage guardrail, design-audit/ (Figma ↔ code drift audit)
+.claude/skills/ # custom Claude Code skills (component-production, design-audit)
 ```
 
 ## Source of truth
@@ -103,6 +104,12 @@ has been edited since the date above.
   `governance/decisions/0003-typography-token-architecture.md`), and
   `css/motion-reduced-motion.css` for the `prefers-reduced-motion` override (see
   `governance/decisions/0008-motion-token-architecture.md`))
+- `npm run design:audit` — Figma ↔ code design-drift audit (detection/reporting only) for the
+  Login surface, against the **committed** Figma snapshot in `scripts/design-audit/snapshots/`.
+  Offline + deterministic; exit 1 on DRIFT/ERROR; runs in CI. It cannot see Figma edits made
+  after the last snapshot refresh — refresh via the `design-audit` skill. See
+  `docs/design-audit.md`. Tests: `npm run design:audit:test`; snapshot import/validate:
+  `npm run design:audit:snapshot -- <import <raw.json>|validate>`
 - `npm run storybook` — Storybook dev server
 - `npm run build-storybook` — static Storybook build
 
@@ -129,6 +136,7 @@ has been edited since the date above.
 
 Vitest/Testing Library, Changesets automation, CI/CD, npm publishing, monorepo tooling,
 Figma Code Connect, dark mode (Light/Dark color scheme — multi-brand theming IS implemented,
-see ADR 0011), brand-specific neutrals, native (RN/SwiftUI/Compose) token outputs, custom
-Claude skills. See
+see ADR 0011), brand-specific neutrals, native (RN/SwiftUI/Compose) token outputs, automatic Figma ↔ code
+sync (the design audit detects drift only; live-Figma reads still need a Claude/MCP session),
+design-audit surfaces beyond Login. See
 `governance/decisions/0001-single-package-structure.md` for why.

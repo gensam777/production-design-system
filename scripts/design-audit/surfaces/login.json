@@ -1,0 +1,422 @@
+{
+  "surface": "login",
+  "title": "Login",
+  "description": "Login flow: Figma 01 — Login, 01b — Login · Error state, and the Brand B preview of 01b, against LoginScreen + CenteredCardLayout (+ the Card it composes). Only evidence-backed, contract-level properties — see docs/design-audit.md.",
+  "figma": {
+    "fileKey": "zE07Pl0ioDayHN2GK2set7",
+    "extractor": {
+      "name": "extract-login",
+      "version": 2,
+      "file": "scripts/design-audit/figma/extract-login.js"
+    },
+    "snapshot": "scripts/design-audit/snapshots/login.figma.json"
+  },
+  "brandModes": { "Brand A": "brand-a", "Brand B": "brand-b" },
+  "frames": {
+    "01": {
+      "nodeId": "998:9",
+      "label": "01 — Login",
+      "brand": "brand-a",
+      "codeState": {},
+      "story": "Examples/Login › Default"
+    },
+    "01b": {
+      "nodeId": "1001:1726",
+      "label": "01b — Login · Error state",
+      "brand": "brand-a",
+      "codeState": { "error": true },
+      "story": "Examples/Login › ErrorState"
+    },
+    "B-01b": {
+      "nodeId": "1063:1926",
+      "label": "B · 01b — Login · Error state",
+      "brand": "brand-b",
+      "codeState": { "error": true },
+      "story": "Examples/Login › ErrorState (Brand B)"
+    }
+  },
+  "files": {
+    "screen": "src/examples/Login/LoginScreen.tsx",
+    "screenCss": "src/examples/Login/LoginScreen.css",
+    "layout": "src/patterns/CenteredCardLayout/CenteredCardLayout.tsx",
+    "layoutCss": "src/patterns/CenteredCardLayout/CenteredCardLayout.css",
+    "cardCss": "src/components/Card/Card.css"
+  },
+  "components": {
+    "Alert": "Alert",
+    "Input": "Input",
+    "Password Input": "PasswordInput",
+    "Checkbox": "Checkbox",
+    "Link": "Link",
+    "Button": "Button"
+  },
+  "checks": [
+    {
+      "id": "brand-mode",
+      "property": "Brand mode",
+      "compare": "brandMode",
+      "figma": "$brandMode"
+    },
+
+    {
+      "id": "page-background",
+      "property": "Page background",
+      "compare": "token",
+      "figma": "page.fill",
+      "code": {
+        "css": "layoutCss",
+        "selector": ".ds-pattern-centered-card",
+        "property": "background-color"
+      }
+    },
+    {
+      "id": "page-padding-block",
+      "property": "Page padding (top/bottom)",
+      "compare": "token",
+      "figma": ["page.layout.padding.top", "page.layout.padding.bottom"],
+      "code": {
+        "css": "layoutCss",
+        "selector": ".ds-pattern-centered-card",
+        "property": "padding-block"
+      }
+    },
+    {
+      "id": "page-padding-inline",
+      "property": "Page side gutter (left/right)",
+      "compare": "token",
+      "figma": ["page.layout.padding.left", "page.layout.padding.right"],
+      "code": {
+        "css": "layoutCss",
+        "selector": ".ds-pattern-centered-card",
+        "property": "padding-inline"
+      }
+    },
+    {
+      "id": "page-centering",
+      "property": "Card centering (vertical / horizontal)",
+      "compare": "enum",
+      "figma": ["page.layout.primaryAlign", "page.layout.counterAlign"],
+      "map": { "CENTER": "center" },
+      "code": {
+        "css": "layoutCss",
+        "selector": ".ds-pattern-centered-card",
+        "properties": ["align-items", "justify-content"]
+      }
+    },
+
+    {
+      "id": "card-variant",
+      "property": "Card variant",
+      "compare": "enum",
+      "figma": "card.component.props.Variant",
+      "code": { "prop": { "file": "layout", "element": "Card", "name": "variant" } }
+    },
+    {
+      "id": "card-width",
+      "property": "Card width",
+      "compare": "px",
+      "figma": "card.width",
+      "code": {
+        "cssFromProp": {
+          "file": "screen",
+          "element": "CenteredCardLayout",
+          "name": "width",
+          "default": "narrow"
+        },
+        "css": "layoutCss",
+        "selector": ".ds-pattern-centered-card__card--{value}",
+        "property": "max-width"
+      },
+      "notes": "Figma card is FIXED at this width; code uses it as max-width over width:100% (fluid below it) — the documented responsive intent, not a difference."
+    },
+    {
+      "id": "card-padding",
+      "property": "Card padding",
+      "compare": "token",
+      "figma": [
+        "card.layout.padding.top",
+        "card.layout.padding.right",
+        "card.layout.padding.bottom",
+        "card.layout.padding.left"
+      ],
+      "code": {
+        "cssFromProp": { "file": "layout", "element": "Card", "name": "padding", "default": "lg" },
+        "css": "cardCss",
+        "selector": ".ds-card--padding-{value}",
+        "property": "padding"
+      }
+    },
+    {
+      "id": "card-radius",
+      "property": "Card radius",
+      "compare": "token",
+      "figma": "card.radius",
+      "code": { "css": "cardCss", "selector": ".ds-card", "property": "border-radius" }
+    },
+    {
+      "id": "card-background",
+      "property": "Card background",
+      "compare": "token",
+      "figma": "card.fill",
+      "code": {
+        "cssFromProp": { "file": "layout", "element": "Card", "name": "variant" },
+        "css": "cardCss",
+        "selector": ".ds-card--{value}",
+        "property": "background-color"
+      }
+    },
+    {
+      "id": "card-border",
+      "property": "Card border color",
+      "compare": "token",
+      "figma": "card.stroke",
+      "code": {
+        "cssFromProp": { "file": "layout", "element": "Card", "name": "variant" },
+        "css": "cardCss",
+        "selector": ".ds-card--{value}",
+        "property": "border"
+      }
+    },
+    {
+      "id": "card-content-gap",
+      "property": "Card content spacing (density)",
+      "compare": "token",
+      "figma": "content.layout.gap",
+      "code": {
+        "cssFromProp": {
+          "file": "screen",
+          "element": "CenteredCardLayout",
+          "name": "compact",
+          "default": false
+        },
+        "css": "layoutCss",
+        "selectors": {
+          "true": ".ds-pattern-centered-card__card--compact",
+          "false": ".ds-pattern-centered-card__card"
+        },
+        "property": "gap"
+      }
+    },
+
+    {
+      "id": "form-gap",
+      "property": "Form field spacing",
+      "compare": "token",
+      "figma": "content.layout.gap",
+      "code": { "css": "screenCss", "selector": ".ds-example-login__form", "property": "gap" }
+    },
+    {
+      "id": "form-structure",
+      "property": "Field container",
+      "compare": "enum",
+      "figma": "$fieldsParent",
+      "code": {
+        "match": {
+          "file": "screen",
+          "pattern": "<form[\\s\\S]*<Input[\\s\\S]*</form>",
+          "then": "form",
+          "else": "Content"
+        }
+      }
+    },
+    {
+      "id": "row-justify",
+      "property": "Remember/forgot row distribution",
+      "compare": "enum",
+      "figma": "row.layout.primaryAlign",
+      "map": { "SPACE_BETWEEN": "space-between", "MIN": "flex-start", "CENTER": "center" },
+      "code": {
+        "css": "screenCss",
+        "selector": ".ds-example-login__row",
+        "property": "justify-content"
+      }
+    },
+    {
+      "id": "row-align",
+      "property": "Remember/forgot row alignment",
+      "compare": "enum",
+      "figma": "row.layout.counterAlign",
+      "map": { "CENTER": "center", "MIN": "flex-start" },
+      "code": {
+        "css": "screenCss",
+        "selector": ".ds-example-login__row",
+        "property": "align-items"
+      }
+    },
+    {
+      "id": "row-wrap",
+      "property": "Remember/forgot row wrapping",
+      "compare": "enum",
+      "figma": "row.layout.wrap",
+      "map": { "NO_WRAP": "nowrap", "WRAP": "wrap" },
+      "code": { "css": "screenCss", "selector": ".ds-example-login__row", "property": "flex-wrap" }
+    },
+    {
+      "id": "row-gap",
+      "property": "Remember/forgot row gap",
+      "compare": "token",
+      "figma": "row.layout.gap",
+      "code": { "css": "screenCss", "selector": ".ds-example-login__row", "property": "gap" }
+    },
+    {
+      "id": "submit-width",
+      "property": "Submit button width",
+      "compare": "enum",
+      "figma": "submit.sizingH",
+      "map": { "FILL": "100%" },
+      "code": { "css": "screenCss", "selector": ".ds-example-login__submit", "property": "width" }
+    },
+
+    {
+      "id": "component-order",
+      "property": "Component usage & order",
+      "compare": "componentOrder"
+    },
+    {
+      "id": "email-size",
+      "property": "Email Input size",
+      "compare": "enum",
+      "figma": "email.component.props.Size",
+      "code": {
+        "prop": { "file": "screen", "element": "Input", "name": "size", "default": "md" }
+      },
+      "notes": "Code default `md` is Input's own default (src/components/Input/Input.tsx)."
+    },
+    {
+      "id": "email-label",
+      "property": "Email Input label",
+      "compare": "text",
+      "figma": "email.component.props.Label",
+      "code": { "text": { "file": "screen", "element": "Input", "prop": "label" } }
+    },
+    {
+      "id": "password-label",
+      "property": "Password Input label",
+      "compare": "text",
+      "figma": "passwordField.component.props.Label",
+      "code": { "text": { "file": "screen", "element": "PasswordInput", "prop": "label" } }
+    },
+    {
+      "id": "remember-label",
+      "property": "Remember-me Checkbox label",
+      "compare": "text",
+      "figma": "remember.component.props.Label",
+      "code": { "text": { "file": "screen", "element": "Checkbox", "prop": "label" } }
+    },
+    {
+      "id": "forgot-label",
+      "property": "Forgot-password Link label",
+      "compare": "text",
+      "figma": "forgot.component.props.Label",
+      "code": { "text": { "file": "screen", "element": "Link" } }
+    },
+    {
+      "id": "submit-variant",
+      "property": "Submit Button variant / size",
+      "compare": "enum",
+      "figma": ["submit.component.props.Variant", "submit.component.props.Size"],
+      "code": {
+        "prop": {
+          "file": "screen",
+          "element": "Button",
+          "names": ["variant", "size"],
+          "default": "md"
+        }
+      }
+    },
+    {
+      "id": "alert-status",
+      "property": "Error Alert status",
+      "compare": "enum",
+      "frames": ["01b", "B-01b"],
+      "figma": "alert.component.props.Status",
+      "code": { "prop": { "file": "screen", "element": "Alert", "name": "status" } }
+    },
+    {
+      "id": "alert-title",
+      "property": "Error Alert title",
+      "compare": "text",
+      "frames": ["01b", "B-01b"],
+      "figma": "alert.component.props.Title",
+      "code": { "text": { "file": "screen", "element": "Alert", "prop": "title" } }
+    },
+
+    {
+      "id": "title-typography",
+      "property": "Title text style",
+      "compare": "typography",
+      "figma": "title",
+      "code": {
+        "typography": { "css": "layoutCss", "selector": ".ds-pattern-centered-card__title" }
+      }
+    },
+    {
+      "id": "title-color",
+      "property": "Title color",
+      "compare": "token",
+      "figma": "title.fill",
+      "code": {
+        "css": "layoutCss",
+        "selector": ".ds-pattern-centered-card__title",
+        "property": "color"
+      }
+    },
+    {
+      "id": "title-copy",
+      "property": "Title copy",
+      "compare": "text",
+      "figma": "title.text.characters",
+      "code": { "text": { "file": "screen", "element": "CenteredCardLayout", "prop": "title" } }
+    },
+    {
+      "id": "description-typography",
+      "property": "Description text style",
+      "compare": "typography",
+      "figma": "description",
+      "code": {
+        "typography": { "css": "layoutCss", "selector": ".ds-pattern-centered-card__description" }
+      }
+    },
+    {
+      "id": "description-color",
+      "property": "Description color",
+      "compare": "token",
+      "figma": "description.fill",
+      "code": {
+        "css": "layoutCss",
+        "selector": ".ds-pattern-centered-card__description",
+        "property": "color"
+      }
+    },
+    {
+      "id": "description-copy",
+      "property": "Description copy",
+      "compare": "text",
+      "figma": "description.text.characters",
+      "code": {
+        "text": { "file": "screen", "element": "CenteredCardLayout", "prop": "description" }
+      }
+    },
+    {
+      "id": "footnote-typography",
+      "property": "Footnote text style",
+      "compare": "typography",
+      "figma": "footnote",
+      "code": { "typography": { "css": "screenCss", "selector": ".ds-example-login__footnote" } }
+    },
+    {
+      "id": "footnote-color",
+      "property": "Footnote color",
+      "compare": "token",
+      "figma": "footnote.fill",
+      "code": { "css": "screenCss", "selector": ".ds-example-login__footnote", "property": "color" }
+    },
+    {
+      "id": "footnote-copy",
+      "property": "Footnote copy",
+      "compare": "text",
+      "figma": "footnote.text.characters",
+      "code": { "text": { "file": "screen", "className": "ds-example-login__footnote" } }
+    }
+  ]
+}

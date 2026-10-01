@@ -6,7 +6,16 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['dist/**', 'storybook-static/**', 'src/tokens/build/**', 'node_modules/**'],
+    ignores: [
+      'dist/**',
+      'storybook-static/**',
+      'src/tokens/build/**',
+      'node_modules/**',
+      // Figma Plugin API script *bodies* (top-level await/return, `figma` global) executed via
+      // the Figma MCP — not Node modules. Their read-only guardrail is a test in
+      // scripts/design-audit/__tests__/audit.test.mjs.
+      'scripts/design-audit/figma/**',
+    ],
   },
   js.configs.recommended,
   jsxA11y.flatConfigs.recommended,

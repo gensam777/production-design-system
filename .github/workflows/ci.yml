@@ -34,6 +34,24 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Design audit tests
+        run: npm run design:audit:test
+
+      # Figma ↔ code drift audit against the COMMITTED Figma snapshot
+      # (scripts/design-audit/snapshots/). Catches code-side drift on every PR. It does NOT
+      # contact Figma, so it cannot know whether live Figma changed after the last snapshot
+      # refresh — see docs/design-audit.md ("What CI does and does not prove").
+      - name: Design audit (Figma ↔ code drift)
+        run: npm run design:audit
+
+      - name: Upload design audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: design-audit-report
+          path: design-audit-report.json
+          if-no-files-found: ignore
+
       - name: Build package
         run: npm run build
 
