@@ -1,0 +1,1218 @@
+{
+  "schemaVersion": 1,
+  "surface": "login",
+  "extractor": {
+    "name": "extract-login",
+    "version": 2
+  },
+  "fileKey": "zE07Pl0ioDayHN2GK2set7",
+  "capturedAt": "2026-10-01T04:28:48.169Z",
+  "checksum": "97a7f8c2",
+  "frames": {
+    "01": {
+      "nodeId": "998:9",
+      "name": "01 — Login",
+      "page": "Examples / Playground",
+      "brandMode": {
+        "name": "Brand A",
+        "explicit": false
+      },
+      "componentOrder": [
+        "Input",
+        "Password Input",
+        "Checkbox",
+        "Link",
+        "Button"
+      ],
+      "fieldsParent": "Content",
+      "roles": {
+        "page": {
+          "nodeId": "998:9",
+          "type": "FRAME",
+          "name": "01 — Login",
+          "width": 1440,
+          "sizingH": "FIXED",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "CENTER",
+            "counterAlign": "CENTER",
+            "padding": {
+              "top": {
+                "px": 48,
+                "token": "Semantic Space/layout/xl"
+              },
+              "right": {
+                "px": 24,
+                "token": "Semantic Space/layout/sm"
+              },
+              "bottom": {
+                "px": 48,
+                "token": "Semantic Space/layout/xl"
+              },
+              "left": {
+                "px": 24,
+                "token": "Semantic Space/layout/sm"
+              }
+            }
+          },
+          "fill": {
+            "token": "Semantic Color/surface/canvas",
+            "hex": "#f9fafb"
+          }
+        },
+        "card": {
+          "nodeId": "1028:363",
+          "type": "INSTANCE",
+          "name": "Login card",
+          "width": 440,
+          "sizingH": "FIXED",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 8,
+              "token": "Semantic Space/stack/sm"
+            },
+            "padding": {
+              "top": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              },
+              "right": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              },
+              "bottom": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              },
+              "left": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              }
+            }
+          },
+          "fill": {
+            "token": "Semantic Color/surface/default",
+            "hex": "#ffffff"
+          },
+          "stroke": {
+            "token": "Semantic Color/border/default",
+            "hex": "#d1d5db",
+            "weight": 1
+          },
+          "radius": {
+            "px": 12,
+            "token": "Semantic Radius/container"
+          },
+          "component": {
+            "set": "Card",
+            "setId": "967:1625",
+            "props": {
+              "Variant": "Outlined",
+              "Padding": "Lg"
+            }
+          }
+        },
+        "content": {
+          "nodeId": "I1028:363;1026:994",
+          "type": "SLOT",
+          "name": "Content",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 12,
+              "token": "Semantic Space/stack/md"
+            }
+          }
+        },
+        "title": {
+          "nodeId": "I1028:363;1026:994;1028:369",
+          "type": "TEXT",
+          "name": "Welcome back",
+          "width": 408,
+          "sizingH": "FILL",
+          "fill": {
+            "token": "Semantic Color/text/primary",
+            "hex": "#111827"
+          },
+          "text": {
+            "characters": "Welcome back",
+            "style": "text/heading/sm/semibold",
+            "fontFamily": "Inter",
+            "fontStyle": "Semi Bold",
+            "fontSize": 20
+          }
+        },
+        "description": {
+          "nodeId": "I1028:363;1026:994;1028:370",
+          "type": "TEXT",
+          "name": "Log in to your account to continue.",
+          "width": 408,
+          "sizingH": "FILL",
+          "fill": {
+            "token": "Semantic Color/text/secondary",
+            "hex": "#374151"
+          },
+          "text": {
+            "characters": "Log in to your account to continue.",
+            "style": "text/body/sm/regular",
+            "fontFamily": "Inter",
+            "fontStyle": "Regular",
+            "fontSize": 14
+          }
+        },
+        "footnote": {
+          "nodeId": "I1028:363;1026:994;1028:387",
+          "type": "TEXT",
+          "name": "Don't have an account? Contact your workspace admin.",
+          "width": 408,
+          "sizingH": "FILL",
+          "fill": {
+            "token": "Semantic Color/text/secondary",
+            "hex": "#374151"
+          },
+          "text": {
+            "characters": "Don't have an account? Contact your workspace admin.",
+            "style": "text/caption/md/regular",
+            "fontFamily": "Inter",
+            "fontStyle": "Regular",
+            "fontSize": 14
+          }
+        },
+        "email": {
+          "nodeId": "I1028:363;1026:994;1028:371",
+          "type": "INSTANCE",
+          "name": "Input",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 8,
+              "token": "Semantic Space/stack/sm"
+            }
+          },
+          "component": {
+            "set": "Input",
+            "setId": "722:305",
+            "props": {
+              "Support text": "Helper text",
+              "Show label": true,
+              "Show support text": false,
+              "Label": "Email address",
+              "Size": "Md",
+              "Interaction": "Default",
+              "Validation": "Default"
+            }
+          }
+        },
+        "password": {
+          "nodeId": "I1028:363;1026:994;1045:406",
+          "type": "INSTANCE",
+          "name": "Password Input",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN"
+          },
+          "component": {
+            "set": "Password Input",
+            "setId": "1039:86",
+            "props": {
+              "Visibility": "Hidden",
+              "Toggle": "Default"
+            }
+          }
+        },
+        "passwordField": {
+          "nodeId": "I1028:363;1026:994;1045:406;1039:10",
+          "type": "INSTANCE",
+          "name": "input",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 8,
+              "token": "Semantic Space/stack/sm"
+            }
+          },
+          "component": {
+            "set": "Input",
+            "setId": "722:305",
+            "props": {
+              "Support text": "Helper text",
+              "Show label": true,
+              "Show support text": false,
+              "Label": "Password",
+              "Size": "Md",
+              "Interaction": "Default",
+              "Validation": "Default"
+            }
+          }
+        },
+        "row": {
+          "nodeId": "I1028:363;1026:994;1028:383",
+          "type": "FRAME",
+          "name": "remember-forgot-row",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "SPACE_BETWEEN",
+            "counterAlign": "CENTER",
+            "gap": {
+              "px": 0,
+              "token": "Semantic Space/inset/none"
+            }
+          }
+        },
+        "remember": {
+          "nodeId": "I1028:363;1026:994;1028:384",
+          "type": "INSTANCE",
+          "name": "Checkbox",
+          "width": 129,
+          "sizingH": "HUG",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 8,
+              "token": "Semantic Space/inline/sm"
+            }
+          },
+          "component": {
+            "set": "Checkbox",
+            "setId": "769:74",
+            "props": {
+              "Show label": true,
+              "Label": "Remember me",
+              "Selection": "Unchecked",
+              "Interaction": "Default"
+            }
+          }
+        },
+        "forgot": {
+          "nodeId": "I1028:363;1026:994;1045:409",
+          "type": "INSTANCE",
+          "name": "Link",
+          "width": 120,
+          "sizingH": "HUG",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN"
+          },
+          "radius": {
+            "px": 4,
+            "token": "Semantic Radius/control"
+          },
+          "component": {
+            "set": "Link",
+            "setId": "1038:15",
+            "props": {
+              "Label": "Forgot password?",
+              "Interaction": "Default"
+            }
+          }
+        },
+        "submit": {
+          "nodeId": "I1028:363;1026:994;1028:386",
+          "type": "INSTANCE",
+          "name": "Button",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "CENTER",
+            "counterAlign": "CENTER",
+            "gap": {
+              "px": 8,
+              "token": "Semantic Space/inline/sm"
+            }
+          },
+          "fill": {
+            "token": "Semantic Color/action/primary/default",
+            "hex": "#2563eb"
+          },
+          "radius": {
+            "px": 4,
+            "token": "Semantic Radius/control"
+          },
+          "component": {
+            "set": "Button",
+            "setId": "115:224",
+            "props": {
+              "Variant": "Primary",
+              "Size": "Md",
+              "State": "Default"
+            }
+          }
+        }
+      }
+    },
+    "01b": {
+      "nodeId": "1001:1726",
+      "name": "01b — Login · Error state",
+      "page": "Examples / Playground",
+      "brandMode": {
+        "name": "Brand A",
+        "explicit": false
+      },
+      "componentOrder": [
+        "Alert",
+        "Input",
+        "Password Input",
+        "Checkbox",
+        "Link",
+        "Button"
+      ],
+      "fieldsParent": "Content",
+      "roles": {
+        "page": {
+          "nodeId": "1001:1726",
+          "type": "FRAME",
+          "name": "01b — Login · Error state",
+          "width": 1440,
+          "sizingH": "FIXED",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "CENTER",
+            "counterAlign": "CENTER",
+            "padding": {
+              "top": {
+                "px": 48,
+                "token": "Semantic Space/layout/xl"
+              },
+              "right": {
+                "px": 24,
+                "token": "Semantic Space/layout/sm"
+              },
+              "bottom": {
+                "px": 48,
+                "token": "Semantic Space/layout/xl"
+              },
+              "left": {
+                "px": 24,
+                "token": "Semantic Space/layout/sm"
+              }
+            }
+          },
+          "fill": {
+            "token": "Semantic Color/surface/canvas",
+            "hex": "#f9fafb"
+          }
+        },
+        "card": {
+          "nodeId": "1028:407",
+          "type": "INSTANCE",
+          "name": "Login card",
+          "width": 440,
+          "sizingH": "FIXED",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 8,
+              "token": "Semantic Space/stack/sm"
+            },
+            "padding": {
+              "top": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              },
+              "right": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              },
+              "bottom": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              },
+              "left": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              }
+            }
+          },
+          "fill": {
+            "token": "Semantic Color/surface/default",
+            "hex": "#ffffff"
+          },
+          "stroke": {
+            "token": "Semantic Color/border/default",
+            "hex": "#d1d5db",
+            "weight": 1
+          },
+          "radius": {
+            "px": 12,
+            "token": "Semantic Radius/container"
+          },
+          "component": {
+            "set": "Card",
+            "setId": "967:1625",
+            "props": {
+              "Variant": "Outlined",
+              "Padding": "Lg"
+            }
+          }
+        },
+        "content": {
+          "nodeId": "I1028:407;1026:994",
+          "type": "SLOT",
+          "name": "Content",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 12,
+              "token": "Semantic Space/stack/md"
+            }
+          }
+        },
+        "title": {
+          "nodeId": "I1028:407;1026:994;1028:413",
+          "type": "TEXT",
+          "name": "Welcome back",
+          "width": 408,
+          "sizingH": "FILL",
+          "fill": {
+            "token": "Semantic Color/text/primary",
+            "hex": "#111827"
+          },
+          "text": {
+            "characters": "Welcome back",
+            "style": "text/heading/sm/semibold",
+            "fontFamily": "Inter",
+            "fontStyle": "Semi Bold",
+            "fontSize": 20
+          }
+        },
+        "description": {
+          "nodeId": "I1028:407;1026:994;1028:414",
+          "type": "TEXT",
+          "name": "Log in to your account to continue.",
+          "width": 408,
+          "sizingH": "FILL",
+          "fill": {
+            "token": "Semantic Color/text/secondary",
+            "hex": "#374151"
+          },
+          "text": {
+            "characters": "Log in to your account to continue.",
+            "style": "text/body/sm/regular",
+            "fontFamily": "Inter",
+            "fontStyle": "Regular",
+            "fontSize": 14
+          }
+        },
+        "footnote": {
+          "nodeId": "I1028:407;1026:994;1028:432",
+          "type": "TEXT",
+          "name": "Don't have an account? Contact your workspace admin.",
+          "width": 408,
+          "sizingH": "FILL",
+          "fill": {
+            "token": "Semantic Color/text/secondary",
+            "hex": "#374151"
+          },
+          "text": {
+            "characters": "Don't have an account? Contact your workspace admin.",
+            "style": "text/caption/md/regular",
+            "fontFamily": "Inter",
+            "fontStyle": "Regular",
+            "fontSize": 14
+          }
+        },
+        "alert": {
+          "nodeId": "I1028:407;1026:994;1028:415",
+          "type": "INSTANCE",
+          "name": "Alert",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 12,
+              "token": "Semantic Space/inline/md"
+            },
+            "padding": {
+              "top": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              },
+              "right": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              },
+              "bottom": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              },
+              "left": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              }
+            }
+          },
+          "fill": {
+            "token": "Semantic Color/feedback/danger/subtle",
+            "hex": "#fef2f2"
+          },
+          "radius": {
+            "px": 12,
+            "token": "Semantic Radius/container"
+          },
+          "component": {
+            "set": "Alert",
+            "setId": "961:1634",
+            "props": {
+              "Dismissible": false,
+              "Description": "Your email or password is incorrect. Please try again.",
+              "Title": "Couldn't sign you in",
+              "Show title": true,
+              "Status": "Danger"
+            }
+          }
+        },
+        "email": {
+          "nodeId": "I1028:407;1026:994;1028:416",
+          "type": "INSTANCE",
+          "name": "Input",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 8,
+              "token": "Semantic Space/stack/sm"
+            }
+          },
+          "component": {
+            "set": "Input",
+            "setId": "722:305",
+            "props": {
+              "Support text": "Helper text",
+              "Show label": true,
+              "Show support text": false,
+              "Label": "Email address",
+              "Size": "Md",
+              "Interaction": "Default",
+              "Validation": "Default"
+            }
+          }
+        },
+        "password": {
+          "nodeId": "I1028:407;1026:994;1045:421",
+          "type": "INSTANCE",
+          "name": "Password Input",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN"
+          },
+          "component": {
+            "set": "Password Input",
+            "setId": "1039:86",
+            "props": {
+              "Visibility": "Hidden",
+              "Toggle": "Default"
+            }
+          }
+        },
+        "passwordField": {
+          "nodeId": "I1028:407;1026:994;1045:421;1039:10",
+          "type": "INSTANCE",
+          "name": "input",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 8,
+              "token": "Semantic Space/stack/sm"
+            }
+          },
+          "component": {
+            "set": "Input",
+            "setId": "722:305",
+            "props": {
+              "Support text": "Helper text",
+              "Show label": true,
+              "Show support text": false,
+              "Label": "Password",
+              "Size": "Md",
+              "Interaction": "Default",
+              "Validation": "Default"
+            }
+          }
+        },
+        "row": {
+          "nodeId": "I1028:407;1026:994;1028:428",
+          "type": "FRAME",
+          "name": "remember-forgot-row",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "SPACE_BETWEEN",
+            "counterAlign": "CENTER",
+            "gap": {
+              "px": 0,
+              "token": "Semantic Space/inset/none"
+            }
+          }
+        },
+        "remember": {
+          "nodeId": "I1028:407;1026:994;1028:429",
+          "type": "INSTANCE",
+          "name": "Checkbox",
+          "width": 129,
+          "sizingH": "HUG",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 8,
+              "token": "Semantic Space/inline/sm"
+            }
+          },
+          "component": {
+            "set": "Checkbox",
+            "setId": "769:74",
+            "props": {
+              "Show label": true,
+              "Label": "Remember me",
+              "Selection": "Unchecked",
+              "Interaction": "Default"
+            }
+          }
+        },
+        "forgot": {
+          "nodeId": "I1028:407;1026:994;1045:424",
+          "type": "INSTANCE",
+          "name": "Link",
+          "width": 120,
+          "sizingH": "HUG",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN"
+          },
+          "radius": {
+            "px": 4,
+            "token": "Semantic Radius/control"
+          },
+          "component": {
+            "set": "Link",
+            "setId": "1038:15",
+            "props": {
+              "Label": "Forgot password?",
+              "Interaction": "Default"
+            }
+          }
+        },
+        "submit": {
+          "nodeId": "I1028:407;1026:994;1028:431",
+          "type": "INSTANCE",
+          "name": "Button",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "CENTER",
+            "counterAlign": "CENTER",
+            "gap": {
+              "px": 8,
+              "token": "Semantic Space/inline/sm"
+            }
+          },
+          "fill": {
+            "token": "Semantic Color/action/primary/default",
+            "hex": "#2563eb"
+          },
+          "radius": {
+            "px": 4,
+            "token": "Semantic Radius/control"
+          },
+          "component": {
+            "set": "Button",
+            "setId": "115:224",
+            "props": {
+              "Variant": "Primary",
+              "Size": "Md",
+              "State": "Default"
+            }
+          }
+        }
+      }
+    },
+    "B-01b": {
+      "nodeId": "1063:1926",
+      "name": "B · 01b — Login · Error state",
+      "page": "Examples / Playground",
+      "brandMode": {
+        "name": "Brand B",
+        "explicit": true
+      },
+      "componentOrder": [
+        "Alert",
+        "Input",
+        "Password Input",
+        "Checkbox",
+        "Link",
+        "Button"
+      ],
+      "fieldsParent": "Content",
+      "roles": {
+        "page": {
+          "nodeId": "1063:1926",
+          "type": "FRAME",
+          "name": "B · 01b — Login · Error state",
+          "width": 1440,
+          "sizingH": "FIXED",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "CENTER",
+            "counterAlign": "CENTER",
+            "padding": {
+              "top": {
+                "px": 48,
+                "token": "Semantic Space/layout/xl"
+              },
+              "right": {
+                "px": 24,
+                "token": "Semantic Space/layout/sm"
+              },
+              "bottom": {
+                "px": 48,
+                "token": "Semantic Space/layout/xl"
+              },
+              "left": {
+                "px": 24,
+                "token": "Semantic Space/layout/sm"
+              }
+            }
+          },
+          "fill": {
+            "token": "Semantic Color/surface/canvas",
+            "hex": "#f9fafb"
+          }
+        },
+        "card": {
+          "nodeId": "1063:1927",
+          "type": "INSTANCE",
+          "name": "Login card",
+          "width": 440,
+          "sizingH": "FIXED",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 8,
+              "token": "Semantic Space/stack/sm"
+            },
+            "padding": {
+              "top": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              },
+              "right": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              },
+              "bottom": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              },
+              "left": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              }
+            }
+          },
+          "fill": {
+            "token": "Semantic Color/surface/default",
+            "hex": "#ffffff"
+          },
+          "stroke": {
+            "token": "Semantic Color/border/default",
+            "hex": "#d1d5db",
+            "weight": 1
+          },
+          "radius": {
+            "px": 16,
+            "token": "Semantic Radius/container"
+          },
+          "component": {
+            "set": "Card",
+            "setId": "967:1625",
+            "props": {
+              "Variant": "Outlined",
+              "Padding": "Lg"
+            }
+          }
+        },
+        "content": {
+          "nodeId": "I1063:1927;1026:994",
+          "type": "SLOT",
+          "name": "Content",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 12,
+              "token": "Semantic Space/stack/md"
+            }
+          }
+        },
+        "title": {
+          "nodeId": "I1063:1927;1026:994;1063:1929",
+          "type": "TEXT",
+          "name": "Welcome back",
+          "width": 408,
+          "sizingH": "FILL",
+          "fill": {
+            "token": "Semantic Color/text/primary",
+            "hex": "#111827"
+          },
+          "text": {
+            "characters": "Welcome back",
+            "style": "text/heading/sm/semibold",
+            "fontFamily": "Figtree",
+            "fontStyle": "SemiBold",
+            "fontSize": 20
+          }
+        },
+        "description": {
+          "nodeId": "I1063:1927;1026:994;1063:1930",
+          "type": "TEXT",
+          "name": "Log in to your account to continue.",
+          "width": 408,
+          "sizingH": "FILL",
+          "fill": {
+            "token": "Semantic Color/text/secondary",
+            "hex": "#374151"
+          },
+          "text": {
+            "characters": "Log in to your account to continue.",
+            "style": "text/body/sm/regular",
+            "fontFamily": "Figtree",
+            "fontStyle": "Regular",
+            "fontSize": 14
+          }
+        },
+        "footnote": {
+          "nodeId": "I1063:1927;1026:994;1063:1938",
+          "type": "TEXT",
+          "name": "Don't have an account? Contact your workspace admin.",
+          "width": 408,
+          "sizingH": "FILL",
+          "fill": {
+            "token": "Semantic Color/text/secondary",
+            "hex": "#374151"
+          },
+          "text": {
+            "characters": "Don't have an account? Contact your workspace admin.",
+            "style": "text/caption/md/regular",
+            "fontFamily": "Figtree",
+            "fontStyle": "Regular",
+            "fontSize": 14
+          }
+        },
+        "alert": {
+          "nodeId": "I1063:1927;1026:994;1063:1931",
+          "type": "INSTANCE",
+          "name": "Alert",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 12,
+              "token": "Semantic Space/inline/md"
+            },
+            "padding": {
+              "top": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              },
+              "right": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              },
+              "bottom": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              },
+              "left": {
+                "px": 16,
+                "token": "Semantic Space/inset/lg"
+              }
+            }
+          },
+          "fill": {
+            "token": "Semantic Color/feedback/danger/subtle",
+            "hex": "#fef2f2"
+          },
+          "radius": {
+            "px": 16,
+            "token": "Semantic Radius/container"
+          },
+          "component": {
+            "set": "Alert",
+            "setId": "961:1634",
+            "props": {
+              "Dismissible": false,
+              "Description": "Your email or password is incorrect. Please try again.",
+              "Title": "Couldn't sign you in",
+              "Show title": true,
+              "Status": "Danger"
+            }
+          }
+        },
+        "email": {
+          "nodeId": "I1063:1927;1026:994;1063:1932",
+          "type": "INSTANCE",
+          "name": "Input",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 8,
+              "token": "Semantic Space/stack/sm"
+            }
+          },
+          "component": {
+            "set": "Input",
+            "setId": "722:305",
+            "props": {
+              "Support text": "Helper text",
+              "Show label": true,
+              "Show support text": false,
+              "Label": "Email address",
+              "Size": "Md",
+              "Interaction": "Default",
+              "Validation": "Default"
+            }
+          }
+        },
+        "password": {
+          "nodeId": "I1063:1927;1026:994;1063:1933",
+          "type": "INSTANCE",
+          "name": "Password Input",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN"
+          },
+          "component": {
+            "set": "Password Input",
+            "setId": "1039:86",
+            "props": {
+              "Visibility": "Hidden",
+              "Toggle": "Default"
+            }
+          }
+        },
+        "passwordField": {
+          "nodeId": "I1063:1927;1026:994;1063:1933;1039:10",
+          "type": "INSTANCE",
+          "name": "input",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "VERTICAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 8,
+              "token": "Semantic Space/stack/sm"
+            }
+          },
+          "component": {
+            "set": "Input",
+            "setId": "722:305",
+            "props": {
+              "Support text": "Helper text",
+              "Show label": true,
+              "Show support text": false,
+              "Label": "Password",
+              "Size": "Md",
+              "Interaction": "Default",
+              "Validation": "Default"
+            }
+          }
+        },
+        "row": {
+          "nodeId": "I1063:1927;1026:994;1063:1934",
+          "type": "FRAME",
+          "name": "remember-forgot-row",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "SPACE_BETWEEN",
+            "counterAlign": "CENTER",
+            "gap": {
+              "px": 0,
+              "token": "Semantic Space/inset/none"
+            }
+          }
+        },
+        "remember": {
+          "nodeId": "I1063:1927;1026:994;1063:1935",
+          "type": "INSTANCE",
+          "name": "Checkbox",
+          "width": 125,
+          "sizingH": "HUG",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN",
+            "gap": {
+              "px": 8,
+              "token": "Semantic Space/inline/sm"
+            }
+          },
+          "component": {
+            "set": "Checkbox",
+            "setId": "769:74",
+            "props": {
+              "Show label": true,
+              "Label": "Remember me",
+              "Selection": "Unchecked",
+              "Interaction": "Default"
+            }
+          }
+        },
+        "forgot": {
+          "nodeId": "I1063:1927;1026:994;1063:1936",
+          "type": "INSTANCE",
+          "name": "Link",
+          "width": 114,
+          "sizingH": "HUG",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "MIN",
+            "counterAlign": "MIN"
+          },
+          "radius": {
+            "px": 8,
+            "token": "Semantic Radius/control"
+          },
+          "component": {
+            "set": "Link",
+            "setId": "1038:15",
+            "props": {
+              "Label": "Forgot password?",
+              "Interaction": "Default"
+            }
+          }
+        },
+        "submit": {
+          "nodeId": "I1063:1927;1026:994;1063:1937",
+          "type": "INSTANCE",
+          "name": "Button",
+          "width": 408,
+          "sizingH": "FILL",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "wrap": "NO_WRAP",
+            "primaryAlign": "CENTER",
+            "counterAlign": "CENTER",
+            "gap": {
+              "px": 8,
+              "token": "Semantic Space/inline/sm"
+            }
+          },
+          "fill": {
+            "token": "Semantic Color/action/primary/default",
+            "hex": "#7c3aed"
+          },
+          "radius": {
+            "px": 8,
+            "token": "Semantic Radius/control"
+          },
+          "component": {
+            "set": "Button",
+            "setId": "115:224",
+            "props": {
+              "Variant": "Primary",
+              "Size": "Md",
+              "State": "Default"
+            }
+          }
+        }
+      }
+    }
+  }
+}

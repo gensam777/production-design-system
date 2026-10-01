@@ -1,0 +1,32 @@
+[
+  {
+    "id": "login-form-element",
+    "surface": "login",
+    "check": "form-structure",
+    "figma": "Content",
+    "code": "form",
+    "scope": "Login 01 / 01b / B·01b — field container only",
+    "reason": "Platform difference. Figma places the fields directly in the Card's flat Content slot; code must wrap them in a native <form> (submit-on-Enter, form semantics, onSubmit). Spacing is kept identical: the card's compact gap and the form gap are both space.stack.md — audited separately by card-content-gap and form-gap.",
+    "doc": "docs/design-audit.md#known-differences-login"
+  },
+  {
+    "id": "login-row-wrap",
+    "surface": "login",
+    "check": "row-wrap",
+    "figma": "NO_WRAP",
+    "code": "wrap",
+    "scope": "Login 01 / 01b / B·01b — remember-me / forgot-password row",
+    "reason": "Code-only responsive behavior. The row wraps instead of colliding when the card is narrow or the copy is long (e.g. localized). Figma frames are fixed at 440px where it never wraps, so Figma has no equivalent to express.",
+    "doc": "docs/design-audit.md#known-differences-login"
+  },
+  {
+    "id": "login-row-wrap-gap",
+    "surface": "login",
+    "check": "row-gap",
+    "figma": "Semantic Space/inset/none (0px)",
+    "code": "--space-stack-sm (8px) --space-inline-md (12px)",
+    "scope": "Login 01 / 01b / B·01b — remember-me / forgot-password row",
+    "reason": "Follows from login-row-wrap. In Figma the items are pushed apart by SPACE_BETWEEN, so the gap is unused (bound to inset/none). The code gap only takes effect when the row wraps: stack.sm between lines, inline.md between items.",
+    "doc": "docs/design-audit.md#known-differences-login"
+  }
+]
