@@ -157,11 +157,17 @@ Use the `design-audit` Claude skill (`.claude/skills/design-audit/SKILL.md`). It
 committed extractor verbatim through `use_figma`, saves the raw output to the session
 scratchpad, then runs `npm run design:audit:refresh -- <raw.json>`. That command validates the
 raw output (an invalid or truncated payload writes nothing), writes the snapshot, runs the
-audit and prints which Figma properties changed. The skill then reports.
+audit and prints which Figma properties changed. The skill then reports. It does not commit,
+push or open PRs. If the refresh reveals DRIFT, fixing it (in Figma or in code) is a separate,
+human-approved task.
 
 Reading live Figma is the only step that needs Claude: an npm script cannot reach the
-session-authenticated Figma MCP, and GitHub Actions has no Figma credential. It does not commit, push or open PRs. If the refresh
-reveals DRIFT, fixing it (in Figma or in code) is a separate, human-approved task.
+session-authenticated Figma MCP, and GitHub Actions has no Figma credential. This
+semi-automatic refresh is the production approach on purpose. Unattended monitoring (Figma
+webhooks, REST polling, GitHub Actions with a Figma token, scheduled cloud agents) was
+evaluated and deferred; see
+[ADR 0012](../governance/decisions/0012-design-audit-refresh-stays-semi-automatic.md) for the
+reasons and the conditions for revisiting it.
 
 ## Limitations
 
