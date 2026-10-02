@@ -22,6 +22,7 @@ import { loadTokens, toPx } from '../lib/tokens.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const read = (p) => fs.readFileSync(path.join(ROOT, p), 'utf8');
 const readJson = (p) => JSON.parse(read(p));
+const readJsonAbs = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
 
 const contract = readJson('scripts/design-audit/surfaces/login.json');
 const baseSnapshot = readJson(contract.figma.snapshot);
@@ -295,6 +296,127 @@ describe('CLI (npm run design:audit)', () => {
     const res = cli(['--surface', 'login', '--snapshot', tmp]);
     assert.equal(res.status, 1);
     assert.match(res.stdout, /DRIFT {2}Login \/ card-width {2}\[01\]/);
+  });
+});
+
+describe('refresh (npm run design:audit:refresh) — writes only to a temp snapshot', () => {
+  const tmpDir = () => fs.mkdtempSync(path.join(os.tmpdir(), 'design-audit-refresh-'));
+  /** Raw extractor output as `use_figma` returns it: compact JSON. */
+  const writeRaw = (dir, snap) => {
+    const p = path.join(dir, 'raw.json');
+    fs.writeFileSync(p, typeof snap === 'string' ? snap : JSON.stringify(snap));
+    return p;
+  };
+  const refresh = (raw, dir) =>
+    spawnSync(
+      process.execPath,
+      [
+        'scripts/design-audit/refresh.mjs',
+        raw,
+        '--out',
+        path.join(dir, 'snapshot.json'),
+        '--json',
+        path.join(dir, 'report.json'),
+      ],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+  /** Seed the temp "committed" snapshot with the real committed one. */
+  const seed = (dir) => {
+    const p = path.join(dir, 'snapshot.json');
+    fs.writeFileSync(p, JSON.stringify(baseSnapshot, null, 2) + '\n');
+    return p;
+  };
+
+  it('clean refresh: writes the snapshot, audits, reports no Figma changes, exits 0', () => {
+    const dir = tmpDir();
+    const out = seed(dir);
+    const raw = { ...structuredClone(baseSnapshot), capturedAt: '2026-10-02T00:00:00.000Z' };
+    const res = refresh(writeRaw(dir, raw), dir);
+    assert.equal(res.status, 0, res.stdout + res.stderr);
+    assert.match(res.stdout, /Figma changes: none since the previous snapshot/);
+    assert.match(res.stdout, /Audit: PASS \d+ · DRIFT 0 · KNOWN_DIFFERENCE \d+ · ERROR 0/);
+    assert.match(res.stdout, /Nothing committed/);
+    assert.equal(readJsonAbs(out).capturedAt, '2026-10-02T00:00:00.000Z');
+  });
+  it('a Figma-side change is listed in the summary and fails the run', () => {
+    const dir = tmpDir();
+    seed(dir);
+    const res = refresh(
+      writeRaw(
+        dir,
+        fixture((f) => (f['01'].roles.card.width = 400)),
+      ),
+      dir,
+    );
+    assert.equal(res.status, 1);
+    assert.match(res.stdout, /frames\.01\.roles\.card\.width: 440 → 400/);
+    assert.match(res.stdout, /DRIFT [1-9]/);
+  });
+  for (const [label, content] of [
+    ['truncated JSON', () => JSON.stringify(baseSnapshot).slice(0, 5000)],
+    [
+      'checksum mismatch (edited after extraction)',
+      () => {
+        const s = structuredClone(baseSnapshot);
+        s.frames['01'].roles.card.width = 999;
+        return s;
+      },
+    ],
+    ['wrong file key', () => ({ ...structuredClone(baseSnapshot), fileKey: 'otherFile' })],
+    [
+      'stale extractor version',
+      () => ({
+        ...structuredClone(baseSnapshot),
+        extractor: { name: 'extract-login', version: 1 },
+      }),
+    ],
+  ]) {
+    it(`rejects ${label}: exit 2, existing snapshot untouched, no report`, () => {
+      const dir = tmpDir();
+      const out = seed(dir);
+      const before = fs.readFileSync(out, 'utf8');
+      const res = refresh(writeRaw(dir, content()), dir);
+      assert.equal(res.status, 2, res.stdout + res.stderr);
+      assert.match(res.stderr, /rejected — nothing written/);
+      assert.equal(fs.readFileSync(out, 'utf8'), before);
+      assert.equal(fs.existsSync(path.join(dir, 'report.json')), false);
+      assert.deepEqual(
+        fs.readdirSync(dir).sort(),
+        ['raw.json', 'snapshot.json'],
+        'no temp files left behind',
+      );
+    });
+  }
+});
+
+describe('snapshot age warning (CI, warning only)', () => {
+  const age = (now, env = {}) =>
+    spawnSync(
+      process.execPath,
+      ['scripts/design-audit/snapshot.mjs', 'age', '--max-days', '14', '--now', now],
+      { cwd: ROOT, encoding: 'utf8', env: { ...process.env, GITHUB_ACTIONS: '', ...env } },
+    );
+  const captured = Date.parse(baseSnapshot.capturedAt);
+  const daysLater = (d) => new Date(captured + d * 86_400_000).toISOString();
+
+  it('is quiet at 14 days', () => {
+    const res = age(daysLater(14));
+    assert.equal(res.status, 0);
+    assert.doesNotMatch(res.stdout, /⚠|::warning/);
+    assert.match(res.stdout, /14 days ago, limit 14/);
+  });
+  it('warns (exit 0) after 14 days', () => {
+    const res = age(daysLater(15));
+    assert.equal(res.status, 0);
+    assert.match(res.stdout, /⚠ .*15 days ago, limit 14/);
+  });
+  it('emits a GitHub ::warning annotation under GitHub Actions, still exit 0', () => {
+    const res = age(daysLater(30), { GITHUB_ACTIONS: 'true' });
+    assert.equal(res.status, 0);
+    assert.match(
+      res.stdout,
+      /^::warning file=scripts\/design-audit\/snapshots\/login\.figma\.json,/m,
+    );
   });
 });
 

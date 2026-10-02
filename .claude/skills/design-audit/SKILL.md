@@ -5,8 +5,9 @@ description: Refresh the committed Figma snapshot for the Figma ↔ code design-
 
 # Design audit: snapshot refresh and report
 
-This skill is the only step of the design audit that needs a Claude session. Everything else
-(`npm run design:audit`) is offline and deterministic. The full architecture, statuses,
+This skill is the only step of the design audit that needs a Claude session: reading live Figma
+through the Figma MCP. Everything after that (`npm run design:audit:refresh`, which validates,
+writes the snapshot and runs `npm run design:audit`) is offline and deterministic. The full architecture, statuses,
 contract format and limitations are in `docs/design-audit.md`. Read it if it isn't already in
 context. `CLAUDE.md` overrides anything here.
 
@@ -27,14 +28,15 @@ expand to other surfaces unless the user explicitly asks. Adding a surface is it
    `src/`, the token JSON, stories, docs, or Figma, even when the audit finds DRIFT. Fixing
    drift is a separate, human-approved task.
 3. **The only files this workflow writes** are `scripts/design-audit/snapshots/login.figma.json`
-   (written by the import command, never by hand) and the gitignored `design-audit-report.json`.
+   (written by `npm run design:audit:refresh`, never by hand) and the gitignored
+   `design-audit-report.json`.
    Put the raw extractor output in the session scratchpad, never in the repo.
 4. **Don't commit, push, open PRs, or accept Chromatic baselines.** Leave the refreshed
    snapshot as an uncommitted change for the user to review.
 5. **Don't touch `known-differences.json` to make the audit pass.** Recording a known
    difference is a human decision (it needs a real reason and scope). You may _propose_ an
    entry in the report.
-6. **Never hand-edit the snapshot.** If the import rejects it (checksum, schema, node IDs,
+6. **Never hand-edit the snapshot or the raw output.** If the refresh rejects it (checksum, schema, node IDs,
    extractor version), fix the cause and re-run the extractor. Don't patch the JSON.
 
 ## Workflow
@@ -54,16 +56,21 @@ expand to other surfaces unless the user explicitly asks. Adding a surface is it
 3. **Save the raw output.** Write the returned JSON **exactly as returned** to the scratchpad,
    e.g. `<scratchpad>/login.raw.json`. Don't reformat, reorder or edit it. The checksum
    covers `frames`.
-4. **Regenerate and validate the snapshot.**
-   `npm run design:audit:snapshot -- import <scratchpad>/login.raw.json`.
-   This validates the schema, extractor name/version (against the contract **and** the
-   committed extractor file), canonical file key, node IDs and checksum, then writes the
-   committed snapshot path. A validation failure writes nothing. Report it and stop.
-5. **Run the audit.** `npm run design:audit`. Exit 1 is an expected outcome (DRIFT/ERROR),
-   not a tooling failure.
-6. **Diff the evidence.** `git diff --stat` and `git diff scripts/design-audit/snapshots/`. Say
-   which Figma properties changed since the previous snapshot (ignore the `capturedAt` and
-   `checksum` churn). Confirm that the snapshot is the only tracked file changed.
+4. **Refresh: validate, write, audit, summarize — one command.**
+   `npm run design:audit:refresh -- <scratchpad>/login.raw.json`.
+   This validates the JSON, schema, extractor name/version (against the contract **and** the
+   committed extractor file), canonical file key, node IDs and checksum; writes the committed
+   snapshot path; runs `design:audit` for the surface; and prints which Figma properties
+   changed versus the previous snapshot plus the PASS / DRIFT / KNOWN_DIFFERENCE / ERROR counts.
+   Exit codes:
+   - `2`: the raw output was rejected and **nothing was written**. Report the reasons and stop.
+   - `1`: the audit found DRIFT or ERROR. That's an expected outcome, not a tooling failure.
+   - `0`: every check is PASS or KNOWN_DIFFERENCE.
+5. **Confirm the evidence.** `git status --short` and `git diff --stat`: the snapshot must be the
+   only tracked file changed by this workflow. Use the refresh command's change list (not the
+   raw `git diff`, which also shows `capturedAt`/`checksum` churn) for "what changed in Figma".
+   With `core.autocrlf`, git may list the snapshot as modified when only line endings changed;
+   an empty `git diff` means Figma didn't change.
 
 ## Report format
 

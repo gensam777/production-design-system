@@ -28,6 +28,7 @@
     "design:audit": "node scripts/design-audit/audit.mjs",
     "design:audit:test": "node --test scripts/design-audit/__tests__/audit.test.mjs",
     "design:audit:snapshot": "node scripts/design-audit/snapshot.mjs",
+    "design:audit:refresh": "node scripts/design-audit/refresh.mjs",
     "prestorybook": "npm run build",
     "storybook": "storybook dev -p 6006",
     "prebuild-storybook": "npm run build",
