@@ -74,3 +74,43 @@ export function validateSnapshot(snapshot, contract) {
   }
   return errors;
 }
+
+/**
+ * Full import validation: `validateSnapshot` plus a check that the committed extractor file
+ * still declares the version the contract expects.
+ * @returns {string[]} problems; empty when the snapshot may be imported.
+ */
+export function validateForImport(snapshot, contract, extractorFile) {
+  const errors = validateSnapshot(snapshot, contract);
+  const fileVersion = extractorVersion(extractorFile);
+  if (fileVersion !== contract.figma.extractor.version)
+    errors.push(
+      `${contract.figma.extractor.file} declares version ${fileVersion}, contract expects ` +
+        `${contract.figma.extractor.version}`,
+    );
+  return errors;
+}
+
+/**
+ * Leaf-level differences between two snapshots' `frames` (capturedAt/checksum are ignored by
+ * construction). Arrays whose length changed are reported as one whole-value change.
+ * @returns {{ path: string, before: unknown, after: unknown }[]}
+ */
+export function diffFrames(before, after, base = 'frames') {
+  const out = [];
+  const walk = (a, b, p) => {
+    if (JSON.stringify(a) === JSON.stringify(b)) return;
+    const bothArrays = Array.isArray(a) && Array.isArray(b) && a.length === b.length;
+    if (bothArrays || (isObj(a) && isObj(b))) {
+      const keys = [...new Set([...Object.keys(a), ...Object.keys(b)])];
+      for (const k of keys) walk(a[k], b[k], `${p}.${k}`);
+    } else out.push({ path: p, before: a, after: b });
+  };
+  walk(before ?? {}, after ?? {}, base);
+  return out;
+}
+
+/** Whole days since `capturedAt` (NaN when it isn't a date). */
+export function snapshotAgeDays(capturedAt, now = new Date()) {
+  return Math.floor((now.getTime() - Date.parse(capturedAt)) / 86_400_000);
+}

@@ -19,10 +19,14 @@ section has no plain `01` frame, so Brand B is audited through 01b.
 ```
  ┌──────────────── needs a Claude session with the Figma MCP ────────────────┐
  │ scripts/design-audit/figma/extract-login.js   (committed, READ-ONLY)       │
- │   run verbatim via use_figma ──► raw JSON (+ FNV-1a checksum)              │
- │ npm run design:audit:snapshot -- import <raw.json>                         │
- │   validates schema / extractor version / node IDs / checksum               │
- │   ──► scripts/design-audit/snapshots/login.figma.json   (committed)        │
+ │   run verbatim via use_figma ──► raw JSON (+ FNV-1a checksum) → scratchpad │
+ └────────────────────────────────────────────────────────────────────────────┘
+ ┌──────────────── local, offline & deterministic ────────────────────────────┐
+ │ npm run design:audit:refresh -- <raw.json>                                 │
+ │   validates JSON / schema / extractor version / node IDs / checksum        │
+ │   (rejected → writes nothing, exit 2)                                      │
+ │   ──► scripts/design-audit/snapshots/login.figma.json   (uncommitted)      │
+ │   ──► runs design:audit + prints which Figma properties changed            │
  └────────────────────────────────────────────────────────────────────────────┘
  ┌──────────────── fully offline & deterministic (local + CI) ────────────────┐
  │ npm run design:audit                                                       │
@@ -43,17 +47,18 @@ So reading Figma is a deliberate, reviewable step. Everything after it is plain 
 extractor is versioned in the repo, so every refresh runs identical code. Ad-hoc generated
 MCP code is never the canonical extractor.
 
-| Path                                              | Purpose                                                     |
-| ------------------------------------------------- | ----------------------------------------------------------- |
-| `scripts/design-audit/audit.mjs`                  | CLI for `npm run design:audit`                              |
-| `scripts/design-audit/snapshot.mjs`               | CLI for `npm run design:audit:snapshot -- import\|validate` |
-| `scripts/design-audit/surfaces/login.json`        | Login contract (frames, code files, checks)                 |
-| `scripts/design-audit/known-differences.json`     | Documented known differences                                |
-| `scripts/design-audit/figma/extract-login.js`     | Read-only Plugin API extractor (run via `use_figma`)        |
-| `scripts/design-audit/snapshots/login.figma.json` | Committed normalized Figma snapshot                         |
-| `scripts/design-audit/lib/`                       | Token resolver, CSS/JSX readers, comparators, report        |
-| `scripts/design-audit/__tests__/audit.test.mjs`   | `npm run design:audit:test` (`node:test`)                   |
-| `.claude/skills/design-audit/SKILL.md`            | The Claude refresh workflow                                 |
+| Path                                              | Purpose                                                                  |
+| ------------------------------------------------- | ------------------------------------------------------------------------ |
+| `scripts/design-audit/audit.mjs`                  | CLI for `npm run design:audit`                                           |
+| `scripts/design-audit/refresh.mjs`                | CLI for `npm run design:audit:refresh` (import + audit + change summary) |
+| `scripts/design-audit/snapshot.mjs`               | CLI for `npm run design:audit:snapshot -- import\|validate\|age`         |
+| `scripts/design-audit/surfaces/login.json`        | Login contract (frames, code files, checks)                              |
+| `scripts/design-audit/known-differences.json`     | Documented known differences                                             |
+| `scripts/design-audit/figma/extract-login.js`     | Read-only Plugin API extractor (run via `use_figma`)                     |
+| `scripts/design-audit/snapshots/login.figma.json` | Committed normalized Figma snapshot                                      |
+| `scripts/design-audit/lib/`                       | Token resolver, CSS/JSX readers, comparators, report                     |
+| `scripts/design-audit/__tests__/audit.test.mjs`   | `npm run design:audit:test` (`node:test`)                                |
+| `.claude/skills/design-audit/SKILL.md`            | The Claude refresh workflow                                              |
 
 ## Commands
 
@@ -64,7 +69,9 @@ npm run design:audit -- --surface login --snapshot <file>   # audit another snap
 npm run design:audit -- --no-json                      # terminal only
 npm run design:audit:test                              # audit logic tests
 npm run design:audit:snapshot -- validate              # validate the committed snapshot
-npm run design:audit:snapshot -- import <raw.json>     # (refresh workflow) validate + write snapshot
+npm run design:audit:snapshot -- import <raw.json>     # validate + write snapshot only
+npm run design:audit:snapshot -- age --max-days 14     # warn if the snapshot is stale (always exit 0)
+npm run design:audit:refresh -- <raw.json>             # (refresh workflow) validate + write + audit + change summary
 ```
 
 The exit code is `0` when every check is PASS or KNOWN_DIFFERENCE, and `1` on any DRIFT or
@@ -140,12 +147,20 @@ runs against the **committed** snapshot.
   contacts Figma. A Figma-side change shows up only after someone refreshes the snapshot
   (`.claude/skills/design-audit/SKILL.md`) and commits it. The snapshot's `capturedAt` is
   printed on every run so its age is visible.
+- **It warns when the snapshot is stale.** A CI step (`design:audit:snapshot -- age --max-days
+14`) adds a GitHub warning annotation when the committed snapshot is more than 14 days old.
+  It is a warning only and never fails CI; the audit still runs normally.
 
 ## Refreshing the snapshot
 
 Use the `design-audit` Claude skill (`.claude/skills/design-audit/SKILL.md`). It runs the
-committed extractor verbatim through `use_figma`, imports the result with checksum
-validation, runs the audit, and reports. It does not commit, push or open PRs. If the refresh
+committed extractor verbatim through `use_figma`, saves the raw output to the session
+scratchpad, then runs `npm run design:audit:refresh -- <raw.json>`. That command validates the
+raw output (an invalid or truncated payload writes nothing), writes the snapshot, runs the
+audit and prints which Figma properties changed. The skill then reports.
+
+Reading live Figma is the only step that needs Claude: an npm script cannot reach the
+session-authenticated Figma MCP, and GitHub Actions has no Figma credential. It does not commit, push or open PRs. If the refresh
 reveals DRIFT, fixing it (in Figma or in code) is a separate, human-approved task.
 
 ## Limitations

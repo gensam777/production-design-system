@@ -41,6 +41,13 @@ jobs:
       # (scripts/design-audit/snapshots/). Catches code-side drift on every PR. It does NOT
       # contact Figma, so it cannot know whether live Figma changed after the last snapshot
       # refresh — see docs/design-audit.md ("What CI does and does not prove").
+      # Warning only: annotates the run when the committed Figma snapshot is older than 14 days.
+      # Never fails CI (the script always exits 0; continue-on-error is a second guard). The
+      # audit below still runs normally either way.
+      - name: Design audit snapshot age
+        continue-on-error: true
+        run: npm run design:audit:snapshot -- age --max-days 14
+
       - name: Design audit (Figma ↔ code drift)
         run: npm run design:audit
 
