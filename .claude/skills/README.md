@@ -21,6 +21,13 @@
   pauses, then implements it in `src/examples/` + Storybook after approval and verifies it
   at all three parity layers. No commits.
 
-Remaining candidates, not yet built: a standalone token-addition workflow, and an
-accessibility-checklist pass runnable over an existing component PR independent of
-authoring a new one.
+- [`token-production`](./token-production/SKILL.md) — owns token and Figma-variable
+  architecture changes (Core / Brand A-B / semantic / component-scoped; color,
+  typography, spacing, radius, elevation, motion, breakpoints/layout, icon size): discovers
+  the change in Figma and/or `src/tokens/`, checks the Core → Brand → Semantic → Component
+  layering, reports impact (aliases, brands, consumers, generated outputs, contrast,
+  breaking changes) and pauses on conflicts and before applying; then updates source (and
+  Figma if approved), regenerates outputs and verifies parity. No commits.
+
+Remaining candidate, not yet built: an accessibility-checklist pass runnable over an
+existing component PR independent of authoring a new one.
