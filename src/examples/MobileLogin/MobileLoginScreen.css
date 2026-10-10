@@ -1,0 +1,85 @@
+/**
+ * MobileLoginScreen (example composition, not a DS component). A mobile app screen: fluid
+ * to the device viewport — no max-width cap and no breakpoint, 393px is only the Figma
+ * reference width. Every value maps to a Semantic binding on Figma frame 1119:740.
+ */
+
+/* Figma "Login Screen": surface/default, layout/2xl top/bottom, layout/sm sides, content
+   vertically centered in the space between the OS status bar and home indicator. */
+.ds-example-mobile-login {
+  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: var(--space-layout-2xl);
+  padding-inline: var(--space-layout-sm);
+  background-color: var(--color-surface-default);
+}
+
+/* Figma's two groups ("Login Form" = heading + fields, "Login Actions" = button + prompt,
+   layout/lg apart) are regrouped here so the submit Button sits inside the <form>; the
+   gaps below reproduce the same rhythm. */
+.ds-example-mobile-login__content {
+  display: flex;
+  flex-direction: column;
+}
+
+.ds-example-mobile-login__title {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-family: var(--text-heading-lg-semibold-font-family);
+  font-size: var(--text-heading-lg-semibold-font-size);
+  font-weight: var(--text-heading-lg-semibold-font-weight);
+  line-height: var(--text-heading-lg-semibold-line-height);
+  letter-spacing: var(--text-heading-lg-semibold-letter-spacing);
+}
+
+/* Heading → fields: Figma "Login Form" gap stack/2xl. Fields → button: Figma "Login
+   Screen" gap layout/lg. */
+.ds-example-mobile-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-layout-lg);
+  margin-block-start: var(--space-stack-2xl);
+}
+
+/* Figma "Login Fields": credentials → "Forgot password?" stack/md. */
+.ds-example-mobile-login__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-md);
+}
+
+/* Figma "Credentials": Email → Password stack/lg. */
+.ds-example-mobile-login__credentials {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-lg);
+}
+
+.ds-example-mobile-login__forgot {
+  align-self: flex-start;
+}
+
+.ds-example-mobile-login__submit {
+  width: 100%;
+}
+
+/* Figma "Login Actions" gap stack/lg (button → prompt); "Account Prompt" gap inline/sm,
+   centered. Wraps instead of overflowing on narrow viewports or long (localized) text. */
+.ds-example-mobile-login__prompt {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  column-gap: var(--space-inline-sm);
+  margin: var(--space-stack-lg) 0 0;
+  color: var(--color-text-tertiary);
+  font-family: var(--text-body-sm-regular-font-family);
+  font-size: var(--text-body-sm-regular-font-size);
+  font-weight: var(--text-body-sm-regular-font-weight);
+  line-height: var(--text-body-sm-regular-line-height);
+  letter-spacing: var(--text-body-sm-regular-letter-spacing);
+}
