@@ -21,7 +21,7 @@ src/
 docs/           # design-to-code-mappings.md + foundations/ + patterns/ documentation
 governance/     # accessibility, lifecycle, versioning rules + ADRs (decisions/)
 scripts/        # token build, token-usage guardrail, design-audit/ (Figma ↔ code drift audit)
-.claude/skills/ # custom Claude Code skills (component-production, design-audit, figma-screen-sync, token-production)
+.claude/skills/ # custom Claude Code skills (component-production, design-audit, figma-screen-sync, token-production, pattern-production)
 ```
 
 ## Source of truth

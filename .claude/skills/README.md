@@ -29,5 +29,14 @@
   breaking changes) and pauses on conflicts and before applying; then updates source (and
   Figma if approved), regenerates outputs and verifies parity. No commits.
 
+- [`pattern-production`](./pattern-production/SKILL.md) — owns reusable compositions
+  (patterns and templates in `src/patterns/` + `docs/patterns/` + `Patterns/*` stories +
+  the Figma Patterns/Templates pages): requires evidence of reuse, classifies the pattern
+  kind and target platform, audits Figma first, prefers composition over new APIs,
+  proposes and pauses, then implements with stories, usage/do-don't/when-not-to-use docs,
+  and verifies parity, both brands, responsive/adaptive states and accessibility. Hands
+  off to component-production, token-production, figma-screen-sync and design-audit.
+  No commits.
+
 Remaining candidate, not yet built: an accessibility-checklist pass runnable over an
 existing component PR independent of authoring a new one.
