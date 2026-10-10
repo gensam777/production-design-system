@@ -14,7 +14,9 @@
   `docs/design-audit.md`.
 
 - [`figma-screen-sync`](./figma-screen-sync/SKILL.md) — daily Figma → React workflow for
-  product screens: discovers the new/updated screen on Examples / Playground, audits it in
+  product screens: discovers the new/updated screen on Examples / Playground, classifies
+  its target platform (web, web app, responsive web, mobile app, tablet app) and
+  implementation intent, audits it in
   Figma first (stops on token/instance/Brand A-B issues), proposes a reuse-first plan and
   pauses, then implements it in `src/examples/` + Storybook after approval and verifies it
   at all three parity layers. No commits.
