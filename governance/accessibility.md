@@ -27,6 +27,14 @@ Every component must meet **WCAG 2.2 AA** before it can be marked "stable" (see
 - Manual keyboard and screen-reader spot checks are still required before a component
   moves to "stable."
 
+## Cross-platform
+
+This checklist is written for the web, the only platform implemented today. The same
+WCAG 2.2 AA bar applies to React Native, SwiftUI and Compose as **shared outcomes delivered
+through native APIs** — see
+[`docs/cross-platform/accessibility.md`](../docs/cross-platform/accessibility.md) for the
+principles and per-platform equivalents, and ADR 0013 / 0015.
+
 ## Ownership
 
 Whoever reviews a component PR is responsible for verifying this checklist, not just

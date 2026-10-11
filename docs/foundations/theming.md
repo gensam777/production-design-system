@@ -84,4 +84,6 @@ weight. Brand is independent of the future Light/Dark mode on `Semantic Color`.
 
 The semantic token names are the cross-platform contract; each brand becomes one generated
 value set: React Native theme object (context), SwiftUI `DSTheme` (`@Environment`), Jetpack
-Compose (`CompositionLocal`). Fonts and elevation mapping are platform-owned.
+Compose `DsTheme` (`CompositionLocal`). Fonts and elevation mapping are platform-owned. Rules
+and status: [`docs/cross-platform/multi-brand.md`](../cross-platform/multi-brand.md) and
+ADR 0014.
