@@ -2,6 +2,9 @@
 
 - **Status**: Accepted
 - **Date**: 2026-09-02
+- **Superseded in part by**: [0013](./0013-cross-platform-architecture.md) — the single
+  package stays until `@pds/react-native` starts, then plain npm workspaces (see 0013 "Repo
+  evolution"). The Code Connect and manual-mapping decisions still stand.
 
 ## Context
 

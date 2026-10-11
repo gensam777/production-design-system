@@ -18,7 +18,7 @@ src/
   tokens/       # token source (core/, brands/<brand>/, semantic/) + generated build/ output
   index.ts      # public entry point / barrel export
 .storybook/     # Storybook config
-docs/           # design-to-code-mappings.md + foundations/ + patterns/ documentation
+docs/           # design-to-code-mappings.md + foundations/ + patterns/ + cross-platform/ documentation
 governance/     # accessibility, lifecycle, versioning rules + ADRs (decisions/)
 scripts/        # token build, token-usage guardrail, design-audit/ (Figma ↔ code drift audit)
 .claude/skills/ # custom Claude Code skills (component-production, design-audit, figma-screen-sync, token-production, pattern-production)
@@ -131,6 +131,15 @@ has been edited since the date above.
 - Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`).
 - Versioning is currently manual (see `governance/versioning.md`) — Changesets tooling
   is deferred, not yet wired up.
+
+## Cross-platform (Phase 0 — architecture only)
+
+Web is the only implemented platform. React Native (`@pds/react-native`), SwiftUI
+(`PDSUI`/`PDSTokens`) and Compose (`com.pds.*`) are planned per ADRs 0013 (architecture,
+phases), 0014 (token portability) and 0015 (YAML + JSON Schema component contracts); see
+`docs/cross-platform/`. Share semantic intent, contracts and tokens — never convert React
+components or DOM props to other platforms. No native code, non-web token outputs or contract
+files exist yet; don't start a later phase without explicit approval.
 
 ## Currently deferred (do not assume these exist)
 
