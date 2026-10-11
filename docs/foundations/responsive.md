@@ -10,7 +10,8 @@ inventing new ones.
 
 ## Primitives
 
-Raw viewport breakpoint thresholds in `src/tokens/core/viewport.json`. Mobile-first
+Raw viewport breakpoint thresholds in `src/tokens/platform/web/core/viewport.json` (web
+platform tier — browser-viewport concepts, never emitted to native; ADR 0014). Mobile-first
 **`min-width`** scale — a breakpoint marks where a layout becomes viable at a larger
 size, not where it breaks at a smaller one.
 
@@ -42,7 +43,7 @@ would lie about what triggers it.
 
 ## Semantic tokens
 
-`src/tokens/semantic/layout.json` — **one token**, not a restated copy of the primitive
+`src/tokens/platform/web/semantic/layout.json` — **one token**, not a restated copy of the primitive
 scale:
 
 | Semantic | → Primitive | px | Purpose |

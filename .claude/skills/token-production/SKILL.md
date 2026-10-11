@@ -78,7 +78,7 @@ it needs an ADR 0011 update and every brand filled in.
 | Radius | `core/radius.json` | `semantic/radius.json` | `Semantic Radius` (+ Brand `radius/*`) | 0006, 0011 · `radius.md` |
 | Elevation | `core/shadow.json` | `semantic/elevation.json` | **Effect Styles** (shadow color bound to `Semantic Color`) | 0007 · `elevation.md` |
 | Motion | `core/motion.json` | `semantic/motion.json` | `Semantic Motion` (TIMING/EASING) + reduced-motion output | 0008 · `motion.md` |
-| Breakpoints / layout | `core/viewport.json` | `semantic/layout.json` | `Semantic Layout` | 0009 · `responsive.md` |
+| Breakpoints / layout (web-only tier) | `platform/web/core/viewport.json` | `platform/web/semantic/layout.json` | `Semantic Layout` | 0009 · 0014 · `responsive.md` |
 | Icon size | `core/icon.json` | `semantic/icon.json` | `Semantic Icon` | 0010 · `icons.md` |
 
 Collection split: ADR 0005. Docs live in `docs/foundations/`, ADRs in `governance/decisions/`.
@@ -94,10 +94,12 @@ prefix (ADR 0005), so the same token has three spellings:
 Always match a Figma variable to its code token through this mapping and the resolved
 value, never by name similarity alone.
 
-**Build guardrails** (`scripts/build-tokens.mjs`; it fails on any of these):
+**Build guardrails** (`scripts/build-tokens.mjs` → `scripts/tokens/guards.mjs`, run on the
+platform-neutral IR in `src/tokens/build/ir/<brand>.json`; it fails on any of these):
 - an incomplete or extra brand contract;
+- a shared token aliasing a platform-tier (web-only) token;
 - a shared (brand-independent) token that resolves differently between brands;
-- a per-brand WCAG contrast pair below its minimum (`CONTRAST_PAIRS`).
+- a per-brand WCAG contrast pair below its minimum (`CONTRAST_PAIRS`, keyed by token path).
 
 `npm run lint` additionally runs the token-usage guard.
 
@@ -188,10 +190,14 @@ Also check:
   same variables.
 - **Responsive behavior:** spacing, layout or viewport changes against the breakpoints
   and the App shell / Dashboard reflow.
-- **Cross-platform readiness:** valid DTCG `$type`/`$value` with no CSS-only constructs
-  (`calc()`, `var()`, `clamp()`) in source values, and the unit convention per ADR (rem
-  for spacing/typography; px for radius, shadow and viewport). Native outputs are
-  deferred, but the source must stay portable.
+- **Cross-platform readiness (ADR 0014):** valid DTCG `$type`/`$value` with no CSS syntax in
+  shared source — no `calc()`/`var()`/`clamp()`, no `rem`/`em`/`ms` strings, no
+  `rgb()`/`rgba()` (use hex or hex8), no font fallback stacks (family identity only).
+  Dimensions are px numbers, durations ms numbers, letter-spacing a fraction of font size
+  with `$extensions["com.pds"].unit = "em"`. Web-only tokens go in `platform/web/{core,semantic}`;
+  a shared token may never alias them. Web units (rem for spacing/font size; px for radius,
+  shadow, viewport, layout, icon) are applied by the web emitter, not authored. Native
+  outputs are deferred (Phase 2), but the source must stay portable.
 
 ### 4. Source of truth (Figma first)
 
@@ -226,7 +232,7 @@ Report concisely, then **stop and wait for approval**:
 
 ### 6. Apply (after approval only)
 
-- **Token source:** edit `src/tokens/{core,brands/<brand>,semantic}/*.json` in DTCG format
+- **Token source:** edit `src/tokens/{core,brands/<brand>,semantic,platform/web/{core,semantic}}/*.json` in DTCG format
   (`$value`, `$type`, `$description`). Keep aliases rather than inlining values, and
   write a `$description` that explains the role.
 - **Brands:** a `brand.*` change goes in every brand's file where it applies. A new
@@ -235,7 +241,9 @@ Report concisely, then **stop and wait for approval**:
   Set `scopes` explicitly on new variables. Set values for **every** mode of the Brand
   collection. Rebind Text/Effect Styles if typography or elevation changed. Return and
   record every touched variable/style ID.
-- **Style Dictionary** (`style-dictionary.config.mjs`, `scripts/build-tokens.mjs`): only
+- **Style Dictionary** (`style-dictionary.config.mjs` = web emitter transforms/formats;
+  `scripts/build-tokens.mjs` + `scripts/tokens/{ir,guards,emit-web}.mjs` = resolve → IR →
+  guard → emit): only
   when the change genuinely needs it, e.g. a new token type, a new output file, or a new
   `CONTRAST_PAIRS` entry for a new text/background role. Otherwise leave them alone.
 - **Docs:** the category's foundation doc (token tables), the ADR if a decision changed,

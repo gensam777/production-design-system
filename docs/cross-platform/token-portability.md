@@ -1,8 +1,9 @@
 # Token portability
 
 Decision record: [ADR 0014](../../governance/decisions/0014-token-source-portability.md).
-Status: **rules only.** Token source and build are unchanged until Phase 1; everything
-under "Planned source changes" describes future work.
+Status: **Phase 1 implemented (2026-10-11).** Token source is platform-neutral and the build
+runs source → resolved IR → guardrails → web emitter. Web CSS/JS output is byte-identical to
+the pre-Phase-1 build. Native emitters (and everything under "Output shapes") are Phase 2.
 
 ## Portability rules
 
@@ -42,20 +43,59 @@ under "Planned source changes" describes future work.
 | Reduced motion                 | Web-only mechanism                       | Native reads OS setting at runtime                           |
 | Viewport, `layout.container.*` | **Web-only**                             | → `platform/web/` (Phase 1); never emitted to native         |
 
-## Planned source changes (Phase 1 — not applied)
+## Phase 1 source changes (implemented)
 
-| Change                                                                        | Files                                                     |
-| ----------------------------------------------------------------------------- | --------------------------------------------------------- |
-| `font.size.*` rem strings → px numbers; web transform emits rem               | `src/tokens/core/typography.json`, build config           |
-| `font.letterSpacing.*` → structured em                                        | `src/tokens/core/typography.json`                         |
-| `color.overlay.*` → hex-alpha / color object                                  | `src/tokens/core/color.json`                              |
-| `brand.font.family.sans` → single family; web fallback stack to platform tier | `src/tokens/brands/*/brand.json`                          |
-| `viewport.*`, `layout.container.maxWidth` → web platform tier                 | `core/viewport.json`, `semantic/layout.json`              |
-| Build split: resolve + guard → IR → emitters; contrast keyed by token path    | `scripts/build-tokens.mjs`, `style-dictionary.config.mjs` |
+| Token(s)                      | Before (CSS-shaped)           | After (portable)                                                         | Web output                     |
+| ----------------------------- | ----------------------------- | ------------------------------------------------------------------------ | ------------------------------ |
+| `font.size.*`                 | `"1rem"` strings              | px numbers (`16`)                                                        | unchanged (`1rem`)             |
+| `font.letterSpacing.*`        | `"-0.01em"` dimension strings | `number` fraction (`-0.01`) + `$extensions["com.pds"].unit: "em"`        | unchanged (`-0.01em`)          |
+| `color.overlay.*`             | `rgba(0, 0, 0, 0.05)`         | hex8 (`#0000000D`)                                                       | unchanged (`rgba(…)` / `#…0d`) |
+| `brand.font.family.sans`      | CSS stack array               | family identity (`Inter` / `Figtree`)                                    | unchanged (stack appended)     |
+| `font.family.mono`            | CSS stack array               | `Roboto Mono`                                                            | unchanged                      |
+| Font fallback stacks          | inside the family values      | `platform/web/semantic/font-fallback.json` (`font.fallback.{sans,mono}`) | appended, never emitted alone  |
+| `viewport.*`                  | `core/viewport.json`          | `platform/web/core/viewport.json` (scope `web`)                          | unchanged                      |
+| `layout.container.maxWidth`   | `semantic/layout.json`        | `platform/web/semantic/layout.json` (scope `web`)                        | unchanged                      |
+| `radius.full`                 | `9999` (magic number only)    | still `9999` (Figma parity) + `$extensions["com.pds"].shape: "full"`     | unchanged (`9999px`)           |
+| `elevation.flat`              | `"none"` (CSS keyword)        | `[]` (empty shadow list — matches Figma's empty effects)                 | unchanged (`none`)             |
+| `motion.*` transition `delay` | `"0ms"`                       | `0` (ms number)                                                          | unchanged (`0ms`)              |
 
-**Gate:** generated web CSS and JS are byte-identical before and after (or the diff is
-reviewed and explained). Figma Variables need no change for these — Figma is already px-based
-and single-family per Brand mode.
+**Why letter-spacing is a `number`, not a DTCG `dimension`:** DTCG dimensions allow only `px`
+and `rem`; letter-spacing is relative to font size. The fraction plus an explicit `em` unit
+marker keeps it relative and unambiguous for every platform.
+
+**Why `radius.full` keeps `9999`:** Figma's `radius/full` variable is 9999 and the design
+audit compares radius in px. The `shape: "full"` marker is what native emitters (Phase 2) use
+to output a capsule/circle instead of a number.
+
+Figma Variables needed no change — Figma is already px-based, single-family per Brand mode,
+and its Elevation/Flat style already has an empty effects list.
+
+## Build pipeline (implemented)
+
+```
+src/tokens/{core, brands/<brand>, semantic} + platform/web/{core, semantic}
+  → scripts/tokens/ir.mjs        resolve one brand (Style Dictionary, references only, no transforms)
+  → src/tokens/build/ir/<brand>.json   platform-neutral IR
+  → scripts/tokens/guards.mjs    brand contract (on source), scopes, shared invariance, contrast
+  → scripts/tokens/emit-web.mjs  web CSS + JS (style-dictionary.config.mjs transforms/formats)
+```
+
+- **File merge order:** within the core and semantic layers, shared and platform-tier files
+  merge as one list sorted by file name, so moving a file into a platform tier doesn't
+  reorder generated output.
+- **IR entry:** `{ path, type, value, tier, scope, description?, extensions?, ref? | refs?,
+brandDependent, brandDependentSubs? }`, in source order. `brand.*` tokens never appear;
+  `brandContract` lists the brand leaves. `scope` is `shared` or `web`; native emitters keep
+  only `shared`.
+- **Web emitter** reads only the IR. It appends font fallback stacks and converts units by each
+  token's own path and type. The web JS output keeps its historical web shapes (font sizes
+  as rem strings, letter-spacing as em strings, transition `delay` as `"0ms"`, `elevation.flat`
+  as `"none"`) so it's unchanged.
+- **Guardrails** are keyed by token path, so they apply to every future emitter.
+
+**Gate (met):** all 8 web outputs (`css/variables.css`, `css/typography.css`,
+`css/motion-reduced-motion.css`, `css/brands/brand-{a,b}.css`, `js/tokens{,.brand-a,.brand-b}.js`)
+are byte-identical to the pre-Phase-1 build; the design-audit report is unchanged.
 
 ## Per-platform transforms
 

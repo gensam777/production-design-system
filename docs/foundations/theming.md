@@ -55,7 +55,7 @@ never looks like Radio).
 ## Adding a brand
 
 1. `src/tokens/brands/<id>/brand.json` with the 13 contract tokens.
-2. Add `<id>` to `BRANDS` in `scripts/build-tokens.mjs`; import
+2. Add `<id>` to `BRANDS` in `scripts/tokens/ir.mjs`; import
    `tokens/build/css/brands/<id>.css` in `src/index.ts` and `.storybook/preview.ts`; add a
    toolbar item and a Chromatic mode.
 3. Figma: add a mode to the **Brand** collection with the same variables (including the
