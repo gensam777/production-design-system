@@ -28,6 +28,11 @@ jobs:
       - name: Build tokens
         run: npm run tokens:build
 
+      # Web CSS/JS must stay byte-identical; React Native / Swift / Kotlin outputs must match
+      # their reviewed snapshots and the IR (ADR 0016). Also type-checks the RN output.
+      - name: Token tests (snapshots + parity)
+        run: npm run tokens:test
+
       - name: Typecheck
         run: npm run typecheck
 
@@ -64,3 +69,44 @@ jobs:
 
       - name: Build Storybook
         run: npm run build-storybook
+
+  # Native token outputs (ADR 0016). These compile the COMMITTED snapshots in
+  # scripts/tokens/__tests__/__snapshots__/ — `npm run tokens:test` (validate job) proves the
+  # snapshots equal what the build generates, so neither job needs Node or a token build.
+  swift-tokens:
+    runs-on: ubuntu-latest
+    container: swift:6.0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Type-check generated Swift (PDSTokens, Swift 6 language mode)
+        run: >
+          swiftc -typecheck -parse-as-library -swift-version 6 -module-name PDSTokens
+          scripts/tokens/__tests__/__snapshots__/swift/PDSTokens/*.swift
+
+  kotlin-tokens:
+    runs-on: ubuntu-latest
+    env:
+      KOTLIN_VERSION: 2.0.21
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install Kotlin compiler
+        run: |
+          curl -sSfL -o "$RUNNER_TEMP/kotlinc.zip" \
+            "https://github.com/JetBrains/kotlin/releases/download/v${KOTLIN_VERSION}/kotlin-compiler-${KOTLIN_VERSION}.zip"
+          unzip -q "$RUNNER_TEMP/kotlinc.zip" -d "$RUNNER_TEMP"
+
+      - name: Compile generated Kotlin (com.pds.tokens)
+        run: >
+          "$RUNNER_TEMP/kotlinc/bin/kotlinc"
+          scripts/tokens/__tests__/__snapshots__/kotlin/com/pds/tokens/*.kt
+          -d "$RUNNER_TEMP/pds-tokens.jar"

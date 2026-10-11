@@ -1,7 +1,7 @@
 # Repo evolution and migration phases
 
 Decision record: [ADR 0013](../../governance/decisions/0013-cross-platform-architecture.md).
-**Current phase: 1 complete (portable token source + IR build); Phase 2 not started.**
+**Current phase: 2 complete (native token outputs); Phase 3 not started.**
 
 ## Repo evolution
 
@@ -46,16 +46,27 @@ change.
   the role → Dynamic Type mapping needs design review.
 - Details: [token-portability.md](./token-portability.md#phase-1-source-changes-implemented).
 
-### Phase 2 — Native token outputs
+### Phase 2 — Native token outputs ✅ (implemented 2026-10-12, ADR 0016)
 
-- Text-scaling anchors per typography role (`platform/native/`, design review first).
-- Emitters over the IR: React Native TS, Swift (`PDSTokens`), Kotlin (`com.pds.tokens`) — semantic +
-  component-scoped only, every brand.
-- Icon catalog → platform-neutral manifest generating TS / Swift / Kotlin name types.
-- Font asset manifests per brand.
-- Snapshot tests of generated files; IR parity check in design-audit; compile-check generated
-  Swift / Kotlin in CI.
-- **Exit:** both brands emitted for all four targets; CI green.
+- Text-scaling anchors per typography role (`platform/native/semantic/text-scaling.json`) and
+  provisional Android elevation (`platform/native/semantic/elevation.json`).
+- Font asset catalog (`src/tokens/fonts/fonts.json` + schema); per-brand manifests derived
+  into the IR. Metadata only — no font files.
+- Emitters over the IR: React Native TS, Swift (`PDSTokens`), Kotlin (`com.pds.tokens`) —
+  semantic + component-scoped only, both brands. Output in `src/tokens/build/`.
+- `npm run tokens:test`: snapshots of all outputs (web byte-identical), IR ↔ native parity,
+  RN strict type-check, design-audit resolver ↔ IR parity, guardrail negative tests. CI
+  compiles the committed Swift / Kotlin snapshots.
+- **Exit:** both brands emitted for all four targets ✅; web byte-identical ✅; local checks
+  green ✅. The Swift / Kotlin compile jobs are new and haven't run yet — no local toolchains,
+  so they run for the first time on the next CI run.
+- **Not done in Phase 2:**
+  - Icon catalog → platform-neutral manifest (TS / Swift / Kotlin name types). Wasn't in the
+    approved Phase 2 scope; do it before Phase 5.
+  - The color-scheme axis that [multi-brand.md](./multi-brand.md) rule 9 reserves isn't in the
+    native theme types yet.
+- **Provisional until Phase 5:** Android elevation values, font PostScript names
+  (`verified: false`), RN Android scaling behavior.
 
 ### Phase 3 — Contracts
 

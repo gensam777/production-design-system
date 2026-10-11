@@ -10,6 +10,8 @@ export default [
       'dist/**',
       'storybook-static/**',
       'src/tokens/build/**',
+      // Committed copies of generated token outputs (npm run tokens:test compares them).
+      'scripts/tokens/__tests__/__snapshots__/**',
       'node_modules/**',
       // Figma Plugin API script *bodies* (top-level await/return, `figma` global) executed via
       // the Figma MCP — not Node modules. Their read-only guardrail is a test in

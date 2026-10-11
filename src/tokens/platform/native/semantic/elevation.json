@@ -1,0 +1,21 @@
+{
+  "elevationHeight": {
+    "$description": "Native-only (ADR 0016). Android elevation in dp for each elevation.* role — Compose Surface(shadowElevation = …), React Native Android `elevation`. Android's own light model, not a copy of the web box-shadow, so it cannot be derived from it. iOS (SwiftUI, RN iOS) derives its shadow from the shared elevation.* token instead. PROVISIONAL until Phase 5 visual validation on real native components.",
+    "flat": { "$value": 0, "$type": "dimension", "$description": "No elevation." },
+    "raised": {
+      "$value": 1,
+      "$type": "dimension",
+      "$description": "Material 3 level 1. Provisional."
+    },
+    "overlay": {
+      "$value": 3,
+      "$type": "dimension",
+      "$description": "Material 3 level 2. Provisional."
+    },
+    "modal": {
+      "$value": 6,
+      "$type": "dimension",
+      "$description": "Material 3 level 3. Provisional."
+    }
+  }
+}

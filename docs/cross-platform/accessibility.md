@@ -2,7 +2,10 @@
 
 Policy baseline: [`governance/accessibility.md`](../../governance/accessibility.md) (WCAG 2.2
 AA). This document defines how that baseline applies beyond the web. Status: web
-implemented; native **planned**.
+implemented; native **planned** (components). Native text scaling is defined at the token
+level (ADR 0016): every typography role carries an iOS Dynamic Type anchor (`textScale` /
+`dynamicTypeRamp`), Compose sizes are `sp` with `em` line-height so the ratio survives
+Android's nonlinear scaling, and no role is capped in tokens.
 
 ## Principles
 

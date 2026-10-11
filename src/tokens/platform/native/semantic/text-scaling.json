@@ -1,0 +1,45 @@
+{
+  "textScaling": {
+    "$description": "Native-only (ADR 0016). The Apple text style each typography role scales with — SwiftUI Font.custom(_:size:relativeTo:) and React Native's iOS dynamicTypeRamp. Our sizes are unchanged; the anchor only picks the Dynamic Type scaling curve. Android has no anchors (sp plus the system's nonlinear font scaling). Values are UIKit UIFont.TextStyle names.",
+    "heading": {
+      "xl": {
+        "$value": "largeTitle",
+        "$type": "string",
+        "$description": "36 → largeTitle (34). Title curves grow less than body text at accessibility sizes."
+      },
+      "lg": { "$value": "title1", "$type": "string", "$description": "30 → title1 (28)." },
+      "md": { "$value": "title2", "$type": "string", "$description": "24 → title2 (22)." },
+      "sm": { "$value": "title3", "$type": "string", "$description": "20 → title3 (20)." }
+    },
+    "body": {
+      "lg": { "$value": "body", "$type": "string", "$description": "18 → body (17)." },
+      "md": {
+        "$value": "body",
+        "$type": "string",
+        "$description": "16 → body (17). Body roles stay on the body curve."
+      },
+      "sm": { "$value": "subheadline", "$type": "string", "$description": "14 → subheadline (15)." }
+    },
+    "label": {
+      "lg": { "$value": "callout", "$type": "string", "$description": "16 → callout (16)." },
+      "md": {
+        "$value": "subheadline",
+        "$type": "string",
+        "$description": "14 → subheadline (15)."
+      },
+      "sm": { "$value": "caption1", "$type": "string", "$description": "12 → caption1 (12)." }
+    },
+    "caption": {
+      "md": { "$value": "footnote", "$type": "string", "$description": "14 → footnote (13)." },
+      "sm": { "$value": "caption1", "$type": "string", "$description": "12 → caption1 (12)." }
+    },
+    "code": {
+      "md": {
+        "$value": "body",
+        "$type": "string",
+        "$description": "14 → body: inline code scales with the body text it sits in."
+      },
+      "sm": { "$value": "caption1", "$type": "string", "$description": "12 → caption1 (12)." }
+    }
+  }
+}

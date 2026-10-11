@@ -8,19 +8,26 @@
  *     → IR: an ordered list of resolved tokens in source units (px numbers, hex/hex8,
  *       family names, unitless ratios, ms numbers) with tier, scope and brand-dependence
  *
- * Every emitter (web CSS/JS today; React Native, Swift, Kotlin in Phase 2) and every
- * guardrail reads the IR — never the source — so no platform has its own resolution path.
- * `brand.*` tokens are resolved into their consumers but never appear in the IR.
+ * Every emitter (web CSS/JS, React Native, Swift, Kotlin) and every guardrail reads the IR —
+ * never the source — so no platform has its own resolution path. `brand.*` tokens are
+ * resolved into their consumers but never appear in the IR.
+ *
+ * The IR also carries the brand's font manifest (`fonts`): the faces each font role (`sans`,
+ * `mono`) needs, derived from src/tokens/fonts/fonts.json (ADR 0016). Fonts are asset
+ * metadata, not tokens.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import StyleDictionary from 'style-dictionary';
 
+import { fontManifest, loadFontCatalog } from './fonts.mjs';
+
 export const TOKENS = 'src/tokens';
 export const BRANDS = ['brand-a', 'brand-b'];
 export const DEFAULT_BRAND = 'brand-a';
-/** Platform tiers under src/tokens/platform/<platform>/{core,semantic}. */
-export const PLATFORM_TIERS = ['web'];
+/** Platform tiers under src/tokens/platform/<platform>/{core,semantic}. A token's scope is
+ * `shared` or the tier it comes from (`web`, `native`). */
+export const PLATFORM_TIERS = ['web', 'native'];
 
 const jsonFiles = (dir) =>
   fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.endsWith('.json')) : [];
@@ -69,7 +76,7 @@ const refOf = (value) =>
   typeof value === 'string' ? (/^\{([^}]+)\}$/.exec(value)?.[1] ?? null) : null;
 
 /** Resolve one brand into its IR. */
-export async function resolveBrand(brand) {
+export async function resolveBrand(brand, { fontCatalog = loadFontCatalog() } = {}) {
   const sd = new StyleDictionary({
     source: sourceFiles(brand),
     log: { verbosity: 'silent', warnings: 'disabled' },
@@ -127,10 +134,11 @@ export async function resolveBrand(brand) {
 
   return {
     format: 'pds.tokens.ir',
-    version: 1,
+    version: 2,
     brand,
     default: brand === DEFAULT_BRAND,
     brandContract: brandLeaves,
+    fonts: fontManifest(tokens, fontCatalog).manifest,
     tokens,
   };
 }

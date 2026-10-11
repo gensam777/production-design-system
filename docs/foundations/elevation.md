@@ -99,6 +99,20 @@ directly for this foundation, confirmed no collision exists between `shadow.*`,
   (`{ offsetX, offsetY, blur, spread, color }`, color as hex8) for consumers who want to
   build their own shadow string; `elevation.flat` exports as the string `"none"` (the web
   JS emitter maps the source's empty shadow list to it).
+- **Native** (ADR 0016): no `box-shadow` copy. Android values are **provisional** until
+  Phase 5 visual validation on real native components.
+
+| Role | SwiftUI and RN iOS (radius = blur ÷ 2, opacity = color alpha) | Compose and RN Android (`elevationHeight.*`) |
+| --- | --- | --- |
+| `flat` | no shadow | 0 dp |
+| `raised` | opacity .05, radius 1, offset (0, 1) | 1 dp |
+| `overlay` | opacity .08, radius 3, offset (0, 2) | 3 dp |
+| `modal` | opacity .12, radius 6, offset (0, 4) | 6 dp |
+
+The Android heights live in `src/tokens/platform/native/semantic/elevation.json`
+(native-only, never in web output). The build fails if an `elevation.*` role has no height
+or the heights don't grow with the shadow. Native system sheets, menus and dialogs keep
+their own presentation.
 
 ## Accessibility/usability notes
 

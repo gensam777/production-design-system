@@ -1,7 +1,10 @@
 # 0014: Token source portability and per-platform outputs
 
-- **Status**: Accepted. Phase 1 implemented 2026-10-11 (portable source + IR build); native
-  emitters are Phase 2. See [Phase 1 implementation record](#phase-1-implementation-record).
+- **Status**: Accepted. Phase 1 implemented 2026-10-11 (portable source + IR build); see
+  [Phase 1 implementation record](#phase-1-implementation-record). Phase 2 (native emitters)
+  implemented 2026-10-12 — the typography anchors, elevation mapping and font format (§4–§5)
+  are decided in [0016](./0016-native-token-mappings.md), which supersedes the per-brand
+  `fonts/<brand>.fonts.json` format below.
 - **Date**: 2026-10-11
 - **Extends**: 0011 (multi-brand) — brand propagation to non-web platforms. Refines the
   per-foundation output decisions in 0003, 0004, 0006–0010 for non-CSS targets; their web
@@ -96,6 +99,10 @@ Each of the 35 `text.*` roles gets a native text-scaling anchor (e.g. `heading.x
 Dynamic Type and Android font scale behave per role. Font files per family × weight live in a
 **font asset manifest** per brand (`fonts/<brand>.fonts.json`) — platform asset metadata, not
 tokens; the native counterpart of Figma's `Brand/font/weight/*` style-name adapter.
+
+> **Superseded in part by [0016](./0016-native-token-mappings.md):** the anchor table is final
+> there, and fonts are one shared catalog (`src/tokens/fonts/fonts.json`) with each brand's
+> manifest derived into its IR, instead of hand-written per-brand files.
 
 ### 6. Output shapes and names
 
