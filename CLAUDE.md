@@ -15,7 +15,7 @@ src/
   components/   # React components (exported from index.ts)
   patterns/     # documented pattern/template compositions — NOT exported (see docs/patterns/)
   examples/     # product example screens built from components + patterns (not exported)
-  tokens/       # token source (core/, brands/<brand>/, semantic/) + generated build/ output
+  tokens/       # token source (core/, brands/<brand>/, semantic/, platform/{web,native}/), font catalog (fonts/) + generated build/ output
   index.ts      # public entry point / barrel export
 .storybook/     # Storybook config
 docs/           # design-to-code-mappings.md + foundations/ + patterns/ + cross-platform/ documentation
@@ -27,9 +27,11 @@ scripts/        # token build, token-usage guardrail, design-audit/ (Figma ↔ c
 ## Source of truth
 
 - **Figma** = design intent (what something should look like).
-- **`src/tokens/{core,brands/*,semantic,platform/web/*}/*.json`** = shipped token values,
-  authored platform-neutral (px numbers, hex/hex8, family names — no CSS syntax; ADR 0014;
-  web-only tokens in `platform/web/`). Figma should mirror
+- **`src/tokens/{core,brands/*,semantic,platform/{web,native}/*}/*.json`** = shipped token
+  values, authored platform-neutral (px numbers, hex/hex8, family names — no CSS syntax; ADR
+  0014; web-only tokens in `platform/web/`, native-only text-scaling anchors and Android
+  elevation in `platform/native/`, ADR 0016). `src/tokens/fonts/fonts.json` is the font asset
+  catalog (metadata, not tokens; no font files). Figma should mirror
   these; if they disagree, code wins for anything already released.
 - **Multi-brand**: components consume semantic tokens only and never know the brand; brands
   differ only in the `brand.*` contract (primary ramp, sans family, control/container radius).
@@ -97,19 +99,28 @@ has been edited since the date above.
   documented exceptions only via `scripts/token-usage-exceptions.json`)
 - `npm run format` / `npm run format:check` — Prettier
 - `npm run tokens:build` — `scripts/build-tokens.mjs`: resolves each brand over
-  `src/tokens/{core,brands/<brand>,semantic}` + the web tier `src/tokens/platform/web/` into a
-  platform-neutral IR (`src/tokens/build/ir/<brand>.json`, `scripts/tokens/ir.mjs`), runs the
-  guardrails on it (`scripts/tokens/guards.mjs`), then the web emitter
-  (`scripts/tokens/emit-web.mjs` + `style-dictionary.config.mjs`) writes CSS/JS from the IR
-  (ADR 0014). Fails on an incomplete brand contract, a shared token aliasing a web-only
-  token, a shared token that differs between brands, or a per-brand contrast pair below WCAG
-  minimums. Brand-dependent tokens go to `css/brands/<brand>.css`
+  `src/tokens/{core,brands/<brand>,semantic}` + the platform tiers `src/tokens/platform/{web,native}/`
+  into a platform-neutral IR (`src/tokens/build/ir/<brand>.json`, `scripts/tokens/ir.mjs`, with
+  the brand's font manifest derived from `src/tokens/fonts/fonts.json`), runs the guardrails on
+  it (`scripts/tokens/guards.mjs`), then the emitters: web CSS/JS (`scripts/tokens/emit-web.mjs`
+  + `style-dictionary.config.mjs`) and, via the native model (`scripts/tokens/native.mjs`,
+  semantic tokens only), React Native TS (`build/react-native/`), Swift `PDSTokens`
+  (`build/swift/`) and Kotlin `com.pds.tokens` (`build/kotlin/`) (ADR 0014, 0016). Fails on an
+  incomplete brand contract, a platform tier overriding a shared token, a shared token aliasing
+  a platform-only token, a shared token that differs between brands, a per-brand contrast pair
+  below WCAG minimums, an invalid font catalog / missing face, or a missing native mapping
+  (text-scaling anchor, Android elevation). Brand-dependent tokens go to `css/brands/<brand>.css`
   (ADR 0011); shared CSS is split across three files: `css/variables.css` for most tokens
   (colors, typography primitives, spacing, radius, elevation, motion),
   `css/typography.css` for the expanded composite typography roles (see
   `governance/decisions/0003-typography-token-architecture.md`), and
   `css/motion-reduced-motion.css` for the `prefers-reduced-motion` override (see
   `governance/decisions/0008-motion-token-architecture.md`))
+- `npm run tokens:test` — every token output (8 web files, RN, Swift, Kotlin) vs its committed
+  snapshot in `scripts/tokens/__tests__/__snapshots__/` (web must stay byte-identical), IR ↔
+  native parity, RN strict type-check, design-audit resolver ↔ IR parity, guardrail negative
+  tests. Runs in CI, which also compiles the Swift/Kotlin snapshots (no local toolchains needed).
+  After a reviewed output change: `npm run tokens:test:update`.
 - `npm run design:audit` — Figma ↔ code design-drift audit (detection/reporting only) for the
   Login surface, against the **committed** Figma snapshot in `scripts/design-audit/snapshots/`.
   Offline + deterministic; exit 1 on DRIFT/ERROR; runs in CI. It cannot see Figma edits made
@@ -138,22 +149,25 @@ has been edited since the date above.
 - Versioning is currently manual (see `governance/versioning.md`) — Changesets tooling
   is deferred, not yet wired up.
 
-## Cross-platform (Phase 1 — portable token source)
+## Cross-platform (Phase 2 — native token outputs)
 
-Web is the only implemented platform. Phase 1 (portable token source + IR build) is done;
-the IR is the input for future native emitters. React Native (`@pds/react-native`), SwiftUI
-(`PDSUI`/`PDSTokens`) and Compose (`com.pds.*`) are planned per ADRs 0013 (architecture,
-phases), 0014 (token portability) and 0015 (YAML + JSON Schema component contracts); see
+Web is the only platform with components. Phases 1 (portable token source + IR) and 2
+(native token outputs) are done: the build emits React Native, Swift (`PDSTokens`) and Kotlin
+(`com.pds.tokens`) token outputs for both brands — semantic tokens only, pure data (ADR 0016;
+Android elevation provisional until Phase 5). React Native (`@pds/react-native`), SwiftUI
+(`PDSUI`) and Compose (`com.pds.compose`) UI are planned per ADRs 0013 (architecture, phases),
+0014/0016 (tokens) and 0015 (YAML + JSON Schema component contracts); see
 `docs/cross-platform/`. Share semantic intent, contracts and tokens — never convert React
-components or DOM props to other platforms. No native code, non-web token outputs or contract
-files exist yet; don't start a later phase without explicit approval. Web CSS/JS output must
-stay byte-identical unless a change is intentional and reviewed.
+components or DOM props to other platforms. No native UI code, font files or contract files
+exist yet; don't start a later phase without explicit approval. Web CSS/JS output must stay
+byte-identical unless a change is intentional and reviewed (`npm run tokens:test` enforces it).
 
 ## Currently deferred (do not assume these exist)
 
 Vitest/Testing Library, Changesets automation, CI/CD, npm publishing, monorepo tooling,
 Figma Code Connect, dark mode (Light/Dark color scheme — multi-brand theming IS implemented,
-see ADR 0011), brand-specific neutrals, native (RN/SwiftUI/Compose) token outputs, automatic Figma ↔ code
+see ADR 0011), brand-specific neutrals, native (RN/SwiftUI/Compose) UI components and font
+file bundling (native token outputs DO exist — ADR 0016), automatic Figma ↔ code
 sync (the design audit detects drift only; live-Figma reads still need a Claude/MCP session),
 design-audit surfaces beyond Login. See
 `governance/decisions/0001-single-package-structure.md` for why.

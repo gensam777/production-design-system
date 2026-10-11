@@ -1,0 +1,148 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --text-heading-xl-semibold-font-size: 2.25rem; /** Largest heading step — hero/display headings. Semibold weight. */
+  --text-heading-xl-semibold-font-weight: 600;
+  --text-heading-xl-semibold-line-height: 1.25;
+  --text-heading-xl-semibold-letter-spacing: -0.01em;
+  --text-heading-xl-bold-font-size: 2.25rem; /** Largest heading step — hero/display headings. Bold weight. */
+  --text-heading-xl-bold-font-weight: 700;
+  --text-heading-xl-bold-line-height: 1.25;
+  --text-heading-xl-bold-letter-spacing: -0.01em;
+  --text-heading-lg-semibold-font-size: 1.875rem; /** Page title. Semibold weight. */
+  --text-heading-lg-semibold-font-weight: 600;
+  --text-heading-lg-semibold-line-height: 1.25;
+  --text-heading-lg-semibold-letter-spacing: -0.01em;
+  --text-heading-lg-bold-font-size: 1.875rem; /** Page title. Bold weight. */
+  --text-heading-lg-bold-font-weight: 700;
+  --text-heading-lg-bold-line-height: 1.25;
+  --text-heading-lg-bold-letter-spacing: -0.01em;
+  --text-heading-md-semibold-font-size: 1.5rem; /** Section title. Semibold weight. */
+  --text-heading-md-semibold-font-weight: 600;
+  --text-heading-md-semibold-line-height: 1.25;
+  --text-heading-md-semibold-letter-spacing: -0.01em;
+  --text-heading-md-bold-font-size: 1.5rem; /** Section title. Bold weight. */
+  --text-heading-md-bold-font-weight: 700;
+  --text-heading-md-bold-line-height: 1.25;
+  --text-heading-md-bold-letter-spacing: -0.01em;
+  --text-heading-sm-semibold-font-size: 1.25rem; /** Card/dialog title. Semibold weight. */
+  --text-heading-sm-semibold-font-weight: 600;
+  --text-heading-sm-semibold-line-height: 1.25;
+  --text-heading-sm-semibold-letter-spacing: 0em;
+  --text-heading-sm-bold-font-size: 1.25rem; /** Card/dialog title. Bold weight. */
+  --text-heading-sm-bold-font-weight: 700;
+  --text-heading-sm-bold-line-height: 1.25;
+  --text-heading-sm-bold-letter-spacing: 0em;
+  --text-body-lg-regular-font-size: 1.125rem; /** Emphasized body text — intros, lead paragraphs. Regular weight. */
+  --text-body-lg-regular-font-weight: 400;
+  --text-body-lg-regular-line-height: 1.5;
+  --text-body-lg-regular-letter-spacing: 0em;
+  --text-body-lg-medium-font-size: 1.125rem; /** Emphasized body text — intros, lead paragraphs. Medium weight. */
+  --text-body-lg-medium-font-weight: 500;
+  --text-body-lg-medium-line-height: 1.5;
+  --text-body-lg-medium-letter-spacing: 0em;
+  --text-body-lg-semibold-font-size: 1.125rem; /** Emphasized body text — intros, lead paragraphs. Semibold weight. */
+  --text-body-lg-semibold-font-weight: 600;
+  --text-body-lg-semibold-line-height: 1.5;
+  --text-body-lg-semibold-letter-spacing: 0em;
+  --text-body-lg-bold-font-size: 1.125rem; /** Emphasized body text — intros, lead paragraphs. Bold weight. */
+  --text-body-lg-bold-font-weight: 700;
+  --text-body-lg-bold-line-height: 1.5;
+  --text-body-lg-bold-letter-spacing: 0em;
+  --text-body-md-regular-font-size: 1rem; /** Default body/UI text. Regular weight. */
+  --text-body-md-regular-font-weight: 400;
+  --text-body-md-regular-line-height: 1.5;
+  --text-body-md-regular-letter-spacing: 0em;
+  --text-body-md-medium-font-size: 1rem; /** Default body/UI text. Medium weight. */
+  --text-body-md-medium-font-weight: 500;
+  --text-body-md-medium-line-height: 1.5;
+  --text-body-md-medium-letter-spacing: 0em;
+  --text-body-md-semibold-font-size: 1rem; /** Default body/UI text. Semibold weight. */
+  --text-body-md-semibold-font-weight: 600;
+  --text-body-md-semibold-line-height: 1.5;
+  --text-body-md-semibold-letter-spacing: 0em;
+  --text-body-md-bold-font-size: 1rem; /** Default body/UI text. Bold weight. */
+  --text-body-md-bold-font-weight: 700;
+  --text-body-md-bold-line-height: 1.5;
+  --text-body-md-bold-letter-spacing: 0em;
+  --text-body-sm-regular-font-size: 0.875rem; /** Secondary/dense UI text. Regular weight. */
+  --text-body-sm-regular-font-weight: 400;
+  --text-body-sm-regular-line-height: 1.5;
+  --text-body-sm-regular-letter-spacing: 0em;
+  --text-body-sm-medium-font-size: 0.875rem; /** Secondary/dense UI text. Medium weight. */
+  --text-body-sm-medium-font-weight: 500;
+  --text-body-sm-medium-line-height: 1.5;
+  --text-body-sm-medium-letter-spacing: 0em;
+  --text-body-sm-semibold-font-size: 0.875rem; /** Secondary/dense UI text. Semibold weight. */
+  --text-body-sm-semibold-font-weight: 600;
+  --text-body-sm-semibold-line-height: 1.5;
+  --text-body-sm-semibold-letter-spacing: 0em;
+  --text-body-sm-bold-font-size: 0.875rem; /** Secondary/dense UI text. Bold weight. */
+  --text-body-sm-bold-font-weight: 700;
+  --text-body-sm-bold-line-height: 1.5;
+  --text-body-sm-bold-letter-spacing: 0em;
+  --text-label-lg-medium-font-size: 1rem; /** Form labels, buttons, tabs — larger UI text contexts. Medium weight. */
+  --text-label-lg-medium-font-weight: 500;
+  --text-label-lg-medium-line-height: 1.25;
+  --text-label-lg-medium-letter-spacing: 0em;
+  --text-label-lg-semibold-font-size: 1rem; /** Form labels, buttons, tabs — larger UI text contexts. Semibold weight. */
+  --text-label-lg-semibold-font-weight: 600;
+  --text-label-lg-semibold-line-height: 1.25;
+  --text-label-lg-semibold-letter-spacing: 0em;
+  --text-label-lg-bold-font-size: 1rem; /** Form labels, buttons, tabs — larger UI text contexts. Bold weight. */
+  --text-label-lg-bold-font-weight: 700;
+  --text-label-lg-bold-line-height: 1.25;
+  --text-label-lg-bold-letter-spacing: 0em;
+  --text-label-md-medium-font-size: 0.875rem; /** Form labels, buttons, tabs — default size. Medium weight. */
+  --text-label-md-medium-font-weight: 500;
+  --text-label-md-medium-line-height: 1.25;
+  --text-label-md-medium-letter-spacing: 0em;
+  --text-label-md-semibold-font-size: 0.875rem; /** Form labels, buttons, tabs — default size. Semibold weight. */
+  --text-label-md-semibold-font-weight: 600;
+  --text-label-md-semibold-line-height: 1.25;
+  --text-label-md-semibold-letter-spacing: 0em;
+  --text-label-md-bold-font-size: 0.875rem; /** Form labels, buttons, tabs — default size. Bold weight. */
+  --text-label-md-bold-font-weight: 700;
+  --text-label-md-bold-line-height: 1.25;
+  --text-label-md-bold-letter-spacing: 0em;
+  --text-label-sm-medium-font-size: 0.75rem; /** Form labels, buttons, tabs — compact UI. Medium weight. */
+  --text-label-sm-medium-font-weight: 500;
+  --text-label-sm-medium-line-height: 1.25;
+  --text-label-sm-medium-letter-spacing: 0em;
+  --text-label-sm-semibold-font-size: 0.75rem; /** Form labels, buttons, tabs — compact UI. Semibold weight. */
+  --text-label-sm-semibold-font-weight: 600;
+  --text-label-sm-semibold-line-height: 1.25;
+  --text-label-sm-semibold-letter-spacing: 0em;
+  --text-label-sm-bold-font-size: 0.75rem; /** Form labels, buttons, tabs — compact UI. Bold weight. */
+  --text-label-sm-bold-font-weight: 700;
+  --text-label-sm-bold-line-height: 1.25;
+  --text-label-sm-bold-letter-spacing: 0em;
+  --text-caption-md-regular-font-size: 0.875rem; /** Helper text, metadata, timestamps — default size. Regular weight. */
+  --text-caption-md-regular-font-weight: 400;
+  --text-caption-md-regular-line-height: 1.5;
+  --text-caption-md-regular-letter-spacing: 0em;
+  --text-caption-md-medium-font-size: 0.875rem; /** Helper text, metadata, timestamps — default size. Medium weight. */
+  --text-caption-md-medium-font-weight: 500;
+  --text-caption-md-medium-line-height: 1.5;
+  --text-caption-md-medium-letter-spacing: 0em;
+  --text-caption-sm-regular-font-size: 0.75rem; /** Helper text, metadata, timestamps — compact. Regular weight. */
+  --text-caption-sm-regular-font-weight: 400;
+  --text-caption-sm-regular-line-height: 1.5;
+  --text-caption-sm-regular-letter-spacing: 0em;
+  --text-caption-sm-medium-font-size: 0.75rem; /** Helper text, metadata, timestamps — compact. Medium weight. */
+  --text-caption-sm-medium-font-weight: 500;
+  --text-caption-sm-medium-line-height: 1.5;
+  --text-caption-sm-medium-letter-spacing: 0em;
+  --text-code-md-regular-font-family: 'Roboto Mono', SFMono-Regular, Consolas, monospace; /** Inline code, IDs — default size. Regular weight. */
+  --text-code-md-regular-font-size: 0.875rem;
+  --text-code-md-regular-font-weight: 400;
+  --text-code-md-regular-line-height: 1.5;
+  --text-code-md-regular-letter-spacing: 0em;
+  --text-code-sm-regular-font-family: 'Roboto Mono', SFMono-Regular, Consolas, monospace; /** Inline code, IDs — compact. Regular weight. */
+  --text-code-sm-regular-font-size: 0.75rem;
+  --text-code-sm-regular-font-weight: 400;
+  --text-code-sm-regular-line-height: 1.5;
+  --text-code-sm-regular-letter-spacing: 0em;
+}

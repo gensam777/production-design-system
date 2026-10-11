@@ -25,6 +25,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "tokens:build": "node scripts/build-tokens.mjs",
+    "tokens:test": "node --test scripts/tokens/__tests__/tokens.test.mjs",
+    "tokens:test:update": "node scripts/tokens/__tests__/tokens.test.mjs --update",
     "design:audit": "node scripts/design-audit/audit.mjs",
     "design:audit:test": "node --test scripts/design-audit/__tests__/audit.test.mjs",
     "design:audit:snapshot": "node scripts/design-audit/snapshot.mjs",

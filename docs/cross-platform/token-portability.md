@@ -1,9 +1,11 @@
 # Token portability
 
-Decision record: [ADR 0014](../../governance/decisions/0014-token-source-portability.md).
-Status: **Phase 1 implemented (2026-10-11).** Token source is platform-neutral and the build
-runs source → resolved IR → guardrails → web emitter. Web CSS/JS output is byte-identical to
-the pre-Phase-1 build. Native emitters (and everything under "Output shapes") are Phase 2.
+Decision records: [ADR 0014](../../governance/decisions/0014-token-source-portability.md)
+(portable source, IR), [ADR 0016](../../governance/decisions/0016-native-token-mappings.md)
+(native mappings and outputs).
+Status: **Phase 2 implemented (2026-10-12).** The build runs source → resolved IR → guardrails
+→ web CSS/JS (byte-identical to before) and React Native, Swift and Kotlin token outputs.
+No native UI components exist yet (Phase 5).
 
 ## Portability rules
 
@@ -73,11 +75,14 @@ and its Elevation/Flat style already has an empty effects list.
 ## Build pipeline (implemented)
 
 ```
-src/tokens/{core, brands/<brand>, semantic} + platform/web/{core, semantic}
+src/tokens/{core, brands/<brand>, semantic} + platform/{web,native}/{core,semantic} + fonts/fonts.json
   → scripts/tokens/ir.mjs        resolve one brand (Style Dictionary, references only, no transforms)
-  → src/tokens/build/ir/<brand>.json   platform-neutral IR
-  → scripts/tokens/guards.mjs    brand contract (on source), scopes, shared invariance, contrast
+  → src/tokens/build/ir/<brand>.json   platform-neutral IR (+ derived font manifest)
+  → scripts/tokens/guards.mjs    brand contract + platform overrides (on source), scopes, shared
+                                 invariance, contrast, fonts, native mappings
   → scripts/tokens/emit-web.mjs  web CSS + JS (style-dictionary.config.mjs transforms/formats)
+  → scripts/tokens/native.mjs    native model (semantic shared tokens + native tier folded in)
+      → emit-react-native.mjs / emit-swift.mjs / emit-kotlin.mjs
 ```
 
 - **File merge order:** within the core and semantic layers, shared and platform-tier files
@@ -85,8 +90,9 @@ src/tokens/{core, brands/<brand>, semantic} + platform/web/{core, semantic}
   reorder generated output.
 - **IR entry:** `{ path, type, value, tier, scope, description?, extensions?, ref? | refs?,
 brandDependent, brandDependentSubs? }`, in source order. `brand.*` tokens never appear;
-  `brandContract` lists the brand leaves. `scope` is `shared` or `web`; native emitters keep
-  only `shared`.
+  `brandContract` lists the brand leaves. `scope` is `shared`, `web` or `native`; web emitters
+  keep `shared` + `web`, native emitters expose semantic `shared` and fold in `native`. IR
+  version 2 adds `fonts` (ADR 0016).
 - **Web emitter** reads only the IR. It appends font fallback stacks and converts units by each
   token's own path and type. The web JS output keeps its historical web shapes (font sizes
   as rem strings, letter-spacing as em strings, transition `delay` as `"0ms"`, `elevation.flat`
@@ -109,7 +115,7 @@ are byte-identical to the pre-Phase-1 build; the design-audit report is unchange
 | Line-height    | ratio               | size × ratio                                                        | `lineSpacing` = size × (ratio − 1)     | `(size × ratio).sp` + `LineHeightStyle` |
 | Letter-spacing | em                  | em × size                                                           | `tracking` = em × size                 | `.em`                                   |
 | Font weight    | numeric             | string; Android: per-weight family name                             | `Font.Weight` / per-weight font        | `FontWeight` + per-weight `Font`        |
-| Elevation      | `box-shadow`        | iOS `shadow*`, Android `elevation`; `boxShadow` on New Architecture | `.shadow(color:radius:x:y:)`           | `Modifier.shadow(elevation)`            |
+| Elevation      | `box-shadow`        | iOS `shadow*` (radius = blur ÷ 2), Android `elevation` dp (ADR 0016) | `.shadow(color:radius:x:y:)` (radius = blur ÷ 2) | `Surface(shadowElevation)` dp (ADR 0016) |
 | Motion         | `transition`        | `{ duration, easing: [x1,y1,x2,y2] }`                               | `Animation.timingCurve`                | `tween(…, CubicBezierEasing(…))`        |
 | Reduced motion | `@media` override   | `AccessibilityInfo.isReduceMotionEnabled`                           | `\.accessibilityReduceMotion`          | system animator duration scale          |
 
@@ -124,50 +130,54 @@ are byte-identical to the pre-Phase-1 build; the design-audit report is unchange
 | Letter-spacing | em                 | absolute                                                     | `tracking` (pt)                                                   | `em`                                                              |
 | Role           | expanded longhands | `TextStyle` object                                           | `DSTextStyle` → `Font` + modifiers                                | `TextStyle`                                                       |
 
-**Text-scaling anchors** (Phase 1, `platform/native/`): each `text.*` role maps to a system
-text style for Dynamic Type / font scale — e.g. `heading.xl` → `.largeTitle`, `heading.lg` →
-`.title`, `heading.md` → `.title2`, `heading.sm` → `.title3`, `body.*` → `.body`, `label.*` →
-`.callout` / `.subheadline`, `caption.*` → `.caption`, `code.*` → `.body` (monospaced). The
-exact table is reviewed with design in Phase 1.
+**Text-scaling anchors** (`src/tokens/platform/native/semantic/text-scaling.json`,
+`textScaling.<group>.<size>`): the Apple text style each role scales with — `heading.xl/lg/md/sm`
+→ `largeTitle/title1/title2/title3`, `body.lg/md` → `body`, `body.sm` → `subheadline`,
+`label.lg/md/sm` → `callout/subheadline/caption1`, `caption.md/sm` → `footnote/caption1`,
+`code.md/sm` → `body/caption1`. Full rationale in ADR 0016 §1. Android uses `sp` + system
+nonlinear scaling, no anchors.
 
-**Font asset manifest** (`fonts/<brand>.fonts.json`, Phase 2): family × weight → file name
-and PostScript name. Native counterpart of Figma's `Brand/font/weight/*` style-name adapter.
-Not a token.
+**Font asset catalog** (`src/tokens/fonts/fonts.json` + `fonts.schema.json`): family → license,
+pinned source, `verified`, faces `{weight, style, file, postScriptName}`. Each brand's manifest
+is derived into its IR (`ir.fonts.{sans,mono}`) from the brand's families and the weights its
+roles use. Not tokens; no font files in the repo (ADR 0016 §3).
 
-## Output shapes (illustrative — Phase 2)
+## Native outputs (implemented — Phase 2)
 
-Names follow ADR 0013: lowerCamelCase segments, numeric-leading steps → `xl2` / `xs3`,
-typography under `typography`.
+Generated into `src/tokens/build/` (gitignored); reviewed copies are committed in
+`scripts/tokens/__tests__/__snapshots__/`.
 
-```ts
-// @pds/tokens — React Native
-export const brandA = {
-  color: { text: { primary: '#111827', linkHover: '#1D4ED8' } },
-  space: { inset: { md: 12 }, stack: { xl2: 32 } },
-  radius: { control: 4, container: 12 },
-  typography: {
-    body: {
-      md: {
-        regular: { fontFamily: 'Inter-Regular', fontSize: 16, lineHeight: 24, letterSpacing: 0 },
-      },
-    },
-  },
-} as const satisfies Theme;
-export const themes = { 'brand-a': brandA, 'brand-b': brandB } as const;
-```
+| Output       | Files                                                              | Shape                                                                                                     |
+| ------------ | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| React Native | `react-native/index.ts`                                            | `Theme` type, `brandA`, `brandB`, `themes`, `defaultBrand`; pure data, no `react-native` import           |
+| Swift        | `swift/PDSTokens/DSTheme.swift`, `DSTheme+BrandA.swift`, `+BrandB` | value types + one struct per group; `DSTheme.brandA/.brandB`, `DSTheme.all`; Swift stdlib only            |
+| Kotlin       | `kotlin/com/pds/tokens/DsTheme.kt`, `BrandA.kt`, `BrandB.kt`       | value types + one data class per group; `BrandA`, `BrandB`, `DsThemes.all`; plain Kotlin, no Compose dep. |
 
-```swift
-// PDSTokens
-public struct DSTheme: Sendable { public let color: DSColors; public let space: DSSpace; public let radius: DSRadius; public let typography: DSTypography }
-public extension DSTheme { static let brandA = DSTheme(/* generated */); static let brandB = DSTheme(/* generated */) }
-```
+Exposed: semantic `shared` tokens (134 per brand, component-scoped included) plus font roles.
+Never exposed: Core, `brand.*`, web-only (`viewport.*`, `layout.*`, `font.fallback.*`).
+Names follow ADR 0013: lowerCamelCase segments, numeric-leading steps → `xl2` / `xs3`, root
+`text` → `typography`.
 
-```kotlin
-// com.pds.tokens
-@Immutable data class DsTheme(val color: DsColors, val space: DsSpace, val radius: DsRadius, val typography: DsTypography)
-val BrandA = DsTheme(/* generated */)
-val LocalDsTheme = staticCompositionLocalOf { BrandA }
-```
+| Category      | React Native                                                                                | Swift (`PDSTokens`)                                                                                   | Kotlin (`com.pds.tokens`)                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Color         | `'#2563EB'`                                                                                 | `DSColorValue(rgba: 0x2563EBFF)`                                                                      | `DsColorValue(0xFF2563EBL)` (ARGB)                                                                        |
+| Dimension     | `12`                                                                                        | `12` (`Double`)                                                                                       | `12f` (dp)                                                                                                |
+| `radius.full` | `9999`                                                                                      | `DSCornerShape.full`                                                                                  | `DsCornerShape.Full`                                                                                      |
+| Typography    | `{ fontFamily: 'Inter-SemiBold', fontSize, lineHeight, letterSpacing }` + `dynamicTypeRamp` | `DSTextStyle(postScriptName, size, lineHeight, lineSpacing, letterSpacing (em), tracking, textScale)` | `DsTextStyle(postScriptName, fontResourceName, fontWeight, fontSize sp, lineHeight em, letterSpacing em)` |
+| Elevation     | `{ shadowColor, shadowOffset, shadowOpacity, shadowRadius, elevation }`                     | `DSShadow?` (`nil` = flat)                                                                            | `Float` dp                                                                                                |
+| Motion        | `{ duration, delay (ms), easing: [x1, y1, x2, y2] }`                                        | `DSTransition` (seconds) + `DSCubicBezier`                                                            | `DsTransition(durationMillis, delayMillis, DsCubicBezier)`                                                |
+| Fonts         | `fonts.sans/mono = { family, faces, fallback }`                                             | `DSFontFamily(name, faces)`                                                                           | `DsFontFamily(name, faces)`                                                                               |
+
+Platform UI adapters (SwiftUI `Color`/`Font`, Compose `Color`/`Dp`/`TextStyle`/`FontFamily`,
+`CompositionLocal` / environment providers) belong to `PDSUI` / `com.pds.compose` (Phase 5).
 
 Web CSS keeps its current names and files (`variables.css`, `typography.css`,
 `motion-reduced-motion.css`, `brands/<brand>.css`).
+
+## Tests
+
+`npm run tokens:test` (CI): every output vs its committed snapshot (web must stay
+byte-identical), IR ↔ native parity, strict type-check of the RN module, design-audit resolver
+↔ IR parity, and negative tests for every guardrail. After a reviewed change:
+`npm run tokens:test:update`. CI also compiles the committed Swift (`swiftc -typecheck`,
+Swift 6 mode) and Kotlin (`kotlinc`) snapshots.

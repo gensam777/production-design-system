@@ -97,11 +97,21 @@ value, never by name similarity alone.
 **Build guardrails** (`scripts/build-tokens.mjs` → `scripts/tokens/guards.mjs`, run on the
 platform-neutral IR in `src/tokens/build/ir/<brand>.json`; it fails on any of these):
 - an incomplete or extra brand contract;
-- a shared token aliasing a platform-tier (web-only) token;
+- a platform-tier token overriding a shared token (tiers may only add);
+- a shared token aliasing a platform-tier (web- or native-only) token;
 - a shared (brand-independent) token that resolves differently between brands;
-- a per-brand WCAG contrast pair below its minimum (`CONTRAST_PAIRS`, keyed by token path).
+- a per-brand WCAG contrast pair below its minimum (`CONTRAST_PAIRS`, keyed by token path);
+- an invalid font catalog (`src/tokens/fonts/fonts.json`), or a family × weight a typography
+  role uses with no face in it;
+- native mappings (ADR 0016): a typography role (`text.<group>.<size>`) without a valid iOS
+  anchor in `platform/native/semantic/text-scaling.json`, or an orphan anchor; an
+  `elevation.*` role without an Android height in `platform/native/semantic/elevation.json`,
+  or heights that don't grow with the shadow; a token type with no native mapping
+  (`scripts/tokens/native.mjs`); two paths mapping to one native name (`on-color`/`onColor`);
+  brands with different native theme shapes.
 
-`npm run lint` additionally runs the token-usage guard.
+`npm run lint` additionally runs the token-usage guard. `npm run tokens:test` compares every
+generated output — web and native — with its committed snapshot.
 
 ## Workflow
 
@@ -196,8 +206,14 @@ Also check:
   Dimensions are px numbers, durations ms numbers, letter-spacing a fraction of font size
   with `$extensions["com.pds"].unit = "em"`. Web-only tokens go in `platform/web/{core,semantic}`;
   a shared token may never alias them. Web units (rem for spacing/font size; px for radius,
-  shadow, viewport, layout, icon) are applied by the web emitter, not authored. Native
-  outputs are deferred (Phase 2), but the source must stay portable.
+  shadow, viewport, layout, icon) are applied by the web emitter, not authored.
+- **Native outputs (ADR 0016):** every semantic token is emitted to React Native, Swift and
+  Kotlin, so report native impact too. A new typography role needs a `textScaling.*` anchor;
+  a new elevation role needs an `elevationHeight.*` value (provisional until Phase 5); a new
+  font family or weight needs a face in `src/tokens/fonts/fonts.json` (metadata only — never
+  add font files); a new token type needs a mapping in `scripts/tokens/native.mjs` and the
+  three emitters. Native-only values go in `platform/native/semantic/`, never shared source.
+  Core and `brand.*` tokens are never exposed natively.
 
 ### 4. Source of truth (Figma first)
 
@@ -232,7 +248,7 @@ Report concisely, then **stop and wait for approval**:
 
 ### 6. Apply (after approval only)
 
-- **Token source:** edit `src/tokens/{core,brands/<brand>,semantic,platform/web/{core,semantic}}/*.json` in DTCG format
+- **Token source:** edit `src/tokens/{core,brands/<brand>,semantic,platform/{web,native}/{core,semantic}}/*.json` in DTCG format
   (`$value`, `$type`, `$description`). Keep aliases rather than inlining values, and
   write a `$description` that explains the role.
 - **Brands:** a `brand.*` change goes in every brand's file where it applies. A new
@@ -242,8 +258,8 @@ Report concisely, then **stop and wait for approval**:
   collection. Rebind Text/Effect Styles if typography or elevation changed. Return and
   record every touched variable/style ID.
 - **Style Dictionary** (`style-dictionary.config.mjs` = web emitter transforms/formats;
-  `scripts/build-tokens.mjs` + `scripts/tokens/{ir,guards,emit-web}.mjs` = resolve → IR →
-  guard → emit): only
+  `scripts/build-tokens.mjs` + `scripts/tokens/{ir,fonts,guards,emit-web,native,emit-react-native,emit-swift,emit-kotlin}.mjs`
+  = resolve → IR → guard → emit): only
   when the change genuinely needs it, e.g. a new token type, a new output file, or a new
   `CONTRAST_PAIRS` entry for a new text/background role. Otherwise leave them alone.
 - **Docs:** the category's foundation doc (token tables), the ADR if a decision changed,
@@ -261,8 +277,12 @@ Run `npm run tokens:build`. Then confirm:
 - **Build summary:** the brand contract count and the brand-dependent token list are as
   expected (a shared token newly showing up as brand-dependent is a red flag), and the
   contrast table passes.
-- **Cross-platform compatibility:** the source stays portable (step 3). Nothing here
-  needs a native output today; don't add one.
+- **Native outputs:** `src/tokens/build/{react-native,swift,kotlin}/` changed only where the
+  token changed (same token, same brands). Then run `npm run tokens:test`: a snapshot diff is
+  expected for every output you changed and nothing else. Web snapshots must not change
+  unless the web change was approved. After review, `npm run tokens:test:update` and include
+  the snapshot diff in the report.
+- **Cross-platform compatibility:** the source stays portable (step 3).
 
 Generated files are only ever produced by the build, never edited by hand.
 
@@ -271,8 +291,9 @@ Generated files are only ever produced by the build, never edited by hand.
 Run in order and report pass/fail per command:
 
 ```
-npm run tokens:build      # includes brand-contract, shared-consistency and contrast guards
-npm run typecheck
+npm run tokens:build      # includes brand-contract, shared-consistency, contrast, font and native-mapping guards
+npm run tokens:test       # snapshots (web byte-identical, native), IR ↔ native parity, guard tests
+npm run typecheck         # also type-checks the generated React Native module
 npm run lint              # includes scripts/check-token-usage.mjs
 npm run build
 npm run build-storybook

@@ -7,7 +7,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { BRANDS, DEFAULT_BRAND, TOKENS } from './ir.mjs';
+import { fontManifest, validateFontCatalog } from './fonts.mjs';
+import { BRANDS, DEFAULT_BRAND, PLATFORM_TIERS, TOKENS } from './ir.mjs';
+import { nativeModels } from './native.mjs';
 
 /** Per-brand accessibility contract: [foreground path, background path, minimum ratio, why]. */
 export const CONTRAST_PAIRS = [
@@ -172,4 +174,61 @@ export function checkContrast(irs) {
     }
   }
   return { errors, report };
+}
+
+const leafPaths = (dir) => {
+  const out = new Map();
+  const walkTree = (node, trail, file) => {
+    if (node && typeof node === 'object' && '$value' in node) return out.set(trail.join('.'), file);
+    for (const [k, v] of Object.entries(node ?? {}))
+      if (!k.startsWith('$')) walkTree(v, [...trail, k], file);
+  };
+  if (fs.existsSync(dir))
+    for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.json')))
+      walkTree(JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')), [], `${dir}/${f}`);
+  return out;
+};
+
+/**
+ * Guardrail 5 — platform tiers may ADD tokens, never override a shared one (ADR 0014 §2).
+ * Read from source: Style Dictionary would merge an override silently.
+ */
+export function checkPlatformOverrides(root = TOKENS) {
+  const shared = new Map([
+    ...leafPaths(`${root}/core`),
+    ...leafPaths(`${root}/semantic`),
+    ...BRANDS.flatMap((b) => [...leafPaths(`${root}/brands/${b}`)]),
+  ]);
+  const errors = [];
+  const seen = new Map();
+  for (const p of PLATFORM_TIERS)
+    for (const layer of ['core', 'semantic'])
+      for (const [token, file] of leafPaths(`${root}/platform/${p}/${layer}`)) {
+        if (shared.has(token))
+          errors.push(
+            `${file} overrides shared token ${token} (${shared.get(token)}) — platform tiers may only add tokens`,
+          );
+        else if (seen.has(token))
+          errors.push(`${token} is defined by two platform tiers (${seen.get(token)}, ${file})`);
+        else seen.set(token, file);
+      }
+  return errors;
+}
+
+/** Guardrail 6 — font catalog is valid and has a face for every family × weight a brand uses. */
+export function checkFonts(irs, catalog) {
+  const errors = validateFontCatalog(catalog);
+  for (const ir of irs)
+    errors.push(...fontManifest(ir.tokens, catalog).errors.map((e) => `${ir.brand}: ${e}`));
+  return errors;
+}
+
+/**
+ * Guardrail 7 — native mappings (ADR 0016): every typography role has an iOS text-scaling
+ * anchor, every elevation role an Android height (growing with the shadow), every token type
+ * a native mapping, unique native names, and the same theme shape for every brand.
+ * Returns the models too, so the native emitters don't rebuild them.
+ */
+export function checkNative(irs) {
+  return nativeModels(irs);
 }

@@ -1,0 +1,5 @@
+# Prettier also honours .gitignore (generated src/tokens/build/, dist/, …).
+
+# Committed copies of generated token outputs — byte-for-byte what the build emits
+# (npm run tokens:test compares them; npm run tokens:test:update rewrites them).
+scripts/tokens/__tests__/__snapshots__/

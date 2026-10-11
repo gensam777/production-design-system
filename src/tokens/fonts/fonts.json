@@ -1,0 +1,96 @@
+{
+  "$schema": "./fonts.schema.json",
+  "$description": "Font asset catalog (ADR 0016): platform asset METADATA, not tokens, and no font files. Every family a brand can resolve to, with one face per weight. The build derives each brand's manifest from this catalog plus the brand's resolved families (brand.json stays the only place a brand picks a family) and keeps only the weights its typography roles use. PostScript names are not yet verified against real files (verified: false) — check them against each file's name table when the files are added (Phase 5).",
+  "format": "pds.fonts",
+  "version": 1,
+  "families": {
+    "Inter": {
+      "license": "OFL-1.1",
+      "source": {
+        "name": "rsms/inter",
+        "version": "4.1",
+        "url": "https://github.com/rsms/inter/releases/tag/v4.1",
+        "note": "Official release, static text cuts. Google Fonts' static Inter instances use optical-size-specific PostScript names — do not mix them in."
+      },
+      "verified": false,
+      "faces": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "Inter-Regular.ttf",
+          "postScriptName": "Inter-Regular"
+        },
+        {
+          "weight": 500,
+          "style": "normal",
+          "file": "Inter-Medium.ttf",
+          "postScriptName": "Inter-Medium"
+        },
+        {
+          "weight": 600,
+          "style": "normal",
+          "file": "Inter-SemiBold.ttf",
+          "postScriptName": "Inter-SemiBold"
+        },
+        {
+          "weight": 700,
+          "style": "normal",
+          "file": "Inter-Bold.ttf",
+          "postScriptName": "Inter-Bold"
+        }
+      ]
+    },
+    "Figtree": {
+      "license": "OFL-1.1",
+      "source": {
+        "name": "google/fonts",
+        "url": "https://github.com/google/fonts/tree/main/ofl/figtree",
+        "note": "Static instances. Pin the version when the files are added."
+      },
+      "verified": false,
+      "faces": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "Figtree-Regular.ttf",
+          "postScriptName": "Figtree-Regular"
+        },
+        {
+          "weight": 500,
+          "style": "normal",
+          "file": "Figtree-Medium.ttf",
+          "postScriptName": "Figtree-Medium"
+        },
+        {
+          "weight": 600,
+          "style": "normal",
+          "file": "Figtree-SemiBold.ttf",
+          "postScriptName": "Figtree-SemiBold"
+        },
+        {
+          "weight": 700,
+          "style": "normal",
+          "file": "Figtree-Bold.ttf",
+          "postScriptName": "Figtree-Bold"
+        }
+      ]
+    },
+    "Roboto Mono": {
+      "license": "Apache-2.0",
+      "source": {
+        "name": "google/fonts",
+        "url": "https://github.com/google/fonts/tree/main/apache/robotomono",
+        "note": "Static instances. Only weight 400 is used (text.code.*). Pin the version when the files are added."
+      },
+      "verified": false,
+      "faces": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "RobotoMono-Regular.ttf",
+          "postScriptName": "RobotoMono-Regular"
+        }
+      ]
+    }
+  }
+}

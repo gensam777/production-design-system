@@ -1,6 +1,8 @@
 # 0013: Cross-platform design-system architecture
 
-- **Status**: Accepted (Phase 0 — documentation only; no native code or outputs yet)
+- **Status**: Accepted. Phase 0 (docs) 2026-10-11; Phase 1 (portable token source) 2026-10-11;
+  Phase 2 (native token outputs, [0016](./0016-native-token-mappings.md)) 2026-10-12. No native
+  UI code yet.
 - **Date**: 2026-10-11
 - **Supersedes in part**: 0001 (single package, no monorepo tooling) — the single package
   stays until the trigger in [Repo evolution](#repo-evolution) is met; this ADR defines what
@@ -111,7 +113,7 @@ Avoid monorepo tooling until a second consumable package actually exists.
 │  ├─ tokens/{core,brands,semantic,platform/{web,native}}
 │  ├─ contracts/{schema.json, components/*.contract.yaml}
 │  ├─ icons/{manifest.json, svg/}
-│  └─ fonts/<brand>.fonts.json  (font asset manifests — not tokens)
+│  └─ fonts/fonts.json          (font asset catalog — not tokens; per-brand manifests derived, ADR 0016)
 ├─ packages/                   npm workspaces
 │  ├─ tokens/        @pds/tokens        build pipeline, web CSS/JS + RN TS outputs
 │  ├─ react/         @pds/react         today's src/ (components, patterns, examples, Storybook)

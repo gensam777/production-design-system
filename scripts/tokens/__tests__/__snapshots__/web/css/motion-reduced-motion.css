@@ -1,0 +1,23 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ *
+ * Forces every motion duration/transition custom property to an effectively-instant
+ * value under prefers-reduced-motion. Components that consume any --motion-* custom
+ * property (primitive or semantic) automatically respect reduced-motion, as long as
+ * they use var(--motion-*) rather than a hardcoded duration.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-instant: 0ms;
+    --motion-duration-fast: 0ms;
+    --motion-duration-base: 0ms;
+    --motion-duration-slow: 0ms;
+    --motion-duration-slower: 0ms;
+    --motion-micro: 0ms linear 0ms;
+    --motion-overlay-enter: 0ms linear 0ms;
+    --motion-overlay-exit: 0ms linear 0ms;
+    --motion-modal-enter: 0ms linear 0ms;
+    --motion-modal-exit: 0ms linear 0ms;
+  }
+}

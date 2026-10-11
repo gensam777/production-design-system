@@ -118,6 +118,22 @@ Typography uses two different Figma mechanisms, not one:
   styles existed and were verified — no node in the file was left referencing a deleted
   style.
 
+## Native platforms (ADR 0016)
+
+Every platform uses the same roles, sizes, weights, line-height ratios and letter-spacing;
+text scales with the OS setting the native way.
+
+- **iOS (SwiftUI, React Native):** each role has a Dynamic Type anchor in
+  `src/tokens/platform/native/semantic/text-scaling.json` — headings `largeTitle` / `title1`
+  / `title2` / `title3`, `body.lg/md` `body`, `body.sm` `subheadline`, `label.lg/md/sm`
+  `callout` / `subheadline` / `caption1`, `caption.md/sm` `footnote` / `caption1`,
+  `code.md/sm` `body` / `caption1`. Sizes stay ours; the anchor picks the scaling curve.
+- **Android (Compose):** `sp` sizes, `em` line-height and letter-spacing — no anchors.
+- **Line-height:** RN absolute `size × ratio`; SwiftUI `lineSpacing = size × (ratio − 1)`;
+  Compose `ratio.em`. **Letter-spacing:** em fraction × size (RN, SwiftUI), `.em` (Compose).
+- **Fonts:** native outputs reference the exact face per weight (`Inter-SemiBold`, …) from the
+  font catalog `src/tokens/fonts/fonts.json`; no font files ship yet.
+
 ## Style Dictionary mapping
 
 - `src/tokens/core/typography.json` — DTCG types `fontFamily` (a single family name —

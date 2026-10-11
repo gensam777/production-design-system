@@ -1,10 +1,12 @@
 # Cross-platform architecture
 
-Status: **Phase 0 — architecture defined, nothing implemented.** Today only web exists
-(React + TypeScript + CSS). No React Native, SwiftUI or Compose code, and no non-web token
-outputs, exist yet. Decisions: [ADR 0013](../../governance/decisions/0013-cross-platform-architecture.md)
+Status: **Phase 2 — native token outputs implemented.** Components exist only on web (React +
+TypeScript + CSS). The token build also emits React Native, Swift (`PDSTokens`) and Kotlin
+(`com.pds.tokens`) token outputs for both brands; there's no React Native, SwiftUI or Compose
+UI code yet. Decisions: [ADR 0013](../../governance/decisions/0013-cross-platform-architecture.md)
 (architecture), [ADR 0014](../../governance/decisions/0014-token-source-portability.md)
-(tokens), [ADR 0015](../../governance/decisions/0015-component-contracts.md) (contracts).
+(token source), [ADR 0016](../../governance/decisions/0016-native-token-mappings.md) (native
+token mappings), [ADR 0015](../../governance/decisions/0015-component-contracts.md) (contracts).
 
 ## Target platforms
 

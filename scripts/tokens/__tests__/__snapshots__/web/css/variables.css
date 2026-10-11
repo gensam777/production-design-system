@@ -1,0 +1,219 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-gray-50: #f9fafb; /** Neutral primitive scale — surfaces, borders, text. */
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  --color-blue-50: #eff6ff; /** Hue ramp (Core, shared). Brand A selects it as its primary in src/tokens/brands/brand-a — semantic tokens never alias a hue ramp directly, only brand.color.primary.*. */
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-blue-800: #1e40af;
+  --color-blue-900: #1e3a8a;
+  --color-violet-50: #f5f3ff; /** Hue ramp (Core, shared). Brand B (fictional demo brand) selects it as its primary in src/tokens/brands/brand-b. */
+  --color-violet-100: #ede9fe;
+  --color-violet-200: #ddd6fe;
+  --color-violet-300: #c4b5fd;
+  --color-violet-400: #a78bfa;
+  --color-violet-500: #8b5cf6;
+  --color-violet-600: #7c3aed;
+  --color-violet-700: #6d28d9;
+  --color-violet-800: #5b21b6;
+  --color-violet-900: #4c1d95;
+  --color-red-50: #fef2f2; /** Feedback primitive — danger/error. Reduced scale (subtle/default/emphasis only, no full ramp). */
+  --color-red-100: #fee2e2;
+  --color-red-600: #dc2626;
+  --color-red-700: #b91c1c;
+  --color-green-50: #f0fdf4; /** Feedback primitive — success. Reduced scale. */
+  --color-green-100: #dcfce7;
+  --color-green-600: #16a34a;
+  --color-green-700: #15803d;
+  --color-amber-50: #fffbeb; /** Feedback primitive — warning. Reduced scale. */
+  --color-amber-100: #fef3c7;
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
+  --color-amber-800: #92400e;
+  --color-cyan-50: #ecfeff; /** Feedback primitive — info. Distinct hue from brand blue so info doesn't read as a primary action. Reduced scale. */
+  --color-cyan-100: #cffafe;
+  --color-cyan-600: #0891b2;
+  --color-cyan-700: #0e7490;
+  --color-white: #ffffff; /** Fixed primitive, no scale. */
+  --color-black: #000000; /** Fixed primitive, no scale. */
+  --color-overlay-subtle: rgba(0, 0, 0, 0.05); /** Alpha-blended black. Named generically (not shadow-specific) so a future surface.overlay/scrim token can reuse it — see governance/decisions/0007-elevation-token-architecture.md. */
+  --color-overlay-default: rgba(0, 0, 0, 0.08);
+  --color-overlay-strong: rgba(0, 0, 0, 0.12);
+  --color-surface-canvas: #f9fafb; /** App page background. */
+  --color-surface-default: #ffffff; /** Default component surface (cards, panels). */
+  --color-surface-raised: #ffffff; /** Elevated surfaces (modals, popovers). Differentiated from `default` by shadow/elevation, not color, until proven otherwise. */
+  --color-surface-sunken: #f3f4f6; /** Recessed areas (input wells, code blocks). */
+  --color-surface-inverse: #111827; /** Dark surface used in light mode (tooltips, dark banners). */
+  --color-surface-disabled: #f3f4f6; /** Disabled component fill. */
+  --color-text-primary: #111827; /** 17.74:1 on surface.default. Body/heading text. */
+  --color-text-secondary: #374151; /** 10.31:1 on surface.default. De-emphasized text. */
+  --color-text-tertiary: #6b7280; /** 4.83:1 on surface.default. Helper/placeholder text. */
+  --color-text-disabled: #9ca3af; /** 2.54:1 on surface.default — below AA, exempt per WCAG for disabled content. */
+  --color-text-inverse: #ffffff; /** Text on surface.inverse (dark surfaces). */
+  --color-text-danger: #b91c1c; /** 6.47:1 on surface.default. */
+  --color-text-success: #15803d; /** 5.02:1 on surface.default. */
+  --color-text-warning: #92400e; /** 7.09:1 on surface.default. */
+  --color-border-subtle: #e5e7eb; /** Decorative/structural divider only — does not meet 3:1 non-text contrast on its own. */
+  --color-border-default: #d1d5db; /** 1.47:1 on surface.default. Decorative/structural only, e.g. default resting-state input outline where the input has other affordances (fill, label). Not sufficient alone to satisfy WCAG 1.4.11 for a component whose ONLY boundary cue is its border — use border.strong for that. */
+  --color-border-strong: #6b7280; /** 4.83:1 on surface.default — clears the 3:1 non-text minimum. Use where a border is the sole indicator of an interactive element's boundary or state. */
+  --color-border-danger: #dc2626;
+  --color-border-success: #16a34a;
+  --color-border-warning: #d97706;
+  --color-action-primary-disabled: #d1d5db;
+  --color-action-primary-on-color: #ffffff; /** Shared (not brandable). Must reach 4.5:1 on action.primary.default/hover/active for every brand — enforced by the token build (Brand A 5.17:1 on default). */
+  --color-action-secondary-default: #ffffff; /** Paired with border.default as an outline button; no separate fill token needed. */
+  --color-action-secondary-hover: #f3f4f6;
+  --color-action-tertiary-hover: #f3f4f6; /** Ghost/text button resting state has no background — 'transparent' isn't tokenized as a color. Only the hover fill needs a token. */
+  --color-action-danger-default: #dc2626;
+  --color-action-danger-hover: #b91c1c;
+  --color-action-danger-on-color: #ffffff; /** 4.83:1 on action.danger.default. */
+  --color-feedback-success-subtle: #f0fdf4;
+  --color-feedback-success-default: #16a34a; /** Icon/accent use; 3.30:1 vs white meets non-text minimum only. */
+  --color-feedback-success-emphasis: #15803d;
+  --color-feedback-success-on-color: #ffffff; /** 5.02:1 on emphasis — on-color tokens are validated against `emphasis`, not `default`. */
+  --color-feedback-warning-subtle: #fffbeb;
+  --color-feedback-warning-default: #d97706; /** Icon/accent use; 3.19:1 vs white meets non-text minimum only. */
+  --color-feedback-warning-emphasis: #b45309;
+  --color-feedback-warning-on-color: #ffffff; /** 5.02:1 on emphasis. */
+  --color-feedback-danger-subtle: #fef2f2;
+  --color-feedback-danger-default: #dc2626;
+  --color-feedback-danger-emphasis: #b91c1c;
+  --color-feedback-danger-on-color: #ffffff; /** 6.47:1 on emphasis. */
+  --color-feedback-info-subtle: #ecfeff;
+  --color-feedback-info-default: #0891b2; /** Icon/accent use; 3.68:1 vs white meets non-text minimum only. */
+  --color-feedback-info-emphasis: #0e7490;
+  --color-feedback-info-on-color: #ffffff; /** 5.36:1 on emphasis. */
+  --color-focus-ring-offset: #f9fafb; /** Separation gap between an element and its focus ring. */
+  --color-shadow-subtle: rgba(0, 0, 0, 0.05); /** elevation.raised shadow color. */
+  --color-shadow-default: rgba(0, 0, 0, 0.08); /** elevation.overlay shadow color. */
+  --color-shadow-strong: rgba(0, 0, 0, 0.12); /** elevation.modal shadow color. */
+  --color-switch-track-background-off-default: #6b7280; /** Switch track fill, Off + Default. Component-scoped (not a shared `action.neutral.*` semantic family) — Switch is currently the only consumer of this neutral filled interactive surface; promote to a shared token only if a second component needs the same concept. Same primitive as `border.strong`/`text.tertiary` (4.83:1 on surface.default, clears the 3:1 non-text minimum) but not reused directly as either — those are a stroke-role and a text-role token respectively, not a fill. */
+  --color-switch-track-background-off-hover: #4b5563; /** Switch track fill, Off + Hover. Mirrors the darken-on-hover step every `action.*` group already uses (e.g. `action.primary.default` → `.hover`). */
+  --color-switch-track-background-off-disabled: #d1d5db; /** Switch track fill, Off + Disabled. Same primitive as `action.primary.disabled` — Off+Disabled and On+Disabled deliberately converge on the same muted gray, matching this system's existing disabled-state convention of flattening state distinctions rather than the resting-state color. */
+  --size-icon-sm: 16px; /** Raw scale, no meaning attached. Matches Button Sm's existing icon dimension. */
+  --size-icon-md: 20px; /** Matches Button Md's existing icon dimension. */
+  --size-icon-lg: 24px; /** Matches Button Lg's existing icon dimension. */
+  --motion-duration-instant: 0ms;
+  --motion-duration-fast: 100ms;
+  --motion-duration-base: 200ms;
+  --motion-duration-slow: 300ms;
+  --motion-duration-slower: 400ms; /** Headroom — no semantic role aliases this step in V1. */
+  --motion-easing-standard: cubic-bezier(0.4, 0, 0.2, 1); /** Default for most state changes — eases in and out. */
+  --motion-easing-decelerate: cubic-bezier(0, 0, 0.2, 1); /** Starts fast, settles slow — for things entering/appearing. */
+  --motion-easing-accelerate: cubic-bezier(0.4, 0, 1, 1); /** Starts slow, speeds up — for things exiting/disappearing. */
+  --motion-micro: 100ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; /** Hover, press/active, focus-ring appearance. Shared across all three for V1 — split only if a real component proves different timing is needed. */
+  --motion-overlay-enter: 200ms cubic-bezier(0, 0, 0.2, 1) 0ms; /** Menu/popover/tooltip opening. */
+  --motion-overlay-exit: 100ms cubic-bezier(0.4, 0, 1, 1) 0ms; /** Menu/popover/tooltip closing. Faster than its matching enter — standard UX practice. */
+  --motion-modal-enter: 300ms cubic-bezier(0, 0, 0.2, 1) 0ms; /** Dialog/modal/drawer opening. */
+  --motion-modal-exit: 200ms cubic-bezier(0.4, 0, 1, 1) 0ms; /** Dialog/modal/drawer closing. Faster than its matching enter — standard UX practice. */
+  --radius-none: 0; /** Raw scale, no meaning attached. Explicit zero — flat/square corners. */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-max: 9999px; /** Figma variable name: radius/full. Renamed to `max` in this file only — Style Dictionary merges all token files into one flat path tree (unlike Figma's collection-scoped namespacing), so this primitive can't share the exact path `radius.full` with the semantic radius.full role below, which deliberately reuses the same name as its Figma counterpart. See governance/decisions/0006-radius-token-architecture.md. Deliberately oversized so it always resolves to a full capsule/circle regardless of element size — not a real measurement. */
+  --radius-flat: 0; /** Tables, dividers, code blocks — explicit square corners. */
+  --radius-checkbox: 4px; /** Component-scoped and shared across brands (NOT brandable): the Checkbox box. Stays 4px so a 16px checkbox remains visibly square — distinct from Radio — even when a brand rounds radius.control. */
+  --radius-full: 9999px; /** Pills, avatars, circular icons/status dots. Aliases the `radius.max` primitive (Figma name: radius/full — see radius.max's description for why the code-side primitive name differs). */
+  --shadow-none-offset-x: 0;
+  --shadow-none-offset-y: 0;
+  --shadow-none-blur: 0;
+  --shadow-none-spread: 0;
+  --shadow-sm-offset-x: 0;
+  --shadow-sm-offset-y: 1px;
+  --shadow-sm-blur: 2px;
+  --shadow-sm-spread: 0;
+  --shadow-md-offset-x: 0;
+  --shadow-md-offset-y: 2px;
+  --shadow-md-blur: 6px;
+  --shadow-md-spread: 0;
+  --shadow-lg-offset-x: 0;
+  --shadow-lg-offset-y: 4px;
+  --shadow-lg-blur: 12px;
+  --shadow-lg-spread: 0;
+  --shadow-xl-offset-x: 0;
+  --shadow-xl-offset-y: 8px;
+  --shadow-xl-blur: 24px; /** Headroom — no semantic elevation role aliases the shadow/xl step in V1. */
+  --shadow-xl-spread: 0;
+  --space-none: 0; /** Hybrid 4/8px rhythm — raw scale, no meaning attached. Explicit zero, used by semantic overrides (flush/collapsed variants). */
+  --space-3xs: 0.125rem; /** Added alongside Switch V1 — a thumb-inside-track inset needed a step below 2xs (4px). Mirrored from the Figma `space/3xs` primitive (scope: GAP). */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.25rem;
+  --space-xl: 1.5rem;
+  --space-2xl: 2rem;
+  --space-3xl: 2.5rem;
+  --space-4xl: 3rem;
+  --space-5xl: 4rem; /** Largest step in this scale — no 80/96px in V1. */
+  --space-inset-none: 0; /** Explicit zero-padding override (flush variant). */
+  --space-inset-3xs: 0.125rem; /** Tightest inset — a thumb-inside-track type inset (e.g. Switch's thumb padding). Added alongside Switch V1; not intended for general control padding, use xs or above for that. */
+  --space-inset-xs: 0.25rem; /** Badges, tags, chips. */
+  --space-inset-sm: 0.5rem; /** Compact controls (small button, dense input). */
+  --space-inset-md: 0.75rem; /** Default control padding (button, input, list item). */
+  --space-inset-lg: 1rem; /** Default card/panel padding. */
+  --space-inset-xl: 1.25rem; /** Spacious card/panel. */
+  --space-inset-2xl: 1.5rem; /** Large surfaces (modal, drawer). */
+  --space-stack-none: 0; /** Explicit zero-gap override. */
+  --space-stack-xs: 0.25rem; /** Icon+label stacked, tightly coupled pairs. */
+  --space-stack-sm: 0.5rem; /** Label → input, field → helper text. */
+  --space-stack-md: 0.75rem; /** Items within a group (form fields, list items). */
+  --space-stack-lg: 1rem; /** Default spacing between components. */
+  --space-stack-xl: 1.5rem; /** Spacing between sub-sections within a component group. */
+  --space-stack-2xl: 2rem; /** Spacing between distinct content blocks. */
+  --space-inline-none: 0; /** Explicit zero-gap override. */
+  --space-inline-xs: 0.25rem; /** Icon-to-text gap. */
+  --space-inline-sm: 0.5rem; /** Tightly grouped controls (button group, tag list). */
+  --space-inline-md: 0.75rem; /** Default gap between inline elements. */
+  --space-inline-lg: 1rem; /** Loosely grouped controls, nav items. */
+  --space-layout-sm: 1.5rem; /** Section padding, compact/mobile layout. */
+  --space-layout-md: 2rem; /** Default section padding/margin. */
+  --space-layout-lg: 2.5rem; /** Generous section spacing. */
+  --space-layout-xl: 3rem; /** Major section separation. */
+  --space-layout-2xl: 4rem; /** Page-level region separation. */
+  --font-family-mono: 'Roboto Mono', SFMono-Regular, Consolas, monospace; /** Code/data typeface — inline code, IDs, tabular/numeric values. */
+  --font-size-xs: 0.75rem; /** 12px. Captions/labels only — never primary reading content. */
+  --font-size-sm: 0.875rem; /** 14px. */
+  --font-size-md: 1rem; /** 16px. Base body size — the floor for primary reading content. */
+  --font-size-lg: 1.125rem; /** 18px. */
+  --font-size-xl: 1.25rem; /** 20px. */
+  --font-size-2xl: 1.5rem; /** 24px. */
+  --font-size-3xl: 1.875rem; /** 30px. */
+  --font-size-4xl: 2.25rem; /** 36px. Largest step in this scale — no editorial/marketing display sizes. */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-line-height-tight: 1.25; /** Unitless ratio. Headings. */
+  --font-line-height-normal: 1.5; /** Unitless ratio. Body/UI text — matches WCAG 1.4.8's recommended paragraph line-height. */
+  --font-letter-spacing-tight: -0.01em; /** Large headings only — modest by design, never applied to body/label/caption sizes. */
+  --font-letter-spacing-normal: 0em;
+  --viewport-md: 768px; /** Mobile-first breakpoint threshold (min-width). Raw scale value, no meaning attached — see governance/decisions/0009-responsive-token-architecture.md. */
+  --viewport-lg: 1024px;
+  --viewport-xl: 1280px; /** Also referenced by layout.container.maxWidth — the container cap equals the widest V1 breakpoint threshold, not a separately chosen number. */
+  --elevation-flat: none; /** Resting/inline elements — table rows, default buttons, flush surfaces. No shadow (matches the Figma Elevation/Flat Effect Style, which has an empty effects array rather than a zero-value shadow). */
+  --elevation-raised: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /** Cards, panels — subtly above canvas. */
+  --elevation-overlay: 0 2px 6px 0 rgba(0, 0, 0, 0.08); /** Dropdowns, popovers, tooltips. */
+  --elevation-modal: 0 4px 12px 0 rgba(0, 0, 0, 0.12); /** Dialogs, modals, drawers. */
+  --icon-sm: 16px; /** Compact icon size used in dense controls. */
+  --icon-md: 20px; /** Default icon size used across standard controls. */
+  --icon-lg: 24px; /** Larger icon size used for prominent or touch-first controls. */
+  --layout-container-max-width: 1280px; /** Page/app-shell container cap. A single value, not one per breakpoint: CSS `max-width` is fluid (100%) below this width and capped above it — the same token produces both behaviors. Page gutters are a separate, already-existing concern — see space.layout.* (governance/decisions/0004-spacing-token-architecture.md), not duplicated here. */
+}
