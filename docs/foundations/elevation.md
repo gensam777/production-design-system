@@ -30,14 +30,15 @@ roles:
 
 | Semantic | Geometry | Color | Use |
 | --- | --- | --- | --- |
-| `elevation.flat` | none — `$value: "none"` | — | Resting/inline elements: table rows, default buttons, flush surfaces. |
+| `elevation.flat` | none — `$value: []` | — | Resting/inline elements: table rows, default buttons, flush surfaces. |
 | `elevation.raised` | `shadow.sm` | `color.shadow.subtle` | Cards, panels — subtly above canvas. |
 | `elevation.overlay` | `shadow.md` | `color.shadow.default` | Dropdowns, popovers, tooltips. |
 | `elevation.modal` | `shadow.lg` | `color.shadow.strong` | Dialogs, modals, drawers. |
 
-`elevation.flat`'s value is the literal string `"none"`, not a zero-valued shadow
+`elevation.flat`'s value is an empty shadow list (`[]`), not a zero-valued shadow
 object — matches the Figma `Elevation/Flat` Effect Style, which has an empty `effects`
-array rather than an invisible zero-geometry shadow.
+array rather than an invisible zero-geometry shadow. (Before the cross-platform Phase 1 it
+was the CSS keyword string `"none"`; the web emitter still outputs `none` — ADR 0014.)
 
 ## Shadow color — part of Semantic Color, not a separate palette
 
@@ -46,9 +47,12 @@ Three new entries in `src/tokens/semantic/color.json`, aliasing three new entrie
 
 | Semantic (code) | Figma | → Primitive | Value |
 | --- | --- | --- | --- |
-| `color.shadow.subtle` | `shadow/subtle` | `color.overlay.subtle` | `rgba(0,0,0,0.05)` |
-| `color.shadow.default` | `shadow/default` | `color.overlay.default` | `rgba(0,0,0,0.08)` |
-| `color.shadow.strong` | `shadow/strong` | `color.overlay.strong` | `rgba(0,0,0,0.12)` |
+| `color.shadow.subtle` | `shadow/subtle` | `color.overlay.subtle` | `#0000000D` (CSS `rgba(0,0,0,0.05)`) |
+| `color.shadow.default` | `shadow/default` | `color.overlay.default` | `#00000014` (CSS `rgba(0,0,0,0.08)`) |
+| `color.shadow.strong` | `shadow/strong` | `color.overlay.strong` | `#0000001F` (CSS `rgba(0,0,0,0.12)`) |
+
+Overlay colors are authored as hex8 (portable source, ADR 0014); the web CSS emitter
+outputs the same `rgba()` values as before.
 
 The primitive is named `overlay`, not `shadow` — it's generic alpha-blended black with
 no shadow-specific meaning, so a future `surface.overlay` (modal scrim) token — deferred
@@ -93,7 +97,8 @@ directly for this foundation, confirmed no collision exists between `shadow.*`,
 - **JS/TS** (`src/tokens/build/js/tokens.js`): geometry stays plain px numbers;
   `elevation.raised`/`overlay`/`modal` export as plain objects
   (`{ offsetX, offsetY, blur, spread, color }`, color as hex8) for consumers who want to
-  build their own shadow string; `elevation.flat` exports as the string `"none"`.
+  build their own shadow string; `elevation.flat` exports as the string `"none"` (the web
+  JS emitter maps the source's empty shadow list to it).
 
 ## Accessibility/usability notes
 

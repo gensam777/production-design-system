@@ -21,14 +21,7 @@
     "font": {
       "family": {
         "sans": {
-          "$value": [
-            "Inter",
-            "-apple-system",
-            "BlinkMacSystemFont",
-            "Segoe UI",
-            "Roboto",
-            "sans-serif"
-          ],
+          "$value": "Inter",
           "$type": "fontFamily",
           "$description": "Brand A primary UI typeface. Consumers load the webfont themselves (see docs/foundations/typography.md)."
         }

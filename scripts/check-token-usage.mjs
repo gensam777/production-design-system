@@ -3,7 +3,8 @@
  *
  * Fails (exit 1) when a file under the checked roots references:
  *   - a Core primitive custom property (e.g. `--color-blue-600`, `--space-xl`, `--radius-sm`)
- *     — the list is derived from src/tokens/core/*.json, so it can't go stale;
+ *     — the list is derived from src/tokens/core/*.json and src/tokens/platform/<p>/core/*.json
+ *     (e.g. web-only `--viewport-*`), so it can't go stale;
  *   - any brand-layer custom property (`--brand-*`) — brand tokens are never emitted, and
  *     components must never know which brand is active;
  *   - a raw hex color in implementation CSS/TS (stories are exempt from this one).
@@ -41,8 +42,17 @@ const walk = (node, trail) => {
   }
   for (const [k, v] of Object.entries(node ?? {})) if (!k.startsWith('$')) walk(v, [...trail, k]);
 };
-for (const f of fs.readdirSync('src/tokens/core').filter((f) => f.endsWith('.json'))) {
-  walk(JSON.parse(fs.readFileSync(path.join('src/tokens/core', f), 'utf8')), []);
+// Core tier = shared core + every platform tier's core (e.g. web-only `viewport.*`, ADR 0014).
+const coreDirs = [
+  'src/tokens/core',
+  ...(fs.existsSync('src/tokens/platform')
+    ? fs.readdirSync('src/tokens/platform').map((p) => path.join('src/tokens/platform', p, 'core'))
+    : []),
+].filter((d) => fs.existsSync(d));
+for (const dir of coreDirs) {
+  for (const f of fs.readdirSync(dir).filter((f) => f.endsWith('.json'))) {
+    walk(JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')), []);
+  }
 }
 
 const exceptions = JSON.parse(

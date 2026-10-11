@@ -2,7 +2,7 @@
   "elevation": {
     "flat": {
       "$type": "shadow",
-      "$value": "none",
+      "$value": [],
       "$description": "Resting/inline elements — table rows, default buttons, flush surfaces. No shadow (matches the Figma Elevation/Flat Effect Style, which has an empty effects array rather than a zero-value shadow)."
     },
     "raised": {

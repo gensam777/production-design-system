@@ -1,7 +1,10 @@
 /**
- * Token resolution straight from the DTCG source (src/tokens/{core,brands/<brand>,semantic}),
- * so the audit never depends on `npm run tokens:build` having run. Same layering as
- * scripts/build-tokens.mjs: core + one brand + semantic, aliases resolved per brand.
+ * Token resolution straight from the DTCG source (src/tokens/{core,brands/<brand>,semantic}
+ * plus the web platform tier src/tokens/platform/web/{core,semantic}), so the audit never
+ * depends on `npm run tokens:build` having run. Same layering as the build's resolve stage
+ * (scripts/tokens/ir.mjs): core + one brand + semantic, aliases resolved per brand. The
+ * audited surfaces are web, so web-only tokens (`viewport.*`, `layout.*`) are in scope.
+ * Values are in source units (px numbers, hex/hex8, single family names) — see ADR 0014.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -73,8 +76,14 @@ export function loadTokens({ root = 'src/tokens' } = {}) {
     .filter((d) => d.isDirectory())
     .map((d) => d.name)
     .sort();
-  const core = readTree(path.join(root, 'core'));
-  const semantic = readTree(path.join(root, 'semantic'));
+  const core = deepMerge(
+    readTree(path.join(root, 'core')),
+    readTree(path.join(root, 'platform/web/core')),
+  );
+  const semantic = deepMerge(
+    readTree(path.join(root, 'semantic')),
+    readTree(path.join(root, 'platform/web/semantic')),
+  );
   const byBrand = new Map();
   for (const brand of brands) {
     const tree = deepMerge(

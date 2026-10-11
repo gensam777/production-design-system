@@ -10,7 +10,7 @@ Raw, un-opinionated values in `src/tokens/core/typography.json`. No meaning atta
 
 | Category | Values | Notes |
 | --- | --- | --- |
-| `font.family.*` | `sans`, `mono` | `sans` is Inter + a system fallback stack; `mono` is a code/data stack. Both are placeholders a consuming product can swap, same status as `blue` in the color foundation. |
+| `font.family.*` | `sans`, `mono` | `sans` is the brand family (Inter / Figtree, via `brand.font.family.sans`); `mono` is Roboto Mono. Source holds the family identity only; web output appends a system fallback stack from the web platform tier. Both are placeholders a consuming product can swap, same status as `blue` in the color foundation. |
 | `font.size.*` | `xs` 12 · `sm` 14 · `md` 16 · `lg` 18 · `xl` 20 · `2xl` 24 · `3xl` 30 · `4xl` 36 | Stored in **rem**. No editorial/marketing display sizes — stops at 36px. |
 | `font.weight.*` | `regular` 400 · `medium` 500 · `semibold` 600 · `bold` 700 | No sub-400 weights — thin text hurts legibility at UI sizes. |
 | `font.lineHeight.*` | `tight` 1.25 · `normal` 1.5 | Unitless ratios. |
@@ -120,9 +120,15 @@ Typography uses two different Figma mechanisms, not one:
 
 ## Style Dictionary mapping
 
-- `src/tokens/core/typography.json` — DTCG types `fontFamily` (array of strings),
-  `dimension` (sizes in rem, letter-spacing in em), `fontWeight` (numeric), `number`
-  (line-height ratios).
+- `src/tokens/core/typography.json` — DTCG types `fontFamily` (a single family name —
+  `font.family.mono` is `Roboto Mono`; the sans identity lives in each brand),
+  `dimension` (font sizes as **px numbers**; the web emitter outputs rem), `number`
+  (letter-spacing as a fraction of font size, marked `$extensions["com.pds"].unit = "em"`;
+  line-height ratios), `fontWeight` (numeric). Source carries no CSS units or fallback
+  stacks since the cross-platform Phase 1 (ADR 0014).
+- `src/tokens/platform/web/semantic/font-fallback.json` — web-only fallback stacks the web
+  emitter appends after each family (`-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+  sans-serif` / `SFMono-Regular, Consolas, monospace`); never emitted on their own.
 - `src/tokens/semantic/typography.json` — DTCG composite `$type: "typography"` tokens.
 - **Style Dictionary config change required**: the built-in `css/variables` format
   collapses a composite typography token into a single CSS `font` shorthand value. CSS's

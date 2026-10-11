@@ -28,7 +28,8 @@ easing yet — deferred until a real spinner/loop consumer exists.
 
 `src/tokens/semantic/motion.json` — DTCG `$type: "transition"` composites
 (`{ duration, delay, timingFunction }`), aliasing primitive duration + easing.
-`delay` is always the literal string `"0ms"` — V1 never needs a non-zero delay.
+`delay` is always `0` (ms number, like every duration) — V1 never needs a non-zero delay.
+It was the CSS string `"0ms"` before the cross-platform Phase 1 (ADR 0014).
 
 | Semantic | Duration | Easing | Covers |
 | --- | --- | --- | --- |
@@ -72,7 +73,8 @@ Semantic:   motion.<role>            e.g. motion.overlay-enter
 - **JS/TS** (`src/tokens/build/js/tokens.js`): `motion.duration.*` as plain ms numbers,
   `motion.easing.*` as raw `[x1, y1, x2, y2]` arrays, semantic roles as objects
   (`{ duration, delay, timingFunction }` — `duration`/`timingFunction` raw,
-  `delay` the pre-formatted string `"0ms"`, a documented shape asymmetry, not a bug).
+  `delay` the string `"0ms"`, a documented shape asymmetry kept so the web JS output stays
+  unchanged — the source and the platform-neutral IR carry `delay: 0`).
 
 ## Reduced-motion strategy
 

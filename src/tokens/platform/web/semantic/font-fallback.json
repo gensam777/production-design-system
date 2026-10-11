@@ -1,0 +1,16 @@
+{
+  "font": {
+    "fallback": {
+      "sans": {
+        "$value": ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+        "$type": "fontFamily",
+        "$description": "Web-only fallback stack the web emitter appends after any `font.family.sans` identity (Brand A Inter, Brand B Figtree). Consumed by the emitter, never emitted as its own custom property. Native platforms bundle the brand font instead (ADR 0014)."
+      },
+      "mono": {
+        "$value": ["SFMono-Regular", "Consolas", "monospace"],
+        "$type": "fontFamily",
+        "$description": "Web-only fallback stack the web emitter appends after `font.family.mono` (Roboto Mono). Consumed by the emitter, never emitted (ADR 0014)."
+      }
+    }
+  }
+}

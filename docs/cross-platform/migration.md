@@ -1,7 +1,7 @@
 # Repo evolution and migration phases
 
 Decision record: [ADR 0013](../../governance/decisions/0013-cross-platform-architecture.md).
-**Current phase: 0 (complete when ADRs 0013–0015 are accepted).**
+**Current phase: 1 complete (portable token source + IR build); Phase 2 not started.**
 
 ## Repo evolution
 
@@ -28,25 +28,28 @@ Target layout:
 
 ## Phases
 
-### Phase 0 — Decide ✅ (this change)
+### Phase 0 — Decide ✅ (committed 5d03e98)
 
 ADRs 0013 / 0014 / 0015 and `docs/cross-platform/`. No token, code, Figma or structure
 change.
 
-### Phase 1 — Portable token source
+### Phase 1 — Portable token source ✅ (implemented 2026-10-11)
 
-- Apply ADR 0014 source rules: px font sizes, structured letter-spacing, hex-alpha overlays,
-  single brand family name, web platform tier for viewport / layout / font fallbacks.
-- Refactor `scripts/build-tokens.mjs`: resolve + guard → `resolved/<brand>.json` IR →
-  emitters. Contrast pairs keyed by token path.
-- Add text-scaling anchors per typography role (`platform/native/`).
-- **Exit:** web CSS/JS output byte-identical (or reviewed diff); Storybook and Chromatic
-  unchanged; `npm run lint`, `typecheck`, `design:audit` green.
-- Owner skill: token-production.
+- Applied ADR 0014 source rules: px font sizes, em-fraction letter-spacing, hex8 overlays,
+  single family identities, web platform tier for viewport / layout / font fallbacks,
+  `elevation.flat` as an empty shadow list, numeric transition delay, `radius.full` shape marker.
+- Build refactored: resolve → `src/tokens/build/ir/<brand>.json` IR → guardrails (keyed by
+  token path, plus a new shared-must-not-alias-web scope check) → web emitter.
+- **Exit met:** web CSS/JS byte-identical; design-audit report unchanged; `tokens:build`,
+  `typecheck`, `lint`, `build`, `build-storybook`, `design:audit`, `design:audit:test` green.
+- Moved to Phase 2: text-scaling anchors per typography role (`platform/native/`), because
+  the role → Dynamic Type mapping needs design review.
+- Details: [token-portability.md](./token-portability.md#phase-1-source-changes-implemented).
 
 ### Phase 2 — Native token outputs
 
-- Emitters: React Native TS, Swift (`PDSTokens`), Kotlin (`com.pds.tokens`) — semantic +
+- Text-scaling anchors per typography role (`platform/native/`, design review first).
+- Emitters over the IR: React Native TS, Swift (`PDSTokens`), Kotlin (`com.pds.tokens`) — semantic +
   component-scoped only, every brand.
 - Icon catalog → platform-neutral manifest generating TS / Swift / Kotlin name types.
 - Font asset manifests per brand.

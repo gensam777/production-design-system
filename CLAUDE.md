@@ -27,7 +27,9 @@ scripts/        # token build, token-usage guardrail, design-audit/ (Figma ↔ c
 ## Source of truth
 
 - **Figma** = design intent (what something should look like).
-- **`src/tokens/{core,brands/*,semantic}/*.json`** = shipped token values. Figma should mirror
+- **`src/tokens/{core,brands/*,semantic,platform/web/*}/*.json`** = shipped token values,
+  authored platform-neutral (px numbers, hex/hex8, family names — no CSS syntax; ADR 0014;
+  web-only tokens in `platform/web/`). Figma should mirror
   these; if they disagree, code wins for anything already released.
 - **Multi-brand**: components consume semantic tokens only and never know the brand; brands
   differ only in the `brand.*` contract (primary ramp, sans family, control/container radius).
@@ -94,10 +96,14 @@ has been edited since the date above.
   (components/patterns/examples may not use Core primitives, `--brand-*`, or raw hex colors;
   documented exceptions only via `scripts/token-usage-exceptions.json`)
 - `npm run format` / `npm run format:check` — Prettier
-- `npm run tokens:build` — `scripts/build-tokens.mjs`: Style Dictionary once per brand over
-  `src/tokens/{core,brands/<brand>,semantic}` → `src/tokens/build/`. Fails on an incomplete
-  brand contract, a shared token that differs between brands, or a per-brand contrast pair
-  below WCAG minimums. Brand-dependent tokens go to `css/brands/<brand>.css`
+- `npm run tokens:build` — `scripts/build-tokens.mjs`: resolves each brand over
+  `src/tokens/{core,brands/<brand>,semantic}` + the web tier `src/tokens/platform/web/` into a
+  platform-neutral IR (`src/tokens/build/ir/<brand>.json`, `scripts/tokens/ir.mjs`), runs the
+  guardrails on it (`scripts/tokens/guards.mjs`), then the web emitter
+  (`scripts/tokens/emit-web.mjs` + `style-dictionary.config.mjs`) writes CSS/JS from the IR
+  (ADR 0014). Fails on an incomplete brand contract, a shared token aliasing a web-only
+  token, a shared token that differs between brands, or a per-brand contrast pair below WCAG
+  minimums. Brand-dependent tokens go to `css/brands/<brand>.css`
   (ADR 0011); shared CSS is split across three files: `css/variables.css` for most tokens
   (colors, typography primitives, spacing, radius, elevation, motion),
   `css/typography.css` for the expanded composite typography roles (see
@@ -132,14 +138,16 @@ has been edited since the date above.
 - Versioning is currently manual (see `governance/versioning.md`) — Changesets tooling
   is deferred, not yet wired up.
 
-## Cross-platform (Phase 0 — architecture only)
+## Cross-platform (Phase 1 — portable token source)
 
-Web is the only implemented platform. React Native (`@pds/react-native`), SwiftUI
+Web is the only implemented platform. Phase 1 (portable token source + IR build) is done;
+the IR is the input for future native emitters. React Native (`@pds/react-native`), SwiftUI
 (`PDSUI`/`PDSTokens`) and Compose (`com.pds.*`) are planned per ADRs 0013 (architecture,
 phases), 0014 (token portability) and 0015 (YAML + JSON Schema component contracts); see
 `docs/cross-platform/`. Share semantic intent, contracts and tokens — never convert React
 components or DOM props to other platforms. No native code, non-web token outputs or contract
-files exist yet; don't start a later phase without explicit approval.
+files exist yet; don't start a later phase without explicit approval. Web CSS/JS output must
+stay byte-identical unless a change is intentional and reviewed.
 
 ## Currently deferred (do not assume these exist)
 

@@ -1,6 +1,7 @@
 # 0014: Token source portability and per-platform outputs
 
-- **Status**: Accepted (Phase 0 — rules only; token source and build are **not** changed yet)
+- **Status**: Accepted. Phase 1 implemented 2026-10-11 (portable source + IR build); native
+  emitters are Phase 2. See [Phase 1 implementation record](#phase-1-implementation-record).
 - **Date**: 2026-10-11
 - **Extends**: 0011 (multi-brand) — brand propagation to non-web platforms. Refines the
   per-foundation output decisions in 0003, 0004, 0006–0010 for non-CSS targets; their web
@@ -117,6 +118,47 @@ for examples.
   drop the others; that is an app choice, not a second library mode.
 - Native theme types are shaped **Brand × ColorScheme** from day one (only `light` populated
   while dark mode stays deferred), so adding dark mode is not an API break.
+
+## Phase 1 implementation record
+
+Encodings chosen (these refine §1 where Phase 0 left them open):
+
+- **Font size:** px numbers (`dimension`), same convention as space/radius.
+- **Letter-spacing:** `$type: "number"` holding a fraction of the font size, marked
+  `$extensions: { "com.pds": { "unit": "em" } }`. DTCG's `dimension` allows only px/rem, so
+  a structured em dimension would be non-conformant. Inside typography composites,
+  `letterSpacing` is always that em fraction.
+- **Overlay colors:** hex8 (`#0000000D`, `#00000014`, `#0000001F`), not DTCG color objects —
+  consistent with every other color being a hex string. Web CSS still prints
+  `rgba(0, 0, 0, 0.05|0.08|0.12)`.
+- **Font family:** single identities (`Inter`, `Figtree`, `Roboto Mono`). Web fallback stacks
+  are web-tier tokens `font.fallback.{sans,mono}` in
+  `platform/web/semantic/font-fallback.json`. The web emitter appends them to any family whose
+  path ends in `font.family.<key>` and never emits them on their own.
+- **`radius.full`:** value stays `9999` for Figma/design-audit parity. It's marked
+  `$extensions: { "com.pds": { "shape": "full" } }`, which is the signal native emitters use.
+- **`elevation.flat`:** `[]`, an empty shadow list (Figma's Elevation/Flat has an empty effects
+  array). Web outputs keep `none`.
+- **Transition `delay`:** `0` (ms number) instead of the CSS string `"0ms"`.
+- **Platform tier:** `src/tokens/platform/web/{core,semantic}/`. `viewport.json` → web core,
+  `layout.json` and `font-fallback.json` → web semantic. Within the core and semantic layers,
+  shared and platform files merge as one file-name-sorted list, so output order is unchanged.
+- **IR:** `src/tokens/build/ir/<brand>.json` (generated, gitignored), `format:
+"pds.tokens.ir"`, `version: 1`. Each entry has `path`, `type`, `value` (resolved, source
+  units), `tier`, `scope`, plus `ref`/`refs`, `brandDependent` and `brandDependentSubs` where
+  they apply. `brand.*` is excluded.
+- **Build modules:** `scripts/tokens/ir.mjs` (resolve), `scripts/tokens/guards.mjs`
+  (contract, scopes, invariance, contrast keyed by path), `scripts/tokens/emit-web.mjs` (web
+  emitter, which reads only the IR), and `style-dictionary.config.mjs` (web transforms and
+  formats). `scripts/build-tokens.mjs` orchestrates them.
+- **New guardrail:** a shared token may not alias a platform-scoped (web) token.
+- **Web JS output** keeps its historical web shapes (font sizes as rem strings, letter-spacing
+  as em strings, `delay: "0ms"`, `elevation.flat: "none"`) so it stays byte-identical. Native
+  outputs get plain source units from the IR.
+- **Result:** all 8 web outputs are byte-identical to the pre-Phase-1 build, and the
+  design-audit report is unchanged. No Figma change was needed.
+- **Deferred to Phase 2:** text-scaling anchors per typography role (§5). The role → Dynamic
+  Type mapping needs design review.
 
 ## Consequences
 

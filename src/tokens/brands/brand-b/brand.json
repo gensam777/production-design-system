@@ -21,14 +21,7 @@
     "font": {
       "family": {
         "sans": {
-          "$value": [
-            "Figtree",
-            "-apple-system",
-            "BlinkMacSystemFont",
-            "Segoe UI",
-            "Roboto",
-            "sans-serif"
-          ],
+          "$value": "Figtree",
           "$type": "fontFamily",
           "$description": "Brand B primary UI typeface (Figtree, OFL-1.1). Same fallbacks as Brand A."
         }
