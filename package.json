@@ -27,7 +27,9 @@
     "tokens:build": "node scripts/build-tokens.mjs",
     "tokens:test": "node --test scripts/tokens/__tests__/tokens.test.mjs",
     "tokens:test:update": "node scripts/tokens/__tests__/tokens.test.mjs --update",
-    "design:audit": "node scripts/design-audit/audit.mjs",
+    "contracts:validate": "node scripts/contracts/validate.mjs",
+    "contracts:test": "node --test scripts/contracts/__tests__/contracts.test.mjs",
+    "design:audit":"node scripts/design-audit/audit.mjs",
     "design:audit:test": "node --test scripts/design-audit/__tests__/audit.test.mjs",
     "design:audit:snapshot": "node scripts/design-audit/snapshot.mjs",
     "design:audit:refresh": "node scripts/design-audit/refresh.mjs",
@@ -52,6 +54,7 @@
     "@types/react-dom": "^19.2.5",
     "@typescript-eslint/eslint-plugin": "^8.70.0",
     "@typescript-eslint/parser": "^8.69.0",
+    "ajv": "^8.20.0",
     "chromatic": "^18.8.1",
     "eslint": "^9.39.5",
     "eslint-plugin-jsx-a11y": "^6.10.2",
@@ -63,7 +66,8 @@
     "style-dictionary": "^5.5.2",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "vite": "^8.2.2"
+    "vite": "^8.2.2",
+    "yaml": "^2.9.1"
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.20",

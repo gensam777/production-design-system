@@ -18,6 +18,7 @@ src/
   tokens/       # token source (core/, brands/<brand>/, semantic/, platform/{web,native}/), font catalog (fonts/) + generated build/ output
   index.ts      # public entry point / barrel export
 .storybook/     # Storybook config
+design/         # platform-neutral source added from Phase 3: contracts/{schema.json, components/*.contract.yaml} (ADR 0015)
 docs/           # design-to-code-mappings.md + foundations/ + patterns/ + cross-platform/ documentation
 governance/     # accessibility, lifecycle, versioning rules + ADRs (decisions/)
 scripts/        # token build, token-usage guardrail, design-audit/ (Figma ↔ code drift audit)
@@ -127,6 +128,12 @@ has been edited since the date above.
   after the last snapshot refresh — refresh via the `design-audit` skill. See
   `docs/design-audit.md`. Tests: `npm run design:audit:test`; snapshot import/validate:
   `npm run design:audit:snapshot -- <import <raw.json>|validate>`
+- `npm run contracts:validate` — validates every `design/contracts/components/*.contract.yaml`
+  (ADR 0015): JSON Schema, no platform API names (`className`, `href`, `aria-*`, `ReactNode`,
+  `onPress`, `Modifier`, …), token paths semantic + shared in every brand's IR, Figma axes ↔
+  enums + committed design-audit snapshots, and the web reference (enum unions, defaults,
+  token set ↔ styles). `npm run contracts:test` — negative tests for each check + Button's
+  cell-by-cell CSS parity. Both run in CI.
 - `npm run storybook` — Storybook dev server
 - `npm run build-storybook` — static Storybook build
 
@@ -149,17 +156,21 @@ has been edited since the date above.
 - Versioning is currently manual (see `governance/versioning.md`) — Changesets tooling
   is deferred, not yet wired up.
 
-## Cross-platform (Phase 2 — native token outputs)
+## Cross-platform (Phase 3 — component contracts)
 
-Web is the only platform with components. Phases 1 (portable token source + IR) and 2
-(native token outputs) are done: the build emits React Native, Swift (`PDSTokens`) and Kotlin
-(`com.pds.tokens`) token outputs for both brands — semantic tokens only, pure data (ADR 0016;
-Android elevation provisional until Phase 5). React Native (`@pds/react-native`), SwiftUI
-(`PDSUI`) and Compose (`com.pds.compose`) UI are planned per ADRs 0013 (architecture, phases),
-0014/0016 (tokens) and 0015 (YAML + JSON Schema component contracts); see
-`docs/cross-platform/`. Share semantic intent, contracts and tokens — never convert React
-components or DOM props to other platforms. No native UI code, font files or contract files
-exist yet; don't start a later phase without explicit approval. Web CSS/JS output must stay
+Web is the only platform with components. Phases 1 (portable token source + IR), 2 (native
+token outputs) and 3 (component contracts) are done: the build emits React Native, Swift
+(`PDSTokens`) and Kotlin (`com.pds.tokens`) token outputs for both brands — semantic tokens
+only, pure data (ADR 0016; Android elevation provisional until Phase 5) — and
+`design/contracts/` holds the JSON Schema plus per-component YAML contracts (ADR 0015; Button
+only so far, web `alpha`, other platforms `planned`). Contracts carry shared semantic intent
+only — no web DOM props and no native API names, enforced by `npm run contracts:validate`.
+A component with a contract must keep it in sync with its React implementation (the
+component-production skill does this). React Native (`@pds/react-native`), SwiftUI (`PDSUI`)
+and Compose (`com.pds.compose`) UI are planned per ADR 0013; see `docs/cross-platform/`.
+Share semantic intent, contracts and tokens — never convert React components or DOM props to
+other platforms. No native UI code or font files exist yet; don't start a later phase (4:
+workspaces) without explicit approval. Web CSS/JS output must stay
 byte-identical unless a change is intentional and reviewed (`npm run tokens:test` enforces it).
 
 ## Currently deferred (do not assume these exist)

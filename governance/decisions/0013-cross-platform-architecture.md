@@ -1,8 +1,8 @@
 # 0013: Cross-platform design-system architecture
 
 - **Status**: Accepted. Phase 0 (docs) 2026-10-11; Phase 1 (portable token source) 2026-10-11;
-  Phase 2 (native token outputs, [0016](./0016-native-token-mappings.md)) 2026-10-12. No native
-  UI code yet.
+  Phase 2 (native token outputs, [0016](./0016-native-token-mappings.md)) 2026-10-12; Phase 3
+  (component contracts, [0015](./0015-component-contracts.md)) 2026-10-12. No native UI code yet.
 - **Date**: 2026-10-11
 - **Supersedes in part**: 0001 (single package, no monorepo tooling) — the single package
   stays until the trigger in [Repo evolution](#repo-evolution) is met; this ADR defines what

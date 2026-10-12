@@ -33,6 +33,16 @@ jobs:
       - name: Token tests (snapshots + parity)
         run: npm run tokens:test
 
+      # Cross-platform component contracts (ADR 0015): JSON Schema, no platform API names,
+      # semantic + shared token paths in every brand, Figma axes + committed Figma snapshots,
+      # and the web reference implementation. The tests add negative cases and Button's
+      # cell-by-cell CSS parity (the validator only compares token sets).
+      - name: Component contracts
+        run: npm run contracts:validate
+
+      - name: Component contract tests
+        run: npm run contracts:test
+
       - name: Typecheck
         run: npm run typecheck
 

@@ -1,0 +1,495 @@
+# yaml-language-server: $schema=../schema.json
+#
+# Button — cross-platform component contract (ADR 0015).
+#
+# Shared semantic intent only: what Button means, how it behaves and which semantic tokens it
+# paints with. It is not a web API and not a native API — each platform maps it to its own
+# idiom (see docs/cross-platform/component-contracts.md, "Platform naming").
+# Web (src/components/Button/) is the implemented reference; the other platforms are planned
+# (Phase 5). Validate: npm run contracts:validate
+
+schema-version: 1
+component: Button
+summary: >-
+  Triggers an action in the current context (save, submit, confirm, continue). Moving to
+  another place is navigation, not Button's job.
+
+status:
+  web: alpha
+  react-native: planned
+  ios: planned
+  android: planned
+
+anatomy:
+  container: The activatable surface — background, border, radius, height and inner spacing.
+  label: The visible text. Always present; it is also the accessible name.
+  leadingIcon: Optional decorative icon before the label. Painted with the label color.
+  trailingIcon: Optional decorative icon after the label. Painted with the label color.
+  spinner: >-
+    Busy indicator, shown only while loading, centered over the container and painted with
+    the label color.
+  focusIndicator: >-
+    The focus highlight drawn around the container on platforms that show one. Rendering is
+    platform-owned; its colors are shared.
+
+properties:
+  variant:
+    type: enum
+    description: Visual emphasis, chosen by the importance and consequence of the action.
+    values:
+      primary: The main action of a view or region. Use at most one per region.
+      secondary: An alternative or supporting action next to a primary one.
+      tertiary: A low-emphasis action; no fill until interacted with.
+      danger: A destructive or irreversible action.
+    default: primary
+  size:
+    type: enum
+    description: Visual size. Changes height, inner spacing, label typography and icon size.
+    values:
+      sm: Compact — dense toolbars and inline actions.
+      md: Default.
+      lg: Prominent — primary actions on spacious or touch-first layouts.
+    default: md
+  disabled:
+    type: boolean
+    description: The action is currently unavailable.
+    default: false
+    behavior:
+      blocks-activation: The activate event never fires.
+      exposed-as-unavailable: Assistive technology reports the button as disabled / dimmed.
+      keeps-label: The label stays visible and stays the accessible name.
+  loading:
+    type: boolean
+    description: The action has been triggered and its result is pending.
+    default: false
+    behavior:
+      blocks-activation: >-
+        The activate event never fires while loading, so the action cannot be triggered
+        twice.
+      keeps-variant-colors: >-
+        Container, border and spinner keep the variant's normal (default-state) colors.
+        Loading never uses the disabled colors — disabled stays the only visually disabled
+        state.
+      preserves-size: >-
+        Width and height do not change when loading starts or stops; label and icons keep
+        their space but are visually hidden.
+      shows-spinner: Only the spinner is visible while loading.
+      keeps-name: The accessible name stays the label text while loading.
+      exposes-busy: Assistive technology can perceive the busy state.
+      remains-focusable: >-
+        A loading button stays focusable and keeps focus if it has it (for example after
+        being activated from the keyboard). It is not reported as disabled.
+      yields-to-disabled: >-
+        When disabled is also true, disabled wins visually and semantically — see
+        states.precedence. None of the loading behaviors above apply then.
+
+slots:
+  label:
+    type: text
+    required: true
+    description: Short, verb-first action text. Single line.
+  leadingIcon:
+    type: icon
+    required: false
+    decorative: true
+    description: >-
+      A name from the shared icon catalog (docs/foundations/icons.md). Sized by Button per
+      size, never by the icon. Presence reduces the container's inner spacing on that side
+      by one inset step (see tokens.container).
+  trailingIcon:
+    type: icon
+    required: false
+    decorative: true
+    description: Same rules as leadingIcon, on the trailing side.
+
+events:
+  activate:
+    description: >-
+      The user triggered the button with any input the platform supports for its own
+      buttons — pointer, touch, keyboard, switch control, voice control or a screen reader.
+    payload: none
+    suppressed-when: [disabled, loading]
+
+states:
+  shared:
+    default:
+      description: Enabled and idle.
+    disabled:
+      description: >-
+        Driven by the disabled property. Also applies when loading is true at the same time:
+        the button looks and is reported as disabled (not busy), shows its label instead of the
+        spinner, and cannot activate.
+    loading:
+      description: >-
+        Loading is true and disabled is false. Has no token cells of its own, so every part
+        uses its default cells (the variant's normal colors); the spinner uses
+        tokens.spinner.color. Reported as busy, stays focusable, cannot activate. Hover and
+        pressed visuals are not shown while loading.
+  platform-owned:
+    hover:
+      description: >-
+        Pointer over the button, only where the platform has a hover pointer (web, iPadOS
+        pointer, Android mouse). Never required on touch-only devices.
+    pressed:
+      description: >-
+        Being activated. When a platform paints its own pressed fill it uses the pressed
+        token cells; additional platform press effects are platform-owned.
+    focus:
+      description: >-
+        Keyboard / switch / TV focus. Shown with the focusIndicator part where the platform
+        draws a focus highlight.
+  # Highest first. disabled + loading → disabled (visually and semantically).
+  precedence: [disabled, loading, default]
+
+accessibility:
+  role: button
+  name:
+    source: label
+    rule: >-
+      The visible label is the accessible name. Icons never add to it. The name does not
+      change while loading. Icon-only buttons are out of scope for this contract version.
+  exposed-states:
+    disabled: >-
+      Reported as disabled / dimmed while disabled, including when loading is also true.
+      Never reported as disabled because of loading alone.
+    busy: >-
+      Reported as busy while loading and not disabled — never together with disabled.
+      Platforms without a native busy state convey it as a localized state description (for
+      example "Loading"). Activation is blocked while busy.
+  announcements: >-
+    Button does not announce state changes itself. The consumer announces the outcome of the
+    action (success, error) where needed.
+  outcomes:
+    activation: Activatable with every input method the platform supports for native buttons.
+    focus-order: >-
+      Focusable when enabled and while loading (a loading button keeps focus if it has it).
+      Whether a disabled button stays in sequential focus order follows each platform's
+      native disabled-button behavior.
+    contrast: >-
+      Enabled and loading label, icons and spinner meet 4.5:1 / 3:1 against the container in
+      every brand; the focus indicator meets 3:1. Disabled is exempt (WCAG 1.4.3 / 1.4.11),
+      the token cells still keep it legible.
+    target-size: See sizing.hit-target — visual size is shared, hit target is platform-owned.
+    reduced-motion: >-
+      When the platform's reduce-motion setting is on, the spinner stops rotating; the busy
+      state is still exposed.
+    text-scaling: >-
+      The label follows the platform's text scaling (rem / Dynamic Type / font scale). See
+      open question text-scaling-height.
+
+tokens:
+  container:
+    background:
+      primary:
+        default: color.action.primary.default
+        hover: color.action.primary.hover
+        pressed: color.action.primary.active
+        disabled: color.action.primary.disabled
+      secondary:
+        default: color.action.secondary.default
+        hover: color.action.secondary.hover
+        pressed: color.action.secondary.hover
+        disabled: color.surface.disabled
+      tertiary:
+        default: none
+        hover: color.action.tertiary.hover
+        pressed: color.action.tertiary.hover
+        disabled: color.surface.disabled
+      danger:
+        default: color.action.danger.default
+        hover: color.action.danger.hover
+        pressed: color.action.danger.hover
+        disabled: color.surface.disabled
+    border-color:
+      primary: none
+      secondary:
+        default: color.border.default
+        disabled: color.border.subtle
+      tertiary: none
+      danger: none
+    radius: radius.control
+    padding-inline:
+      sm: space.inset.md
+      md: space.inset.lg
+      lg: space.inset.xl
+    padding-inline-icon-side:
+      sm: space.inset.sm
+      md: space.inset.md
+      lg: space.inset.lg
+    gap:
+      sm: space.inline.xs
+      md: space.inline.sm
+      lg: space.inline.sm
+    state-transition: motion.micro
+  label:
+    color:
+      primary:
+        default: color.action.primary.on-color
+        disabled: color.text.disabled
+      secondary:
+        default: color.text.primary
+        disabled: color.text.disabled
+      tertiary:
+        default: color.text.primary
+        disabled: color.text.disabled
+      danger:
+        default: color.action.danger.on-color
+        disabled: color.text.disabled
+    typography:
+      sm: text.label.sm.medium
+      md: text.label.md.medium
+      lg: text.label.lg.medium
+  leadingIcon:
+    size:
+      sm: icon.sm
+      md: icon.md
+      lg: icon.lg
+  trailingIcon:
+    size:
+      sm: icon.sm
+      md: icon.md
+      lg: icon.lg
+  spinner:
+    color:
+      primary: color.action.primary.on-color
+      secondary: color.text.primary
+      tertiary: color.text.primary
+      danger: color.action.danger.on-color
+    size:
+      sm: icon.sm
+      md: icon.md
+      lg: icon.lg
+    radius: radius.full
+  focusIndicator:
+    color: color.focus.ring
+    offset-color: color.focus.ring-offset
+
+component-constants:
+  border-width:
+    part: container
+    value: 1
+    unit: px
+    description: >-
+      Every variant reserves a 1px border (transparent unless a border color is set) so all
+      variants of a size have identical outer dimensions.
+  spinner-stroke-width:
+    part: spinner
+    value: 2
+    unit: px
+    description: Ring stroke of the spinner, with a gap in one quarter.
+  spinner-rotation-duration:
+    part: spinner
+    value: 600
+    unit: ms
+    description: One full linear rotation, repeating.
+    token-gap: true
+  focus-indicator-geometry:
+    part: focusIndicator
+    value:
+      offset-width: 2
+      ring-width: 2
+    unit: px
+    description: >-
+      Where a platform draws its own focus indicator — a ring-offset band then the ring,
+      outside the container, never replacing its border.
+
+sizing:
+  property: size
+  visual-height:
+    sm: 32
+    md: 40
+    lg: 48
+  width: >-
+    Hugs its content. Filling the available width is the parent layout's decision, not a
+    Button property.
+  hit-target:
+    policy: platform-owned
+    minimum:
+      web: 24px (WCAG 2.2 SC 2.5.8)
+      react-native: 44pt on iOS / 48dp on Android (follows the host platform)
+      ios: 44pt
+      android: 48dp
+    rule: >-
+      Expanding the hit target never changes the visual size or the layout around the
+      button.
+
+figma:
+  file-key: zE07Pl0ioDayHN2GK2set7
+  component-set: Button
+  node-id: '115:224'
+  verified: '2026-10-12'
+  variant-count: 72
+  axes:
+    Variant:
+      property: variant
+      values:
+        Primary: primary
+        Secondary: secondary
+        Tertiary: tertiary
+        Danger: danger
+    Size:
+      property: size
+      values:
+        Sm: sm
+        Md: md
+        Lg: lg
+    State:
+      states: true
+      values:
+        Default: default
+        Hover: hover
+        Pressed: pressed
+        Focus-visible: focus
+        Disabled: disabled
+        Loading: loading
+  component-properties:
+    Label:
+      slot: label
+    Leading icon:
+      slot: leadingIcon
+    Trailing icon:
+      slot: trailingIcon
+  figma-only:
+    Icon Layout: >-
+      Nested Button Content axis (None / Leading / Trailing / Both). Every platform derives
+      it from which icon slots are filled; it is never a property.
+    Tone: >-
+      Nested Button Content axis (Default / On-color / Disabled) selecting the label color.
+      Every platform derives it from variant + state; it is never a property.
+
+references:
+  web:
+    source: src/components/Button/Button.tsx
+    styles: src/components/Button/Button.css
+    stories: src/components/Button/Button.stories.tsx
+  docs:
+    - docs/design-to-code-mappings.md#button
+    - governance/decisions/0010-icon-token-architecture.md
+
+platform-notes:
+  web:
+    base: The native button element.
+    notes:
+      - Form submission / reset behavior is a web-only option of the web Button and is not part of this contract.
+      - Navigation that looks like a button is a separate web-only component (ButtonLink, status not-applicable elsewhere until a platform needs it).
+      - The web label and icon slots accept composed content for React ergonomics (ADR 0010); the contract still types them as text and icon.
+      - Hover, pressed and focus come from the browser's own interaction states; focus is drawn only for keyboard-initiated focus.
+  react-native:
+    base: A pressable view styled from the theme (planned, Phase 5).
+    notes:
+      - Pressed uses the pressed token cells; hover applies only on platforms with a hover pointer.
+  ios:
+    base: A SwiftUI button with a design-system button style, named DSButton (planned, Phase 5).
+    notes:
+      - Label typography scales with Dynamic Type through the native text-scaling anchors (ADR 0016).
+  android:
+    base: A Compose button surface with design-system colors, named DsButton (planned, Phase 5).
+    notes:
+      - Label typography scales with the system font scale (sp).
+
+intentional-differences:
+  - id: touch-hit-target
+    platforms: [react-native, ios, android]
+    difference: >-
+      Sizes whose visual height is below the platform minimum (sm 32, md 40) keep their
+      visual height but expand the hit target to 44pt / 48dp.
+    reason: Native touch-target guidance; the web minimum is 24px (WCAG 2.2 SC 2.5.8).
+  - id: no-hover-on-touch
+    platforms: [react-native, ios, android]
+    difference: Hover token cells are unused where there is no hover pointer.
+    reason: Touch input has no hover; the contract never requires a state a platform lacks.
+  - id: focus-indicator-rendering
+    platforms: [web, react-native, ios, android, figma]
+    difference: >-
+      Web draws the focus indicator itself (ring-offset band + ring around the container,
+      keeping the border); native platforms may use their system focus effect where it
+      exists. Figma's Focus-visible masters are a static 2px outside stroke in
+      color.focus.ring that replaces the border, with no offset band.
+    reason: Focus is a platform-owned interaction visual (ADR 0015 rule 4); Figma documents it.
+  - id: figma-physical-padding
+    platforms: [figma]
+    difference: >-
+      Figma applies icon-side padding as left/right; every code platform applies it to the
+      leading/trailing side, so it mirrors in right-to-left layouts.
+    reason: Figma has no logical (start/end) padding.
+
+implementation-gaps:
+  - id: loading-keeps-variant-colors
+    platform: web
+    contract: >-
+      Loading without disabled keeps the variant's default colors (container, border,
+      spinner), shows the spinner, exposes busy, blocks activation and stays focusable.
+      Disabled is the only visually disabled state.
+    current: >-
+      The web Button turns on the native disabled state while loading, so the disabled color
+      cells apply — e.g. primary loading paints color.action.primary.disabled with a
+      color.text.disabled spinner; secondary/tertiary/danger loading paint
+      color.surface.disabled (secondary also color.border.subtle). Loading is also reported as
+      disabled, leaves the sequential focus order and loses focus if it had it.
+    raised: '2026-10-12'
+  - id: disabled-wins-over-loading
+    platform: web
+    contract: >-
+      Disabled + loading is the disabled state: disabled look with the label shown, reported
+      as disabled and not busy, cannot activate.
+    current: >-
+      With both set, the web Button hides the label and shows the spinner, and reports busy as
+      well as disabled (the busy state follows loading alone). Colors and activation already
+      match (disabled cells, activation blocked).
+    raised: '2026-10-12'
+
+# Phase 5 implementation questions — documented, not resolved in Phase 3.
+open-questions:
+  - id: disabled-figma-treatment
+    question: >-
+      Live Figma (2026-10-12) disagrees with code for three Disabled cells. Secondary: Figma
+      fill color.action.secondary.default + border color.border.default; code
+      color.surface.disabled + color.border.subtle. Tertiary: Figma no fill; code
+      color.surface.disabled. Danger: Figma color.action.primary.disabled; code
+      color.surface.disabled. Primary matches. The label tone (color.text.disabled) matches
+      everywhere. The contract follows code (code wins for released components) until this is
+      decided.
+    affects: [figma, web]
+    blocks: phase-5
+    raised: '2026-10-12'
+  - id: text-scaling-height
+    question: >-
+      Visual height is fixed in both Figma (fixed-height frames, 32/40/48) and code (fixed
+      height, no vertical padding, label line-height 1.25). The label fits up to about 200%
+      text size (e.g. md: 28px type, 35px line in 40px), but larger platform text scaling
+      (Dynamic Type accessibility sizes, Android font scale, browser text-only zoom) clips it.
+      Is visual-height a fixed height or a minimum height that grows with the label?
+    affects: [web, react-native, ios, android, figma]
+    blocks: phase-5
+    raised: '2026-10-12'
+  - id: figma-binding-gaps
+    question: >-
+      Live Figma (2026-10-12) Button Content is not bound to the shared roles the contract
+      uses: the label binds Core font sizes (xs/sm/md = 12/14/16) plus Brand weight / family
+      instead of the text.label.*.medium role (no text style, auto line-height instead of
+      1.25); icon and spinner sizes are raw 16/20/24 instead of icon.sm/md/lg. Values match;
+      bindings do not.
+    affects: [figma]
+    blocks: phase-5
+    raised: '2026-10-12'
+  - id: spinner-thickness-and-motion
+    question: >-
+      Spinner ring thickness differs: Figma's ring is 35% of its radius (about 2.8 / 3.5 /
+      4.2px for sm / md / lg), code uses a 2px constant (component-constants). The 600ms
+      rotation is a component constant because no loop/spinner motion token exists
+      (docs/foundations/motion.md). Decide the thickness rule and add a motion token before
+      native spinners are built.
+    affects: [figma, web, tokens]
+    blocks: phase-5
+    raised: '2026-10-12'
+  - id: on-color-token-path
+    question: >-
+      Live Figma (2026-10-12): the On-color tone binds label and icons to text.inverse, while
+      the primary / danger Loading spinners bind color.action.primary.on-color /
+      color.action.danger.on-color — Figma is inconsistent with itself. Code and this contract
+      use the action on-color tokens for label, icons and spinner. Same value (#FFFFFF) in both
+      brands today. Rebind the Figma On-color tone to the action on-color tokens before a
+      brand gives them different values.
+    affects: [figma]
+    blocks: phase-5
+    raised: '2026-10-12'
