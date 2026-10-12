@@ -1,6 +1,7 @@
 # 0015: Cross-platform component contracts (YAML + JSON Schema)
 
-- **Status**: Accepted (Phase 0 — rules only; no schema or contract files exist yet — Phase 3)
+- **Status**: Accepted. Phase 0 (rules) 2026-10-11; **implemented in Phase 3, 2026-10-12** —
+  schema, Button contract, validator + CI (see [Phase 3 implementation](#phase-3-implementation-2026-10-12)).
 - **Date**: 2026-10-11
 - **Related**: [0013 cross-platform architecture](./0013-cross-platform-architecture.md),
   [0010 icons](./0010-icon-token-architecture.md),
@@ -42,8 +43,9 @@ platform-owned), `accessibility` (outcomes), `tokens` (semantic token path per p
 ### Rules
 
 1. **Same meaning on all four platforms** or it does not go in the contract. Platform-only
-   props (`className`, `href`, `type="submit"`, `keyboardType`, `hitSlop`, …) go in
-   `platform-notes`.
+   props (`className`, `href`, `type="submit"`, `keyboardType`, `hitSlop`, …) are described
+   **by meaning** in `platform-notes` — never by API name (amended in Phase 3; the validator
+   rejects platform API names anywhere in a contract).
 2. **Semantic names, not idioms.** Events are named by intent (`activate`, `change`,
    `dismiss`); each platform maps them to its idiom (`onClick`, `onPress`, `action:`).
 3. **Slots are typed, not `ReactNode`:** `text`, `icon` (an `IconName`, decorative unless
@@ -72,6 +74,29 @@ A contract carries a per-platform `status` (`planned`, `alpha`, `beta`, `stable`
 `not-applicable`) using `governance/component-lifecycle.md` definitions. `not-applicable` is
 valid and required for web-only components (e.g. `ButtonLink`) and for components that are
 deliberately not ported to a platform (e.g. `Tooltip` on phone platforms).
+
+## Phase 3 implementation (2026-10-12)
+
+- `design/contracts/schema.json` — JSON Schema 2020-12, strict (`additionalProperties: false`
+  throughout). `design/contracts/components/button.contract.yaml` — the first contract.
+- `npm run contracts:validate` (`scripts/contracts/`) adds what a schema can't express:
+  platform-API leakage, internal references, token paths against every brand's resolved IR
+  (semantic + shared only), Figma axes ↔ enums plus the committed design-audit Figma
+  snapshots, and the web reference (enum unions, defaults, token set ↔ styles).
+  `npm run contracts:test` adds negative tests for every check and Button's cell-by-cell CSS
+  parity. Both run in CI. Dev dependencies added: `ajv` (v8, 2020-12), `yaml`.
+- Fields added to the Phase 0 list, all optional unless noted: `schema-version` and `summary`
+  (required), `component-constants` (values that are deliberately not tokens, with
+  `token-gap`), `references` (repo paths per platform — what the web check reads),
+  `open-questions` (mismatches found and reported, not silently resolved),
+  `implementation-gaps` (decided behavior an implemented platform doesn't do yet — tests
+  expect the gap while it is listed and fail once it is closed but still listed),
+  `states.precedence`, `states.*.tokens-from`, `figma.component-properties`, `figma.figma-only`.
+  Field reference: [`docs/cross-platform/component-contracts.md`](../../docs/cross-platform/component-contracts.md).
+- Rule 1 amended: `platform-notes` describe platform-only capabilities by meaning, never by API
+  name. The API-level naming table lives in the doc, not in contracts.
+- The validator reads Figma only through the committed design-audit snapshot; a live-Figma
+  contract check needs a snapshot refresh (design-audit skill).
 
 ## Consequences
 

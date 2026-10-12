@@ -1,7 +1,7 @@
 # Repo evolution and migration phases
 
 Decision record: [ADR 0013](../../governance/decisions/0013-cross-platform-architecture.md).
-**Current phase: 2 complete (native token outputs); Phase 3 not started.**
+**Current phase: 3 complete (component contracts infrastructure + Button contract); Phase 4 not started.**
 
 ## Repo evolution
 
@@ -68,12 +68,34 @@ change.
 - **Provisional until Phase 5:** Android elevation values, font PostScript names
   (`verified: false`), RN Android scaling behavior.
 
-### Phase 3 — Contracts
+### Phase 3 — Contracts ✅ (implemented 2026-10-12, ADR 0015)
 
-- `design/contracts/schema.json` + `button.contract.yaml`.
-- component-production skill writes / updates contracts; existing prose "Cross-platform
-  contract" sections converted incrementally.
-- **Exit:** Button contract validates and matches Figma axes and React token usage.
+- `design/contracts/schema.json` (JSON Schema 2020-12) +
+  `design/contracts/components/button.contract.yaml`.
+- `npm run contracts:validate`: schema, no platform API names, semantic + shared token paths
+  in every brand's IR, Figma axes ↔ enums + the committed design-audit Figma snapshots, web
+  reference (enum unions, defaults, token set ↔ styles). `npm run contracts:test`: negative
+  tests for every check + Button's cell-by-cell CSS parity. Both run in CI.
+- component-production skill writes / updates the contract (steps 3, 12, 15).
+- **Exit:** Button contract validates ✅; matches the live Figma Variant / Size / State axes
+  (72 variants, re-audited 2026-10-12) ✅; matches React token usage cell by cell ✅, except
+  the declared loading gap below.
+- **Loading rule decided** (2026-10-12): loading blocks activation, exposes busy, keeps the
+  variant's normal colors and shows the spinner; disabled stays the only visually disabled
+  state. Live Figma already does this. The web Button doesn't yet (it forces native
+  `disabled` while loading) — recorded as the contract's `implementation-gaps` entry,
+  fixed in a later Button change.
+- **State precedence decided** (2026-10-12): disabled > loading > default. Disabled + loading
+  is disabled (not busy, label shown, cannot activate); loading alone keeps variant colors,
+  shows the spinner, is busy, cannot activate and stays focusable. Web gap: with both set it
+  shows the spinner and reports busy — second `implementation-gaps` entry.
+- **Phase 5 implementation questions** (contract `open-questions`, all `blocks: phase-5`):
+  Disabled cells differ between Figma and code for secondary / tertiary / danger; fixed
+  visual height vs. text scaling; Figma text-style / icon-size binding gaps; spinner
+  thickness and motion token; Figma's On-color binding inconsistency (`text/inverse` vs its
+  own spinners' `action.*.on-color`).
+- **Not done in Phase 3:** converting the other components' prose "Cross-platform contract"
+  sections (Checkbox, Radio, Radio Group, Switch, …) — incremental, via the skill.
 
 ### Phase 4 — Workspaces
 

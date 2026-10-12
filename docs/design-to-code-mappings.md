@@ -254,6 +254,60 @@ different approved icon provider is a Button Content instance-swap change in Fig
 different `ReactNode` passed to `leadingIcon`/`trailingIcon` in code, neither of which
 requires touching Button's own definition.
 
+### Cross-platform contract
+
+Formal, validated contract (ADR 0015):
+[`design/contracts/components/button.contract.yaml`](../design/contracts/components/button.contract.yaml)
+— web `alpha`, React Native / iOS / Android `planned`. `npm run contracts:validate` and
+`npm run contracts:test` check it against this implementation (enum unions, defaults, every
+token cell in `Button.css`) and against the Figma axes above. Re-audited against live Figma
+2026-10-12 (read-only).
+
+**Loading (decided 2026-10-12, not yet implemented on web).** Intended cross-platform rule:
+loading blocks activation, exposes busy, keeps the variant's normal colors and shows the
+spinner; Disabled stays the only visually disabled state. Live Figma already matches: every
+Loading master keeps its Default fill/border, the content is at opacity 0, and the spinner is
+bound to `action/primary/on-color` (Primary), `text/primary` (Secondary, Tertiary) or
+`action/danger/on-color` (Danger). **Current React mismatch:** `Button.tsx` sets
+`disabled={disabled || loading}`, so a loading button matches `:disabled` and paints the
+disabled cells (Primary `action.primary.disabled` + `text.disabled` spinner; the others
+`surface.disabled`, Secondary also `border.subtle`). It is also exposed as disabled and drops
+out of the tab order. Recorded as the contract's `implementation-gaps` entry
+`loading-keeps-variant-colors`; the Button code is unchanged.
+
+**State precedence (decided 2026-10-12): disabled > loading > default.**
+
+- **Disabled + loading** → disabled wins visually and semantically: disabled look with the
+  label shown, reported as disabled and not busy, cannot activate.
+- **Loading alone** → normal variant colors, spinner shown, reported as busy, cannot
+  activate, stays focusable (keeps focus if it has it).
+
+**Current React mismatch:** with both set, `Button.tsx` hides the label behind the spinner and
+sets `aria-busy` (it follows `loading` alone), although colors and blocked activation already
+match. Recorded as the `implementation-gaps` entry `disabled-wins-over-loading`.
+
+Phase 5 implementation questions recorded in the contract (documented, not resolved):
+
+- **Disabled cells differ between live Figma and code** — Secondary: Figma
+  `action/secondary/default` fill + `border/default`, code `surface.disabled` +
+  `border.subtle`. Tertiary: Figma no fill, code `surface.disabled`. Danger: Figma
+  `action/primary/disabled`, code `surface.disabled`. Primary and the Disabled label tone
+  match. This contradicts the **Color tokens by variant/state** table above, which describes
+  the code. The contract follows code until this is decided.
+- **On-color token path** — Figma's On-color tone binds label and icons to `text/inverse`,
+  but Figma's own Loading spinners use `action/*/on-color`; code uses `action.*.on-color`
+  throughout (same value in both brands today).
+- **Fixed visual height vs. text scaling** — fixed in both Figma and code; the label fits to
+  about 200% text size, then clips.
+- **Figma binding gaps** — label binds Core font sizes + Brand weight/family (not the
+  `text.label.*.medium` role, line-height auto); icon and spinner sizes are raw 16/20/24, not
+  bound to `icon.*`.
+- **Spinner thickness and motion** — Figma's ring is ~35% of the radius thick versus code's
+  2px; the 600ms rotation has no motion token (see Token gaps above).
+
+The State row in **Prop mapping** above lists five values; Figma's State axis has six
+(72 = 4 × 3 × 6) — **Loading** is the sixth, mapped to the `loading` prop.
+
 ## Input
 
 - React: `src/components/Input/Input.tsx`

@@ -1,0 +1,463 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pds.design/contracts/schema.json",
+  "title": "PDS component contract",
+  "description": "Platform-neutral component contract (ADR 0015). Shared semantic intent only — no web DOM API and no native view API. Structural rules live here; cross-reference rules (token paths exist and are semantic + shared, Figma axes match enums, the web reference agrees, no platform API names) are enforced by scripts/contracts/validate.mjs. Field reference: docs/cross-platform/component-contracts.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema-version",
+    "component",
+    "summary",
+    "status",
+    "anatomy",
+    "properties",
+    "states",
+    "accessibility",
+    "tokens"
+  ],
+  "properties": {
+    "schema-version": { "const": 1 },
+    "component": {
+      "description": "Shared, unprefixed PascalCase name. Swift/Kotlin add DS/Ds in code only.",
+      "type": "string",
+      "pattern": "^[A-Z][A-Za-z0-9]*$"
+    },
+    "summary": { "$ref": "#/$defs/text" },
+    "status": {
+      "description": "Lifecycle status per platform (governance/component-lifecycle.md).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["web", "react-native", "ios", "android"],
+      "properties": {
+        "web": { "$ref": "#/$defs/lifecycle" },
+        "react-native": { "$ref": "#/$defs/lifecycle" },
+        "ios": { "$ref": "#/$defs/lifecycle" },
+        "android": { "$ref": "#/$defs/lifecycle" }
+      }
+    },
+    "anatomy": {
+      "description": "Named parts → what the part is. Part names are the first-level keys of `tokens`.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/$defs/identifier" },
+      "additionalProperties": { "$ref": "#/$defs/text" }
+    },
+    "properties": {
+      "description": "Shared semantic properties — only those that mean the same thing on every platform.",
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/identifier" },
+      "additionalProperties": {
+        "oneOf": [{ "$ref": "#/$defs/enumProperty" }, { "$ref": "#/$defs/booleanProperty" }]
+      }
+    },
+    "slots": {
+      "description": "Typed content slots (never a platform content type).",
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/identifier" },
+      "additionalProperties": { "$ref": "#/$defs/slot" }
+    },
+    "events": {
+      "description": "Semantic events named by intent; each platform maps them to its own idiom.",
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/identifier" },
+      "additionalProperties": { "$ref": "#/$defs/event" }
+    },
+    "states": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shared", "platform-owned"],
+      "properties": {
+        "shared": {
+          "description": "States every platform implements with the same meaning. Must include `default`.",
+          "type": "object",
+          "required": ["default"],
+          "propertyNames": { "$ref": "#/$defs/identifier" },
+          "additionalProperties": { "$ref": "#/$defs/state" }
+        },
+        "platform-owned": {
+          "description": "Interaction states whose existence and visuals are owned by each platform (touch has no hover). A contract may bind tokens to them but never requires them.",
+          "type": "object",
+          "propertyNames": { "enum": ["hover", "pressed", "focus", "dragged"] },
+          "additionalProperties": { "$ref": "#/$defs/state" }
+        },
+        "precedence": {
+          "description": "Highest first: which shared state wins visually when several apply.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/identifier" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "accessibility": {
+      "description": "Outcomes, never a platform accessibility API.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "name", "exposed-states"],
+      "properties": {
+        "role": { "type": "string", "pattern": "^[a-z][a-z-]*$" },
+        "name": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source", "rule"],
+          "properties": {
+            "source": {
+              "description": "Slot (or `consumer`) that provides the accessible name.",
+              "$ref": "#/$defs/identifier"
+            },
+            "rule": { "$ref": "#/$defs/text" }
+          }
+        },
+        "exposed-states": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/identifier" },
+          "additionalProperties": { "$ref": "#/$defs/text" }
+        },
+        "announcements": { "$ref": "#/$defs/text" },
+        "outcomes": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/kebab" },
+          "additionalProperties": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
+    "tokens": {
+      "description": "part → property → (enum value | state)* → semantic token path. Only semantic, shared token paths; `none` = no paint. A state missing from a state map means 'unchanged from default', unless the state declares `tokens-from`.",
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/identifier" },
+      "additionalProperties": {
+        "type": "object",
+        "minProperties": 1,
+        "propertyNames": { "$ref": "#/$defs/kebab" },
+        "additionalProperties": { "$ref": "#/$defs/tokenNode" }
+      }
+    },
+    "component-constants": {
+      "description": "Component-owned values that are deliberately not tokens. Platform-neutral units: px (→ CSS px / pt / dp) and ms.",
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/kebab" },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["value", "unit", "description"],
+        "properties": {
+          "part": { "$ref": "#/$defs/identifier" },
+          "value": {
+            "oneOf": [
+              { "type": "number" },
+              {
+                "type": "object",
+                "minProperties": 1,
+                "propertyNames": { "$ref": "#/$defs/kebab" },
+                "additionalProperties": { "type": "number" }
+              }
+            ]
+          },
+          "unit": { "enum": ["px", "ms"] },
+          "description": { "$ref": "#/$defs/text" },
+          "token-gap": {
+            "description": "true = a token should exist for this but doesn't yet (reported, not silently filled).",
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "sizing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hit-target"],
+      "properties": {
+        "property": {
+          "description": "The enum property whose values key `visual-height`.",
+          "$ref": "#/$defs/identifier"
+        },
+        "visual-height": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/kebab" },
+          "additionalProperties": { "type": "number", "exclusiveMinimum": 0 }
+        },
+        "width": { "$ref": "#/$defs/text" },
+        "hit-target": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["policy", "minimum"],
+          "properties": {
+            "policy": { "const": "platform-owned" },
+            "minimum": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["web", "react-native", "ios", "android"],
+              "properties": {
+                "web": { "type": "string" },
+                "react-native": { "type": "string" },
+                "ios": { "type": "string" },
+                "android": { "type": "string" }
+              }
+            },
+            "rule": { "$ref": "#/$defs/text" }
+          }
+        }
+      }
+    },
+    "figma": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file-key", "component-set", "axes"],
+      "properties": {
+        "file-key": { "type": "string" },
+        "component-set": { "type": "string" },
+        "node-id": { "type": "string", "pattern": "^[0-9]+:[0-9]+$" },
+        "verified": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+        "variant-count": { "type": "integer", "minimum": 1 },
+        "axes": {
+          "description": "Figma variant axis → contract property (enum) or the state model.",
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["values"],
+            "oneOf": [{ "required": ["property"] }, { "required": ["states"] }],
+            "properties": {
+              "property": { "$ref": "#/$defs/identifier" },
+              "states": { "const": true },
+              "values": {
+                "description": "Figma value → contract enum value / state name.",
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": { "$ref": "#/$defs/identifier" }
+              }
+            }
+          }
+        },
+        "component-properties": {
+          "description": "Non-variant Figma properties (text / instance swap) → contract slot.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["slot"],
+            "properties": { "slot": { "$ref": "#/$defs/identifier" } }
+          }
+        },
+        "figma-only": {
+          "description": "Figma authoring properties with no contract equivalent, and why.",
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
+    "references": {
+      "description": "Repo paths of implementations and records. `web` is checked against the contract while web status is alpha/beta/stable.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "web": { "$ref": "#/$defs/implementation" },
+        "react-native": { "$ref": "#/$defs/implementation" },
+        "ios": { "$ref": "#/$defs/implementation" },
+        "android": { "$ref": "#/$defs/implementation" },
+        "docs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "platform-notes": {
+      "description": "What each platform owns, described by meaning — never by API name.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "web": { "$ref": "#/$defs/platformNote" },
+        "react-native": { "$ref": "#/$defs/platformNote" },
+        "ios": { "$ref": "#/$defs/platformNote" },
+        "android": { "$ref": "#/$defs/platformNote" }
+      }
+    },
+    "intentional-differences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "platforms", "difference", "reason"],
+        "properties": {
+          "id": { "$ref": "#/$defs/kebab" },
+          "platforms": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "enum": ["web", "react-native", "ios", "android", "figma"] }
+          },
+          "difference": { "$ref": "#/$defs/text" },
+          "reason": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
+    "implementation-gaps": {
+      "description": "Decided contract behavior that an implemented platform does not do yet. Checks expect the gap while it is listed and fail once it is closed but still listed.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "platform", "contract", "current", "raised"],
+        "properties": {
+          "id": { "$ref": "#/$defs/kebab" },
+          "platform": { "enum": ["web", "react-native", "ios", "android", "figma"] },
+          "contract": { "$ref": "#/$defs/text" },
+          "current": { "$ref": "#/$defs/text" },
+          "raised": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" }
+        }
+      }
+    },
+    "open-questions": {
+      "description": "Unresolved mismatches found while writing or checking the contract. Reported, not silently resolved.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "question", "raised"],
+        "properties": {
+          "id": { "$ref": "#/$defs/kebab" },
+          "question": { "$ref": "#/$defs/text" },
+          "affects": {
+            "type": "array",
+            "items": { "enum": ["web", "react-native", "ios", "android", "figma", "tokens"] }
+          },
+          "blocks": { "type": "string", "pattern": "^phase-[0-9]+$" },
+          "raised": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "text": { "type": "string", "minLength": 1 },
+    "identifier": {
+      "description": "camelCase name of a part / property / slot / event / state / enum value.",
+      "type": "string",
+      "pattern": "^[a-z][a-zA-Z0-9]*$"
+    },
+    "kebab": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "lifecycle": { "enum": ["planned", "alpha", "beta", "stable", "not-applicable"] },
+    "tokenPath": {
+      "description": "Semantic token path in dot notation, e.g. color.action.primary.default.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(\\.[a-z0-9-]+)+$"
+    },
+    "tokenNode": {
+      "anyOf": [
+        { "$ref": "#/$defs/tokenPath" },
+        { "const": "none" },
+        {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": { "$ref": "#/$defs/identifier" },
+          "additionalProperties": { "$ref": "#/$defs/tokenNode" }
+        }
+      ]
+    },
+    "behavior": {
+      "description": "Behavior rule id → rule.",
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/kebab" },
+      "additionalProperties": { "$ref": "#/$defs/text" }
+    },
+    "enumProperty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "values", "default", "description"],
+      "properties": {
+        "type": { "const": "enum" },
+        "description": { "$ref": "#/$defs/text" },
+        "values": {
+          "description": "Enum value → meaning.",
+          "type": "object",
+          "minProperties": 2,
+          "propertyNames": { "$ref": "#/$defs/identifier" },
+          "additionalProperties": { "$ref": "#/$defs/text" }
+        },
+        "default": { "$ref": "#/$defs/identifier" },
+        "behavior": { "$ref": "#/$defs/behavior" }
+      }
+    },
+    "booleanProperty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "default", "description"],
+      "properties": {
+        "type": { "const": "boolean" },
+        "description": { "$ref": "#/$defs/text" },
+        "default": { "type": "boolean" },
+        "behavior": { "$ref": "#/$defs/behavior" }
+      }
+    },
+    "slot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "required", "description"],
+      "properties": {
+        "type": { "enum": ["text", "icon", "action", "content"] },
+        "required": { "type": "boolean" },
+        "decorative": {
+          "description": "icon slots only: true = hidden from assistive tech, never part of the name.",
+          "type": "boolean"
+        },
+        "description": { "$ref": "#/$defs/text" }
+      },
+      "if": { "properties": { "type": { "const": "icon" } } },
+      "then": { "required": ["decorative"] },
+      "else": { "not": { "required": ["decorative"] } }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["description", "payload"],
+      "properties": {
+        "description": { "$ref": "#/$defs/text" },
+        "payload": {
+          "oneOf": [
+            { "const": "none" },
+            {
+              "type": "object",
+              "minProperties": 1,
+              "propertyNames": { "$ref": "#/$defs/identifier" },
+              "additionalProperties": { "$ref": "#/$defs/text" }
+            }
+          ]
+        },
+        "suppressed-when": {
+          "description": "Shared states in which the event never fires.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/identifier" }
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["description"],
+      "properties": {
+        "description": { "$ref": "#/$defs/text" },
+        "tokens-from": {
+          "description": "This state uses another state's token cells.",
+          "$ref": "#/$defs/identifier"
+        }
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source"],
+      "properties": {
+        "source": { "type": "string" },
+        "styles": { "type": "string" },
+        "stories": { "type": "string" }
+      }
+    },
+    "platformNote": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base"],
+      "properties": {
+        "base": { "$ref": "#/$defs/text" },
+        "notes": { "type": "array", "items": { "$ref": "#/$defs/text" } }
+      }
+    }
+  }
+}

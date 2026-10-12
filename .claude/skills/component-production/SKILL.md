@@ -53,6 +53,14 @@ reasonable answer:
   authoring gap where an existing semantic token should have been used instead — see the
   **Figma Raw-Value Guard** in step 7. Do not silently treat a raw Figma value as
   canonical just because it renders correctly today.
+- Any change to a **shared cross-platform contract** (`design/contracts/components/*.contract.yaml`,
+  ADR 0015) that changes meaning for platforms other than web — adding/removing/renaming a
+  property, enum value, slot, event or shared state, or changing a default or behavior rule.
+  Those are cross-platform API changes, not web refactors. Also: whether a new property is
+  shared at all (same meaning on all four platforms) or web-only.
+- A mismatch between the contract and Figma or the React implementation that the change
+  would resolve by editing one side. Record it in the contract's `open-questions` and
+  report it; don't silently align either side.
 
 Do not invent an answer just to keep moving. A wrong guess here is expensive to unwind
 later (breaking API change, Figma rework, a token that now has consumers). When in doubt,
@@ -127,6 +135,11 @@ Before writing any code, write down (and get alignment on, per **Pause points**)
   a bespoke `aria-disabled` unless a pause-point discussion decides otherwise), and
   derives icon-adjacent layout from `Boolean(leadingIcon)`/`Boolean(trailingIcon)` rather
   than exposing an `iconLayout` prop.
+- Which part of that API is **shared intent** (goes in the cross-platform contract — step
+  12) and which is web-only (DOM attributes, `className`, `ReactNode`, `href`, form
+  submission, refs). Only what means the same thing on web, React Native, SwiftUI and
+  Compose is shared. If the component already has a contract, read it first — the React
+  API must stay consistent with it, and any change to it is a pause point.
 
 ### 4. Audit token needs
 
@@ -331,14 +344,39 @@ use for their sections:
   one happened (see Accordion's two-pass collapse-technique history for the precedent).
   Never quietly overwrite a wrong prior claim without a record of what changed and why.
 
-### 12. Document the cross-platform contract
+### 12. Write or update the cross-platform contract
 
-Add a subsection (matching Checkbox's "Cross-platform contract" section) describing what
-should be shared across future Web React / React Native / SwiftUI / Jetpack Compose
-implementations: intent, state model, hierarchy, tokens, and the accessibility contract.
-Do not claim shared implementation code — only Web React exists today. Call out anything
-platform-owned (exact focus/ripple/press treatment, platform-native interaction-target
-sizing) explicitly as platform-owned, not shared.
+Every new component, and every updated component that already has one, ships a YAML
+contract (ADR 0015): `design/contracts/components/<kebab-name>.contract.yaml`, validated by
+`design/contracts/schema.json`. Field reference and rules:
+`docs/cross-platform/component-contracts.md`. Use `button.contract.yaml` as the reference
+shape.
+
+- **Shared intent only.** Properties, enum values, slots (typed `text` / `icon` / `action` /
+  `content`), semantic events (`activate`, `change`, `dismiss` — never `onClick`/`onPress`),
+  shared vs. platform-owned states, accessibility **outcomes**, semantic token paths per
+  part × variant × state, sizing (visual size shared, hit target platform-owned), Figma axes.
+- **Never** web-only or native-only API names — not even in `platform-notes`: no
+  `className`, HTML attributes, `type="submit"`, `href`, `aria-*`, `ReactNode`, `onPress`,
+  SwiftUI action closures, Compose `Modifier`, `accessibilityLabel`. Describe a
+  platform-only capability by meaning in `platform-notes` (the validator rejects the names).
+- **Status:** web reflects the component's lifecycle stage (`alpha` until promoted per
+  `governance/component-lifecycle.md`); React Native / iOS / Android stay `planned` until
+  Phase 5 work exists; `not-applicable` for web-only components (e.g. ButtonLink).
+- **Tokens** must be exactly what the web styles use — semantic, shared paths only (no Core,
+  no `brand.*`, no web/native-only tokens). Component-owned values that aren't tokens go in
+  `component-constants` (`token-gap: true` if a token should exist).
+- **Mismatches** between Figma, the React API and token usage go in `open-questions` and the
+  report — never silently fix the component or Figma to make the contract pass.
+- If the component still has a prose "Cross-platform contract" subsection in
+  `docs/design-to-code-mappings.md` (Checkbox, Radio, Radio Group, Switch, …), convert it
+  into the YAML contract and replace the prose with a link plus any open questions.
+- Do not claim shared implementation code — only Web React exists today. Call out anything
+  platform-owned (exact focus/ripple/press treatment, platform-native interaction-target
+  sizing) explicitly as platform-owned, not shared.
+- Run `npm run contracts:validate` until clean. For a new contract, add the component's
+  cell-by-cell CSS parity test to `scripts/contracts/__tests__/contracts.test.mjs` when the
+  token cells are variant × state shaped (the validator alone only compares token sets).
 
 ### 13. Run accessibility checks
 
@@ -469,6 +507,8 @@ Run whatever applies to the change:
 
 ```
 npm run tokens:build
+npm run contracts:validate   # when the component has (or now gets) a contract
+npm run contracts:test
 npm run typecheck
 npm run lint
 npm run build
@@ -567,8 +607,10 @@ Always end with a report structured exactly as:
    category: color, typography, spacing, radius, border, focus, icon size, motion,
    elevation/shadow, layout, responsive where applicable), every mismatch's resolution,
    and which side (Figma or code) was corrected for each.
-10. **Figma ↔ code mapping** — confirmation `docs/design-to-code-mappings.md` was
-    updated, with a link to the new/changed section.
+10. **Figma ↔ code mapping and cross-platform contract** — confirmation
+    `docs/design-to-code-mappings.md` was updated, with a link to the new/changed section;
+    the contract file written/updated (per-platform status, what changed in shared intent),
+    `contracts:validate` result, and any `open-questions` it records.
 11. **Intentional platform differences** — anything where Figma and code, or web vs.
     other platforms, deliberately diverge (including any from the parity audit).
 12. **Validation results** — pass/fail per command from step 15.
@@ -591,8 +633,9 @@ A component is only "ready for commit" when **all four** of the following hold:
    `Match`, a fixed/corrected mismatch, a documented component constant, or a documented
    platform difference. An open, unfixed token mismatch means this is never ready for
    commit, even if everything else passes.
-3. **Build validation passes** (step 15) — `tokens:build`, `typecheck`, `lint`, `build`,
-   and `build-storybook` all succeed.
+3. **Build validation passes** (step 15) — `tokens:build`, `contracts:validate` /
+   `contracts:test` (when a contract exists), `typecheck`, `lint`, `build`, and
+   `build-storybook` all succeed.
 4. **Live rendered parity has been confirmed** (step 16, Layer 3) — either Claude
    verified it directly against a running browser (state exactly what was exercised), or
    the user has explicitly confirmed the live Storybook result themselves.
