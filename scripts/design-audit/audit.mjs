@@ -61,7 +61,7 @@ const knownDifferences = readJson(args.known ?? 'scripts/design-audit/known-diff
 const kdProblems = validateKnownDifferences(knownDifferences);
 if (kdProblems.length) usage(`invalid known differences:\n  ${kdProblems.join('\n  ')}`);
 
-const tokens = loadTokens({ root: path.join(ROOT, 'src/tokens') });
+const tokens = loadTokens({ root: path.join(ROOT, 'design/tokens') });
 const reports = surfaces.map((surface) => {
   const contract = readJson(`scripts/design-audit/surfaces/${surface}.json`);
   const snapshotPath = args.snapshot ?? contract.figma.snapshot;

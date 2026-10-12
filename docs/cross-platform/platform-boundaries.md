@@ -72,9 +72,9 @@ expansion, text-input keyboards and autofill, haptics, gestures.
 | Action group         | **Concept shared, order/layout platform-owned** | Hierarchy shared; button order and stacking follow HIG / Material.                                   |
 | Page header          | **Mostly web**                                  | Native navigation bar title (`navigationTitle`, `TopAppBar`); only content hierarchy is shared.      |
 | App shell            | **Web-only**                                    | `TabView` / `NavigationSplitView`; Compose `NavigationSuiteScaffold`.                                |
-| Centered card layout | **Web-only**                                    | Mobile-app auth screens are a plain surface (see `src/examples/MobileLogin/`).                       |
+| Centered card layout | **Web-only**                                    | Mobile-app auth screens are a plain surface (see `packages/react/src/examples/MobileLogin/`).        |
 
-Product examples (`src/examples/`) are reference screens, not portable code. `MobileLogin`
+Product examples (`packages/react/src/examples/`) are reference screens, not portable code. `MobileLogin`
 is a web rendering of a mobile-app design and is the natural acceptance target for the first
 native screen.
 
@@ -94,14 +94,14 @@ widths. If a shared vocabulary is ever needed it is a semantic _layout intent_
 
 ## Icons
 
-- **Shared:** the `IconName` catalog (today `src/icons/types.ts`, 18 names) and `IconSize`
+- **Shared:** the `IconName` catalog (today `packages/react/src/icons/types.ts`, 18 names) and `IconSize`
   (`sm`/`md`/`lg` → 16/20/24). In Phase 2+ the catalog becomes a platform-neutral manifest
   (`design/icons/manifest.json`) that generates a TS union, Swift `enum DSIconName: String`,
   Kotlin `enum class DsIconName`.
 - **Artwork:** Lucide everywhere by default — SVG → web (`lucide-react`), React Native
   (`lucide-react-native` / `react-native-svg`), iOS asset catalog (template-rendered), Android
   VectorDrawable (generated). Each platform has a provider file mapping `IconName` → artwork,
-  as `src/icons/providers/lucide.ts` does today; a platform may swap providers without
+  as `packages/react/src/icons/providers/lucide.ts` does today; a platform may swap providers without
   changing the catalog.
 - **Color:** always inherited — `currentColor` / `.foregroundStyle` (template image) /
   `LocalContentColor` / an explicit RN `color` from the parent component's foreground token.

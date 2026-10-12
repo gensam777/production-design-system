@@ -20,7 +20,7 @@ custom property (no runtime `var()` chains), and the Figma collections were all 
 **Shared component contract → semantic token contract → brand-specific values.** Components
 never know which brand is active.
 
-### Token layers (code: `src/tokens/`)
+### Token layers (code: `design/tokens/`)
 
 | Layer    | Folder            | Varies by brand? | Contents                                                                        |
 | -------- | ----------------- | ---------------- | ------------------------------------------------------------------------------- |
@@ -46,7 +46,7 @@ semantic token names.
 `radius.control` (8px) becomes a circle — indistinguishable from Radio. Checkbox therefore
 uses its own shared token (4px) instead of `radius.control`; the brand radius is not capped.
 
-### Build (`scripts/build-tokens.mjs`)
+### Build (`packages/tokens/scripts/build.mjs`)
 
 Style Dictionary runs once per brand over `core + brands/<brand> + semantic`. A token is
 brand-dependent when its alias chain reaches `brand.*` (typography: per sub-value).

@@ -2,11 +2,13 @@
 
 - **Status**: Accepted. Phase 0 (docs) 2026-10-11; Phase 1 (portable token source) 2026-10-11;
   Phase 2 (native token outputs, [0016](./0016-native-token-mappings.md)) 2026-10-12; Phase 3
-  (component contracts, [0015](./0015-component-contracts.md)) 2026-10-12. No native UI code yet.
+  (component contracts, [0015](./0015-component-contracts.md)) 2026-10-12; Phase 4 (npm
+  workspaces, [0017](./0017-workspace-structure.md)) 2026-10-12. No native UI code yet.
 - **Date**: 2026-10-11
 - **Supersedes in part**: 0001 (single package, no monorepo tooling) — the single package
   stays until the trigger in [Repo evolution](#repo-evolution) is met; this ADR defines what
-  replaces it and when. 0001's other decisions (no Code Connect, manual mappings) stand.
+  replaces it and when. Implemented by [0017](./0017-workspace-structure.md) (Phase 4, ahead of
+  the trigger by explicit approval, to prepare Phase 5). 0001's other decisions (no Code Connect, manual mappings) stand.
 - **Related**: [0014 token portability](./0014-token-source-portability.md),
   [0015 component contracts](./0015-component-contracts.md),
   [0011 multi-brand](./0011-multi-brand-token-architecture.md),
@@ -116,7 +118,7 @@ Avoid monorepo tooling until a second consumable package actually exists.
 │  └─ fonts/fonts.json          (font asset catalog — not tokens; per-brand manifests derived, ADR 0016)
 ├─ packages/                   npm workspaces
 │  ├─ tokens/        @pds/tokens        build pipeline, web CSS/JS + RN TS outputs
-│  ├─ react/         @pds/react         today's src/ (components, patterns, examples, Storybook)
+│  ├─ react/         @pds/react         today's packages/react/src/ (components, patterns, examples, Storybook)
 │  └─ react-native/  @pds/react-native
 ├─ platforms/
 │  ├─ ios/           Sources/PDSTokens, Sources/PDSUI

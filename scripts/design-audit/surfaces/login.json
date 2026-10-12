@@ -36,11 +36,11 @@
     }
   },
   "files": {
-    "screen": "src/examples/Login/LoginScreen.tsx",
-    "screenCss": "src/examples/Login/LoginScreen.css",
-    "layout": "src/patterns/CenteredCardLayout/CenteredCardLayout.tsx",
-    "layoutCss": "src/patterns/CenteredCardLayout/CenteredCardLayout.css",
-    "cardCss": "src/components/Card/Card.css"
+    "screen": "packages/react/src/examples/Login/LoginScreen.tsx",
+    "screenCss": "packages/react/src/examples/Login/LoginScreen.css",
+    "layout": "packages/react/src/patterns/CenteredCardLayout/CenteredCardLayout.tsx",
+    "layoutCss": "packages/react/src/patterns/CenteredCardLayout/CenteredCardLayout.css",
+    "cardCss": "packages/react/src/components/Card/Card.css"
   },
   "components": {
     "Alert": "Alert",
@@ -280,7 +280,7 @@
       "code": {
         "prop": { "file": "screen", "element": "Input", "name": "size", "default": "md" }
       },
-      "notes": "Code default `md` is Input's own default (src/components/Input/Input.tsx)."
+      "notes": "Code default `md` is Input's own default (packages/react/src/components/Input/Input.tsx)."
     },
     {
       "id": "email-label",

@@ -20,7 +20,7 @@ API in this codebase exposes a Lucide-specific name.
 
 ## Stable DS icon names
 
-`IconName` (`src/icons/types.ts`) — the only names a consumer may pass to
+`IconName` (`packages/react/src/icons/types.ts`) — the only names a consumer may pass to
 `<Icon name="..." />`:
 
 | DS name        | Lucide implementation |
@@ -69,8 +69,8 @@ Approved display sizes, matching the Figma Icons foundation exactly:
 | `md` (default) | 20px  | `icon.md`      | `size.icon.md`  |
 | `lg`           | 24px  | `icon.lg`      | `size.icon.lg`  |
 
-- `size.icon.*` (`src/tokens/core/icon.json`) is the raw scale, no meaning attached.
-- `icon.*` (`src/tokens/semantic/icon.json`) is what `Icon.tsx` actually consumes, as a
+- `size.icon.*` (`design/tokens/core/icon.json`) is the raw scale, no meaning attached.
+- `icon.*` (`design/tokens/semantic/icon.json`) is what `Icon.tsx` actually consumes, as a
   CSS custom property (`var(--icon-sm)`, `var(--icon-md)`, `var(--icon-lg)`) — the same
   consumption pattern as every other semantic token in this system.
 - Px in both source and generated CSS, not rem — same reasoning as radius/shadow/

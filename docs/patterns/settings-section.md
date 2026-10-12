@@ -43,8 +43,8 @@ field gap `space.stack.lg`, row gap `space.inline.md`, Card outlined / `space.in
 
 ## Implementation
 
-- React: `src/patterns/SettingsSection` (`SettingsSection`, `FieldRow`); applied in
-  `src/examples/Settings` (4 tabs, 3 independent save scopes).
+- React: `packages/react/src/patterns/SettingsSection` (`SettingsSection`, `FieldRow`); applied in
+  `packages/react/src/examples/Settings` (4 tabs, 3 independent save scopes).
 - Storybook: `Patterns/Settings section`.
 - Figma: Patterns page → "Settings section"; Examples → 03 (Profile), 03b (Notifications),
   03c (Plan).

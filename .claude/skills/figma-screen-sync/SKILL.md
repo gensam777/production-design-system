@@ -1,12 +1,12 @@
 ---
 name: figma-screen-sync
-description: Daily Figma → React workflow for product screens. Finds the new or updated screen on the canonical file's Examples / Playground page, classifies its target platform (web, web app, responsive web, mobile app, tablet app, unknown) and implementation intent, audits it in Figma first (tokens, Text Styles, Auto Layout, instances, raw values, Brand A/B, accessibility structure), compares it with the existing components/patterns/examples, proposes a plan and pauses, then implements it in `src/examples/` + Storybook after approval and verifies it at three parity layers. Use for "/figma-screen-sync", "sync my new Figma screen", "sync the latest Figma screen", or "implement the new screen from Figma". Not for building or changing a DS component (use component-production) or for refreshing the Login drift snapshot (use design-audit). Never commits, pushes, opens PRs, or accepts Chromatic baselines.
+description: Daily Figma → React workflow for product screens. Finds the new or updated screen on the canonical file's Examples / Playground page, classifies its target platform (web, web app, responsive web, mobile app, tablet app, unknown) and implementation intent, audits it in Figma first (tokens, Text Styles, Auto Layout, instances, raw values, Brand A/B, accessibility structure), compares it with the existing components/patterns/examples, proposes a plan and pauses, then implements it in `packages/react/src/examples/` + Storybook after approval and verifies it at three parity layers. Use for "/figma-screen-sync", "sync my new Figma screen", "sync the latest Figma screen", or "implement the new screen from Figma". Not for building or changing a DS component (use component-production) or for refreshing the Login drift snapshot (use design-audit). Never commits, pushes, opens PRs, or accepts Chromatic baselines.
 ---
 
 # Figma screen sync
 
 Repeatable workflow for one job: **a new or updated product screen in Figma → an audited
-React/Storybook implementation in `src/examples/`**, built for the platform the screen was
+React/Storybook implementation in `packages/react/src/examples/`**, built for the platform the screen was
 designed for. It reuses the principles of the two existing skills rather than restating
 them:
 
@@ -64,7 +64,7 @@ of every run; don't reuse node IDs from memory or a previous run.
   them apart from yours. If on `main`, propose a `feat/...` branch in the step-6 proposal
   (don't create it before approval).
 - Read `CLAUDE.md` (Canonical Figma Source table), `docs/patterns/README.md`, and the list of
-  `src/examples/*` and `src/patterns/*`.
+  `packages/react/src/examples/*` and `packages/react/src/patterns/*`.
 
 ### 1. Discover the screen
 
@@ -73,7 +73,7 @@ Goal: find the screen without asking the user to describe it.
 1. `get_metadata` on the **Examples / Playground** page (`180:11`; re-verify the ID if it
    fails) to list its top-level frames with names and IDs.
 2. Compare against the frames already recorded in `CLAUDE.md`'s "Product examples" row and
-   the screens in `src/examples/`. A frame is a **candidate** when:
+   the screens in `packages/react/src/examples/`. A frame is a **candidate** when:
    - it isn't in that row (new), or
    - the user named it, or
    - it's a recorded frame the user says changed. Figma metadata doesn't expose edit dates,
@@ -135,7 +135,7 @@ what the design targets; it doesn't decide what gets built now. Record all three
 
 - **Design target:** the classified platform (e.g. Mobile app).
 - **Current implementation:** what this skill builds. In this repo that's always a
-  **React/Storybook reference** in `src/examples/`, including for app screens.
+  **React/Storybook reference** in `packages/react/src/examples/`, including for app screens.
 - **Future implementation:** the intended production stack if known (e.g. React Native,
   SwiftUI, Compose, or the same React web app). Otherwise "not decided". Native outputs
   are deferred in `CLAUDE.md`. Don't build anything native and don't add native tokens.
@@ -167,8 +167,8 @@ Check every category and record findings with node ID and name:
 
 Then classify every meaningful piece of UI into one of:
 
-- **Existing component** — maps to a component in `src/components/` (name it and its props).
-- **Existing pattern/template** — matches something in `src/patterns/` / `docs/patterns/`.
+- **Existing component** — maps to a component in `packages/react/src/components/` (name it and its props).
+- **Existing pattern/template** — matches something in `packages/react/src/patterns/` / `docs/patterns/`.
   The current templates (App shell, Centered card layout) are **web** templates. Don't apply
   them to an app screen just because the content looks similar.
 - **Product composition** — screen-specific layout of the above. This is the default.
@@ -200,13 +200,13 @@ If the audit is clean, say so in one line and continue.
 
 Read before deciding:
 
-- the existing `src/examples/*` screens (they are the house style for screen code,
+- the existing `packages/react/src/examples/*` screens (they are the house style for screen code,
   stories and CSS), and any example the new screen resembles, preferring examples of
   the **same platform**;
-- the `src/components/*` and `src/patterns/*` used in the classification, including
+- the `packages/react/src/components/*` and `packages/react/src/patterns/*` used in the classification, including
   their props and stories, to confirm the needed variant/state is already supported;
 - `docs/design-to-code-mappings.md` for each component involved;
-- `src/tokens/semantic/*.json` for every Figma variable found, to confirm the matching
+- `design/tokens/semantic/*.json` for every Figma variable found, to confirm the matching
   semantic token exists;
 - `docs/foundations/responsive.md` for any web platform that will use breakpoints.
 
@@ -246,7 +246,7 @@ Report concisely, then **stop and wait for approval**:
 9. **Files expected to change** — exact paths, new vs modified.
 
 Typical file set for a new screen, following the existing examples:
-`src/examples/<Screen>/{<Screen>Screen.tsx,<Screen>Screen.css,<Screen>Screen.stories.tsx,index.ts}`,
+`packages/react/src/examples/<Screen>/{<Screen>Screen.tsx,<Screen>Screen.css,<Screen>Screen.stories.tsx,index.ts}`,
 plus the `CLAUDE.md` "Product examples" row (new frame ID, platform). Add a
 `docs/design-to-code-mappings.md` entry only if the existing examples have one.
 
@@ -282,7 +282,7 @@ plus the `CLAUDE.md` "Product examples" row (new frame ID, platform). Add a
   (per `docs/foundations/responsive.md`).
 - Real semantics: `<main>`, `<header>`, `<nav>`, `<form>`, headings in order, labels via the
   components' props. No ARIA where a native element covers it.
-- Never hand-edit `src/tokens/build/`. If a token change was approved, edit the source JSON
+- Never hand-edit `packages/tokens/build/`. If a token change was approved, edit the source JSON
   and run `npm run tokens:build`.
 - Update the `CLAUDE.md` "Product examples" row with the new frame ID, its platform, and
   today's date.

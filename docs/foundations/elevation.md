@@ -6,7 +6,7 @@ decisions behind this foundation.
 
 ## Primitives
 
-Raw shadow geometry in `src/tokens/core/shadow.json` — four scalar fields per step
+Raw shadow geometry in `design/tokens/core/shadow.json` — four scalar fields per step
 (`offset-x`, `offset-y`, `blur`, `spread`), no color. No meaning attached.
 
 | Token (code) | Figma variable | x | y | blur | spread |
@@ -25,7 +25,7 @@ brand theming.
 
 ## Semantic tokens
 
-`src/tokens/semantic/elevation.json` — DTCG `$type: "shadow"` composite tokens. Four
+`design/tokens/semantic/elevation.json` — DTCG `$type: "shadow"` composite tokens. Four
 roles:
 
 | Semantic | Geometry | Color | Use |
@@ -42,8 +42,8 @@ was the CSS keyword string `"none"`; the web emitter still outputs `none` — AD
 
 ## Shadow color — part of Semantic Color, not a separate palette
 
-Three new entries in `src/tokens/semantic/color.json`, aliasing three new entries in
-`src/tokens/core/color.json`:
+Three new entries in `design/tokens/semantic/color.json`, aliasing three new entries in
+`design/tokens/core/color.json`:
 
 | Semantic (code) | Figma | → Primitive | Value |
 | --- | --- | --- | --- |
@@ -84,7 +84,7 @@ directly for this foundation, confirmed no collision exists between `shadow.*`,
 
 ## Code output
 
-- **CSS** (`src/tokens/build/css/variables.css`): valid `box-shadow` shorthand via
+- **CSS** (`packages/tokens/build/css/variables.css`): valid `box-shadow` shorthand via
   Style Dictionary's built-in `shadow/css/shorthand` transform — e.g.
   `--elevation-raised: 0 1px 2px 0 rgba(0, 0, 0, 0.05);`, `--elevation-flat: none;`.
   Unlike typography's `font` shorthand (lossy, needed a custom format — ADR 0003), CSS's
@@ -94,7 +94,7 @@ directly for this foundation, confirmed no collision exists between `shadow.*`,
   radius's `size/radius-px`) ensures this, and also ensures the shorthand transform sees
   already-unitted values (without it, the generated CSS would be missing `px` units
   entirely, not just wrongly scaled — see ADR 0007 for why).
-- **JS/TS** (`src/tokens/build/js/tokens.js`): geometry stays plain px numbers;
+- **JS/TS** (`packages/tokens/build/js/tokens.js`): geometry stays plain px numbers;
   `elevation.raised`/`overlay`/`modal` export as plain objects
   (`{ offsetX, offsetY, blur, spread, color }`, color as hex8) for consumers who want to
   build their own shadow string; `elevation.flat` exports as the string `"none"` (the web
@@ -109,7 +109,7 @@ directly for this foundation, confirmed no collision exists between `shadow.*`,
 | `overlay` | opacity .08, radius 3, offset (0, 2) | 3 dp |
 | `modal` | opacity .12, radius 6, offset (0, 4) | 6 dp |
 
-The Android heights live in `src/tokens/platform/native/semantic/elevation.json`
+The Android heights live in `design/tokens/platform/native/semantic/elevation.json`
 (native-only, never in web output). The build fails if an `elevation.*` role has no height
 or the heights don't grow with the shadow. Native system sheets, menus and dialogs keep
 their own presentation.

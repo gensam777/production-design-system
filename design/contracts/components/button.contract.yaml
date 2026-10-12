@@ -5,7 +5,7 @@
 # Shared semantic intent only: what Button means, how it behaves and which semantic tokens it
 # paints with. It is not a web API and not a native API — each platform maps it to its own
 # idiom (see docs/cross-platform/component-contracts.md, "Platform naming").
-# Web (src/components/Button/) is the implemented reference; the other platforms are planned
+# Web (packages/react/src/components/Button/) is the implemented reference; the other platforms are planned
 # (Phase 5). Validate: npm run contracts:validate
 
 schema-version: 1
@@ -359,9 +359,9 @@ figma:
 
 references:
   web:
-    source: src/components/Button/Button.tsx
-    styles: src/components/Button/Button.css
-    stories: src/components/Button/Button.stories.tsx
+    source: packages/react/src/components/Button/Button.tsx
+    styles: packages/react/src/components/Button/Button.css
+    stories: packages/react/src/components/Button/Button.stories.tsx
   docs:
     - docs/design-to-code-mappings.md#button
     - governance/decisions/0010-icon-token-architecture.md

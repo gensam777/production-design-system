@@ -42,6 +42,6 @@ Login blaming the password field for an authentication failure and Settings with
 ## Implementation
 
 - Storybook: `Patterns/Form validation` (Client-side field errors, Form-level
-  authentication error). Applied in `src/examples/Login` (form-level only).
+  authentication error). Applied in `packages/react/src/examples/Login` (form-level only).
 - Figma: Patterns page → "Form validation"; Examples → 01b Login · Error state (Alert
   only, password field in its default state).

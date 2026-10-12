@@ -2,75 +2,43 @@
   "name": "production-design-system",
   "version": "0.0.0",
   "private": true,
-  "description": "Production-style React design system: tokens, components, and documentation.",
+  "description": "Production Design System — one repo for web, React Native, iOS and Android (ADR 0013). npm workspaces: packages/*; platform-neutral source in design/; native packages in platforms/.",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./index.css": "./dist/index.css"
-  },
-  "files": [
-    "dist"
+  "workspaces": [
+    "packages/tokens",
+    "packages/react",
+    "packages/react-native"
   ],
   "scripts": {
-    "build": "npm run tokens:build && tsup",
-    "typecheck": "tsc --noEmit",
+    "build": "npm run build -w @pds/react",
+    "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "eslint . && node scripts/check-token-usage.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "tokens:build": "node scripts/build-tokens.mjs",
-    "tokens:test": "node --test scripts/tokens/__tests__/tokens.test.mjs",
-    "tokens:test:update": "node scripts/tokens/__tests__/tokens.test.mjs --update",
+    "tokens:build": "npm run build -w @pds/tokens",
+    "tokens:test": "npm run test -w @pds/tokens",
+    "tokens:test:update": "npm run test:update -w @pds/tokens",
     "contracts:validate": "node scripts/contracts/validate.mjs",
     "contracts:test": "node --test scripts/contracts/__tests__/contracts.test.mjs",
-    "design:audit":"node scripts/design-audit/audit.mjs",
+    "design:audit": "node scripts/design-audit/audit.mjs",
     "design:audit:test": "node --test scripts/design-audit/__tests__/audit.test.mjs",
     "design:audit:snapshot": "node scripts/design-audit/snapshot.mjs",
     "design:audit:refresh": "node scripts/design-audit/refresh.mjs",
-    "prestorybook": "npm run build",
-    "storybook": "storybook dev -p 6006",
-    "prebuild-storybook": "npm run build",
-    "build-storybook": "storybook build"
-  },
-  "peerDependencies": {
-    "react": ">=18",
-    "react-dom": ">=18"
+    "storybook": "npm run storybook -w @pds/react",
+    "build-storybook": "npm run build-storybook -w @pds/react"
   },
   "engines": {
     "node": ">=18"
   },
   "devDependencies": {
-    "@fontsource/figtree": "^5.3.0",
-    "@fontsource/inter": "^5.3.0",
-    "@storybook/addon-a11y": "^10.5.10",
-    "@storybook/react-vite": "^10.5.10",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.5",
     "@typescript-eslint/eslint-plugin": "^8.70.0",
     "@typescript-eslint/parser": "^8.69.0",
     "ajv": "^8.20.0",
-    "chromatic": "^18.8.1",
     "eslint": "^9.39.5",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "globals": "^17.12.0",
     "prettier": "^3.9.6",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "storybook": "^10.5.10",
-    "style-dictionary": "^5.5.2",
-    "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "vite": "^8.2.2",
     "yaml": "^2.9.1"
-  },
-  "dependencies": {
-    "@floating-ui/react": "^0.27.20",
-    "lucide-react": "^1.41.0"
   }
 }

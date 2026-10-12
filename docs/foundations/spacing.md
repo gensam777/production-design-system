@@ -7,7 +7,7 @@ naming is category-first (`space.*`) to match Figma (`space/*`).
 
 ## Primitives
 
-Raw hybrid 4px/8px rhythm in `src/tokens/core/spacing.json`. No meaning attached —
+Raw hybrid 4px/8px rhythm in `design/tokens/core/spacing.json`. No meaning attached —
 a primitive doesn't know it means "card padding" or "section gap."
 
 | Token | Value |
@@ -29,7 +29,7 @@ No 80px/96px step in V1 — add one deliberately when a real layout need appears
 
 ## Semantic tokens
 
-`src/tokens/semantic/spacing.json` — the layer components actually consume. Every
+`design/tokens/semantic/spacing.json` — the layer components actually consume. Every
 semantic token is an **alias** to a primitive (`{space.md}` style reference), never a
 duplicated raw number. Four categories, each with only the aliases it has a real use
 for — not a full primitive × category cross product:
@@ -86,9 +86,9 @@ Primitive and semantic spacing values are stored as raw pixel numbers
 deliberate — rem is a CSS output detail, not the design-side value model (see the
 approved proposal referenced in ADR 0004).
 
-- **CSS output** (`src/tokens/build/css/variables.css`): converted to rem via a custom
+- **CSS output** (`packages/tokens/build/css/variables.css`): converted to rem via a custom
   `size/px-to-rem` Style Dictionary transform (16px base), e.g. `--space-md: 1rem;`.
-- **JS/TS output** (`src/tokens/build/js/tokens.js`): stays a plain px number, e.g.
+- **JS/TS output** (`packages/tokens/build/js/tokens.js`): stays a plain px number, e.g.
   `export const SpaceMd = 16;`. The built-in `size/rem` transform was deliberately
   excluded from this platform's transform list — see ADR 0004 for why it would have
   corrupted these values if left in.
@@ -117,4 +117,4 @@ below were created and approved in Figma before any code existed, then mirrored 
   All 45 live node bindings in the Spacing Specimen frame were repointed to the new
   variables as part of the migration — see
   `governance/decisions/0005-semantic-collection-split.md`. Code required no change —
-  `src/tokens/semantic/spacing.json` was already its own file with unprefixed paths.
+  `design/tokens/semantic/spacing.json` was already its own file with unprefixed paths.

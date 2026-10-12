@@ -1,12 +1,12 @@
 ---
 name: token-production
-description: Production workflow for design-token and Figma-variable changes — primitive (Core), brand (Brand A / Brand B), semantic and component-scoped tokens across color, typography, spacing, radius, elevation, motion, breakpoints/layout and icon size. Discovers what changed (Figma variables and/or `src/tokens/`), checks the Core → Brand → Semantic → Component architecture, reports impact (aliases, brands, components, examples, generated outputs, contrast, breaking changes) and pauses, then applies the approved change to token source (and Figma if approved), regenerates outputs and verifies parity. Use for "/token-production", "sync my token changes", "update the design tokens", "I changed variables in Figma", or any add/change/rename/remove of a token or variable. Not for component architecture (component-production), product screens (figma-screen-sync) or drift-only checks (design-audit). Never commits, pushes, opens PRs, or accepts Chromatic baselines.
+description: Production workflow for design-token and Figma-variable changes — primitive (Core), brand (Brand A / Brand B), semantic and component-scoped tokens across color, typography, spacing, radius, elevation, motion, breakpoints/layout and icon size. Discovers what changed (Figma variables and/or `design/tokens/`), checks the Core → Brand → Semantic → Component architecture, reports impact (aliases, brands, components, examples, generated outputs, contrast, breaking changes) and pauses, then applies the approved change to token source (and Figma if approved), regenerates outputs and verifies parity. Use for "/token-production", "sync my token changes", "update the design tokens", "I changed variables in Figma", or any add/change/rename/remove of a token or variable. Not for component architecture (component-production), product screens (figma-screen-sync) or drift-only checks (design-audit). Never commits, pushes, opens PRs, or accepts Chromatic baselines.
 ---
 
 # Token production
 
 This skill owns **token and variable architecture changes**: adding, changing, re-aliasing,
-renaming or removing a token in `src/tokens/` and/or a Figma Variable (or a Text/Effect
+renaming or removing a token in `design/tokens/` and/or a Figma Variable (or a Text/Effect
 Style that represents a token). It makes that a repeatable pipeline: discover → architecture
 check → impact → source-of-truth check → propose and pause → apply → regenerate → validate
 → parity → report.
@@ -17,7 +17,7 @@ every category the change touches (table below). Related skills:
 - **`component-production`** — a component's structure, API or which token a component
   consumes. If a token change needs a component change, propose that part as a
   component-production task. Don't do it inside this skill.
-- **`figma-screen-sync`** — product screens in `src/examples/`.
+- **`figma-screen-sync`** — product screens in `packages/react/src/examples/`.
 - **`design-audit`** — Figma ↔ code drift detection for audited surfaces. Use it to refresh
   the snapshot after a Figma variable change that touches an audited surface.
 
@@ -42,7 +42,7 @@ every category the change touches (table below). Related skills:
 6. **One contract for every brand.** Semantic token names never vary by brand. Brands
    differ only inside the `brand.*` contract. Never duplicate a semantic or component token
    per brand, and never add a brand-specific value outside `brands/<brand>/`.
-7. **Never hand-edit generated files** (`src/tokens/build/**`). Change the source, then run
+7. **Never hand-edit generated files** (`packages/tokens/build/**`). Change the source, then run
    `npm run tokens:build`.
 8. **Never delete or rename a token that still has consumers.** Migrate the consumers first
    (step 10).
@@ -57,9 +57,9 @@ every category the change touches (table below). Related skills:
 
 | Layer | Code | Figma | Varies by brand | Who may consume it |
 | --- | --- | --- | --- | --- |
-| Core (shared primitives) | `src/tokens/core/*.json` | `Core` collection (single mode) | No | Brand and semantic token aliases only. Also `viewport.*` inside `@media` queries. |
-| Brand | `src/tokens/brands/<brand>/brand.json` | `Brand` collection, modes **Brand A / Brand B** | **Yes** | Semantic token aliases only. Never emitted to CSS/JS. |
-| Semantic (public contract) | `src/tokens/semantic/*.json` | `Semantic Color/Space/Radius/Motion/Layout/Icon` collections, Text Styles, Effect Styles | Names never; values only through `brand.*` aliases | Components, patterns, examples |
+| Core (shared primitives) | `design/tokens/core/*.json` | `Core` collection (single mode) | No | Brand and semantic token aliases only. Also `viewport.*` inside `@media` queries. |
+| Brand | `design/tokens/brands/<brand>/brand.json` | `Brand` collection, modes **Brand A / Brand B** | **Yes** | Semantic token aliases only. Never emitted to CSS/JS. |
+| Semantic (public contract) | `design/tokens/semantic/*.json` | `Semantic Color/Space/Radius/Motion/Layout/Icon` collections, Text Styles, Effect Styles | Names never; values only through `brand.*` aliases | Components, patterns, examples |
 | Component-scoped | Inside the semantic files, under the component's name (e.g. `color.switch.track.*`, `radius.checkbox`) | Variables in the matching Semantic collection | Normally shared | That component only, until a second consumer justifies promoting it to a shared role |
 
 **Brand contract (13 tokens):** `brand.color.primary.{50…900}`, `brand.font.family.sans`,
@@ -94,20 +94,20 @@ prefix (ADR 0005), so the same token has three spellings:
 Always match a Figma variable to its code token through this mapping and the resolved
 value, never by name similarity alone.
 
-**Build guardrails** (`scripts/build-tokens.mjs` → `scripts/tokens/guards.mjs`, run on the
-platform-neutral IR in `src/tokens/build/ir/<brand>.json`; it fails on any of these):
+**Build guardrails** (`packages/tokens/scripts/build.mjs` → `packages/tokens/scripts/guards.mjs`, run on the
+platform-neutral IR in `packages/tokens/build/ir/<brand>.json`; it fails on any of these):
 - an incomplete or extra brand contract;
 - a platform-tier token overriding a shared token (tiers may only add);
 - a shared token aliasing a platform-tier (web- or native-only) token;
 - a shared (brand-independent) token that resolves differently between brands;
 - a per-brand WCAG contrast pair below its minimum (`CONTRAST_PAIRS`, keyed by token path);
-- an invalid font catalog (`src/tokens/fonts/fonts.json`), or a family × weight a typography
+- an invalid font catalog (`design/fonts/fonts.json`), or a family × weight a typography
   role uses with no face in it;
 - native mappings (ADR 0016): a typography role (`text.<group>.<size>`) without a valid iOS
   anchor in `platform/native/semantic/text-scaling.json`, or an orphan anchor; an
   `elevation.*` role without an Android height in `platform/native/semantic/elevation.json`,
   or heights that don't grow with the shadow; a token type with no native mapping
-  (`scripts/tokens/native.mjs`); two paths mapping to one native name (`on-color`/`onColor`);
+  (`packages/tokens/scripts/native.mjs`); two paths mapping to one native name (`on-color`/`onColor`);
   brands with different native theme shapes.
 
 `npm run lint` additionally runs the token-usage guard. `npm run tokens:test` compares every
@@ -124,10 +124,10 @@ generated output — web and native — with its committed snapshot.
 ### 1. Discover the change (read-only)
 
 Find out where the change came from: the user says, `git diff`/`git status` on
-`src/tokens/` shows a code-side edit, or nothing local changed (assume a Figma-side change).
+`design/tokens/` shows a code-side edit, or nothing local changed (assume a Figma-side change).
 
 1. **Code side.** Load the token source, and the generated per-brand values from
-   `src/tokens/build/js/tokens.<brand>.js` (resolved values) or a scratchpad script that
+   `packages/tokens/build/js/tokens.<brand>.js` (resolved values) or a scratchpad script that
    resolves aliases. `git diff` shows uncommitted source edits.
 2. **Figma side.** Use a read-only `use_figma` call that dumps every local collection:
    collection name, modes, and for each variable its name, type, scopes, `valuesByMode`
@@ -180,7 +180,7 @@ Trace each changed token **forward** through aliases to every consumer:
   JSON for `{path.to.token}`), recursively.
 - **Brand A / Brand B values:** before and after, per brand.
 - **Code consumers:** grep the CSS custom property (`--…`) and JS token names in
-  `src/components`, `src/patterns`, `src/examples`, `.storybook`, `docs/`,
+  `packages/react/src/{components,patterns,examples}`, `packages/react/.storybook`, `docs/`,
   `scripts/token-usage-exceptions.json` and `scripts/design-audit/surfaces/*.json`.
 - **Figma consumers:** components, styles and product frames bound to the variable. Run
   read-only `use_figma` searches for `boundVariables` referencing the variable ID, one
@@ -210,8 +210,8 @@ Also check:
 - **Native outputs (ADR 0016):** every semantic token is emitted to React Native, Swift and
   Kotlin, so report native impact too. A new typography role needs a `textScaling.*` anchor;
   a new elevation role needs an `elevationHeight.*` value (provisional until Phase 5); a new
-  font family or weight needs a face in `src/tokens/fonts/fonts.json` (metadata only — never
-  add font files); a new token type needs a mapping in `scripts/tokens/native.mjs` and the
+  font family or weight needs a face in `design/fonts/fonts.json` (metadata only — never
+  add font files); a new token type needs a mapping in `packages/tokens/scripts/native.mjs` and the
   three emitters. Native-only values go in `platform/native/semantic/`, never shared source.
   Core and `brand.*` tokens are never exposed natively.
 
@@ -248,7 +248,7 @@ Report concisely, then **stop and wait for approval**:
 
 ### 6. Apply (after approval only)
 
-- **Token source:** edit `src/tokens/{core,brands/<brand>,semantic,platform/{web,native}/{core,semantic}}/*.json` in DTCG format
+- **Token source:** edit `design/tokens/{core,brands/<brand>,semantic,platform/{web,native}/{core,semantic}}/*.json` in DTCG format
   (`$value`, `$type`, `$description`). Keep aliases rather than inlining values, and
   write a `$description` that explains the role.
 - **Brands:** a `brand.*` change goes in every brand's file where it applies. A new
@@ -257,8 +257,8 @@ Report concisely, then **stop and wait for approval**:
   Set `scopes` explicitly on new variables. Set values for **every** mode of the Brand
   collection. Rebind Text/Effect Styles if typography or elevation changed. Return and
   record every touched variable/style ID.
-- **Style Dictionary** (`style-dictionary.config.mjs` = web emitter transforms/formats;
-  `scripts/build-tokens.mjs` + `scripts/tokens/{ir,fonts,guards,emit-web,native,emit-react-native,emit-swift,emit-kotlin}.mjs`
+- **Style Dictionary** (`packages/tokens/style-dictionary.config.mjs` = web emitter transforms/formats;
+  `packages/tokens/scripts/build.mjs` + `packages/tokens/scripts/{ir,fonts,guards,emit-web,native,emit-react-native,emit-swift,emit-kotlin}.mjs`
   = resolve → IR → guard → emit): only
   when the change genuinely needs it, e.g. a new token type, a new output file, or a new
   `CONTRAST_PAIRS` entry for a new text/background role. Otherwise leave them alone.
@@ -271,17 +271,20 @@ Report concisely, then **stop and wait for approval**:
 ### 7. Generated outputs
 
 Run `npm run tokens:build`. Then confirm:
-- **Web CSS:** the expected custom properties changed (diff `src/tokens/build/css/**`),
+- **Web CSS:** the expected custom properties changed (diff `packages/tokens/build/css/**`),
   in the right file (shared vs `brands/<brand>.css`), and nothing else moved.
 - **JS:** `js/tokens.js` and `js/tokens.<brand>.js` changed accordingly.
 - **Build summary:** the brand contract count and the brand-dependent token list are as
   expected (a shared token newly showing up as brand-dependent is a red flag), and the
   contrast table passes.
-- **Native outputs:** `src/tokens/build/{react-native,swift,kotlin}/` changed only where the
-  token changed (same token, same brands). Then run `npm run tokens:test`: a snapshot diff is
-  expected for every output you changed and nothing else. Web snapshots must not change
-  unless the web change was approved. After review, `npm run tokens:test:update` and include
-  the snapshot diff in the report.
+- **Native outputs:** `packages/tokens/build/react-native/`, `platforms/ios/Sources/PDSTokens/`
+  and `platforms/android/tokens/src/main/kotlin/com/pds/tokens/` changed only where the
+  token changed (same token, same brands). `npm run tokens:build` rewrites the committed Swift
+  and Kotlin sources in `platforms/` directly — review their `git diff`; they ship with the
+  token change (CI fails if they're stale). Then run `npm run tokens:test`: a snapshot diff is
+  expected for every web / React Native output you changed and nothing else. Web snapshots must
+  not change unless the web change was approved. After review, `npm run tokens:test:update`
+  and include the snapshot and `platforms/` diffs in the report.
 - **Cross-platform compatibility:** the source stays portable (step 3).
 
 Generated files are only ever produced by the build, never edited by hand.
@@ -311,7 +314,7 @@ snapshot with the `design-audit` skill before trusting the result.
 - **B. Token-source parity.** The source token resolves to the same value and alias
   target as Figma, per brand, via the name mapping.
 - **C. Generated-output parity.** The CSS custom property and JS value per brand equal
-  the resolved source values (read them from `src/tokens/build/**`, not from memory).
+  the resolved source values (read them from `packages/tokens/build/**`, not from memory).
 - **D. Brand A / Brand B parity.** Brand-dependent tokens differ only as intended; shared
   tokens are identical (the build checks this; confirm it in the summary). The contrast
   ratio for every affected pair is reported per brand.

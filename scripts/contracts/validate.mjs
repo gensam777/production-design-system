@@ -12,8 +12,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { loadFontCatalog } from '../tokens/fonts.mjs';
-import { BRANDS, resolveBrand } from '../tokens/ir.mjs';
+import { loadFontCatalog } from '../../packages/tokens/scripts/fonts.mjs';
+import { BRANDS, resolveBrand } from '../../packages/tokens/scripts/ir.mjs';
 import { checkContract, compileSchema, parseContract } from './lib/contracts.mjs';
 
 const CONTRACTS = 'design/contracts';

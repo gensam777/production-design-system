@@ -25,7 +25,7 @@ expand to other surfaces unless the user explicitly asks. Adding a surface is it
    `figma.extractor.version` in the contract together. Load the `figma:figma-use` skill before
    the call, as `use_figma` requires.
 2. **Never modify design or production code during an audit.** Don't change anything under
-   `src/`, the token JSON, stories, docs, or Figma, even when the audit finds DRIFT. Fixing
+   `packages/react/src/`, the token JSON, stories, docs, or Figma, even when the audit finds DRIFT. Fixing
    drift is a separate, human-approved task.
 3. **The only files this workflow writes** are `scripts/design-audit/snapshots/login.figma.json`
    (written by `npm run design:audit:refresh`, never by hand) and the gitignored

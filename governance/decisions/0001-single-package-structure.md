@@ -5,6 +5,8 @@
 - **Superseded in part by**: [0013](./0013-cross-platform-architecture.md) — the single
   package stays until `@pds/react-native` starts, then plain npm workspaces (see 0013 "Repo
   evolution"). The Code Connect and manual-mapping decisions still stand.
+- **Superseded by**: [0017](./0017-workspace-structure.md) (2026-10-12) for the package
+  structure — plain npm workspaces, token source in `design/`. Paths below are historical.
 
 ## Context
 

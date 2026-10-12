@@ -12,8 +12,8 @@ import fs from 'node:fs';
 import { before, describe, test } from 'node:test';
 
 import { getDeclaration, parseCss, varRefs } from '../../design-audit/lib/css.mjs';
-import { loadFontCatalog } from '../../tokens/fonts.mjs';
-import { BRANDS, resolveBrand } from '../../tokens/ir.mjs';
+import { loadFontCatalog } from '../../../packages/tokens/scripts/fonts.mjs';
+import { BRANDS, resolveBrand } from '../../../packages/tokens/scripts/ir.mjs';
 import {
   checkContract,
   checkFigma,
@@ -194,7 +194,7 @@ describe('each check fires', () => {
     assert.ok(errors(checkWebReference(d, read, irs), 'web-reference').length);
 
     const e = clone(button);
-    e.references.web.source = 'src/components/Button/Missing.tsx';
+    e.references.web.source = 'packages/react/src/components/Button/Missing.tsx';
     assert.ok(errors(checkWebReference(e, read, irs), 'web-reference').length);
 
     // Planned platforms are not checked against an implementation.
@@ -206,7 +206,7 @@ describe('each check fires', () => {
 });
 
 describe('Button reference parity (Button.css, cell by cell)', () => {
-  const css = () => parseCss(read('src/components/Button/Button.css'));
+  const css = () => parseCss(read('packages/react/src/components/Button/Button.css'));
   const cssVar = (path) => (path === 'none' ? 'transparent' : `var(--${path.replace(/\./g, '-')})`);
   const STATE_SELECTOR = {
     default: '',
@@ -268,7 +268,7 @@ describe('Button reference parity (Button.css, cell by cell)', () => {
       (g) => g.id === 'loading-keeps-variant-colors' && g.platform === 'web',
     );
     const webForcesDisabled = /disabled\s*\|\|\s*loading/.test(
-      read('src/components/Button/Button.tsx'),
+      read('packages/react/src/components/Button/Button.tsx'),
     );
     if (webForcesDisabled) assert.ok(gap, 'web still disables while loading — declare the gap');
     else assert.ok(!gap, 'web no longer disables while loading — remove the implementation gap');
@@ -284,7 +284,7 @@ describe('Button reference parity (Button.css, cell by cell)', () => {
       (g) => g.id === 'disabled-wins-over-loading' && g.platform === 'web',
     );
     const busyIgnoresDisabled = /aria-busy=\{\s*loading\s*\|\|\s*undefined\s*\}/.test(
-      read('src/components/Button/Button.tsx'),
+      read('packages/react/src/components/Button/Button.tsx'),
     );
     if (busyIgnoresDisabled) assert.ok(gap, 'web reports busy while disabled — declare the gap');
     else assert.ok(!gap, 'web no longer reports busy while disabled — remove the gap');

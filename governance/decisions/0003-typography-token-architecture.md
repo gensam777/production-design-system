@@ -15,8 +15,8 @@ generate correct CSS output for it unmodified.
 ## Decision
 
 - **Semantic typography tokens are DTCG composite `$type: "typography"` tokens**
-  (`src/tokens/semantic/typography.json`), not five separate semantic tokens per role.
-  Each sub-value aliases a primitive in `src/tokens/primitive/typography.json` — same
+  (`design/tokens/semantic/typography.json`), not five separate semantic tokens per role.
+  Each sub-value aliases a primitive in `design/tokens/primitive/typography.json` — same
   alias-only rule as color, applied per sub-property.
 - **Semantic roles are a role × size × weight matrix, no component-specific roles** —
   matching the color foundation's "no token without a real consumer" discipline. The
@@ -42,7 +42,7 @@ generate correct CSS output for it unmodified.
 
 ## Consequences
 
-- `src/tokens/build/css/` now has two files instead of one: `variables.css` (colors +
+- `packages/tokens/build/css/` now has two files instead of one: `variables.css` (colors +
   typography primitives) and `typography.css` (the 8 expanded roles). A consumer needs
   both, and combines the five longhand properties per role into whatever shorthand or
   individual CSS properties a component needs — there's no single custom property
@@ -82,7 +82,7 @@ Everything else this ADR decided is unchanged and still governs the 35-role shap
 - Process: the 35-role matrix was designed, approved, and migrated in Figma **first**
   (retiring both the old 8 semantic styles and an intermediate 8-style non-semantic
   "utility ladder" that existed briefly in the Figma file only), then mirrored into
-  `src/tokens/semantic/typography.json` and rebuilt. This is consistent with this
+  `design/tokens/semantic/typography.json` and rebuilt. This is consistent with this
   project's Figma-first source-of-truth stance for foundations work — see
   `docs/foundations/typography.md` for the full migration/equivalence table from the old
   8 roles to their new 35-role successors.

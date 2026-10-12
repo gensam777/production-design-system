@@ -43,6 +43,6 @@ Nav heights are composition constants matching Figma 02 / 02b (not tokens).
 
 ## Implementation
 
-- React: `src/patterns/AppShell`; used by Dashboard and Settings examples.
+- React: `packages/react/src/patterns/AppShell`; used by Dashboard and Settings examples.
 - Storybook: `Patterns/App shell` (Default, Compact 375 via iframe).
 - Figma: Templates page → "App shell"; product frames 02/02b/03/03b/03c.

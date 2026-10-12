@@ -25,8 +25,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # npm workspaces (ADR 0017): @pds/tokens, @pds/react, @pds/react-native. Root scripts
+      # delegate to them.
       - name: Build tokens
         run: npm run tokens:build
+
+      # The Swift and Kotlin token outputs are committed sources (platforms/ios, platforms/
+      # android) that SwiftPM / Gradle compile without Node. The build just rewrote them, so any
+      # diff means a token change was committed without its regenerated native sources.
+      - name: Native token sources are committed and current
+        run: git diff --exit-code -- platforms/
 
       # Web CSS/JS must stay byte-identical; React Native / Swift / Kotlin outputs must match
       # their reviewed snapshots and the IR (ADR 0016). Also type-checks the RN output.
@@ -80,9 +88,9 @@ jobs:
       - name: Build Storybook
         run: npm run build-storybook
 
-  # Native token outputs (ADR 0016). These compile the COMMITTED snapshots in
-  # scripts/tokens/__tests__/__snapshots__/ — `npm run tokens:test` (validate job) proves the
-  # snapshots equal what the build generates, so neither job needs Node or a token build.
+  # Native packages (ADR 0016, 0017). Both build the COMMITTED generated sources —
+  # `npm run tokens:test` and the "Native token sources" step (validate job) prove they equal
+  # what the token build generates — so neither job needs Node.
   swift-tokens:
     runs-on: ubuntu-latest
     container: swift:6.0
@@ -90,15 +98,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Type-check generated Swift (PDSTokens, Swift 6 language mode)
-        run: >
-          swiftc -typecheck -parse-as-library -swift-version 6 -module-name PDSTokens
-          scripts/tokens/__tests__/__snapshots__/swift/PDSTokens/*.swift
+      # Repo-root Package.swift (tools 6.0 → Swift 6 language mode). PDSTokens only until PDSUI
+      # lands in Phase 5.
+      - name: Build Swift package (PDSTokens)
+        run: swift build
 
   kotlin-tokens:
     runs-on: ubuntu-latest
-    env:
-      KOTLIN_VERSION: 2.0.21
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -109,14 +115,11 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Install Kotlin compiler
-        run: |
-          curl -sSfL -o "$RUNNER_TEMP/kotlinc.zip" \
-            "https://github.com/JetBrains/kotlin/releases/download/v${KOTLIN_VERSION}/kotlin-compiler-${KOTLIN_VERSION}.zip"
-          unzip -q "$RUNNER_TEMP/kotlinc.zip" -d "$RUNNER_TEMP"
+      # No Gradle wrapper is committed yet (added with the Compose module in Phase 5).
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
 
-      - name: Compile generated Kotlin (com.pds.tokens)
-        run: >
-          "$RUNNER_TEMP/kotlinc/bin/kotlinc"
-          scripts/tokens/__tests__/__snapshots__/kotlin/com/pds/tokens/*.kt
-          -d "$RUNNER_TEMP/pds-tokens.jar"
+      - name: Build Gradle project (:tokens — com.pds.tokens)
+        run: gradle -p platforms/android build

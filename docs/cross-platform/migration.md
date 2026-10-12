@@ -1,25 +1,26 @@
 # Repo evolution and migration phases
 
 Decision record: [ADR 0013](../../governance/decisions/0013-cross-platform-architecture.md).
-**Current phase: 3 complete (component contracts infrastructure + Button contract); Phase 4 not started.**
+**Current phase: 4 complete (npm workspaces, `design/` source, native package scaffolding —
+[ADR 0017](../../governance/decisions/0017-workspace-structure.md)); Phase 5 not started.**
 
 ## Repo evolution
 
-**One repository for all platforms.** No monorepo tooling until a second consumable package
-exists.
+**One repository for all platforms.** Plain npm workspaces since Phase 4; no other monorepo
+tooling.
 
-| Stage                 | Structure                                                                                                                       | Trigger                                          |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| Today (Phases 0–3)    | Single package; `src/tokens/`, `src/components/`, …; new generated outputs and `design/contracts/` are additive                 | —                                                |
-| Workspaces (Phase 4+) | Plain **npm workspaces** — `packages/tokens` (`@pds/tokens`), `packages/react` (`@pds/react`), `design/` source                 | `@pds/react-native` work starts                  |
-| Native (Phase 5+)     | `platforms/ios` (`PDSTokens`, `PDSUI`; `Package.swift` at repo root), `platforms/android` (`com.pds.tokens`, `com.pds.compose`) | First native reference component                 |
-| Split repos           | Not planned                                                                                                                     | Only if independent native teams/cadences appear |
+| Stage                | Structure                                                                                                                                                                                                                             | Trigger                                                  |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Phases 0–3           | Single package; `src/tokens/`, `src/components/`, …; generated outputs and `design/contracts/` additive                                                                                                                               | — (done)                                                 |
+| Workspaces (Phase 4) | Plain **npm workspaces** — `packages/tokens` (`@pds/tokens`), `packages/react` (`@pds/react`), `packages/react-native` (reserved), `design/` source; `Package.swift` + `platforms/ios` (`PDSTokens`), `platforms/android` (`:tokens`) | Approved 2026-10-12, ahead of the RN trigger (**today**) |
+| Native (Phase 5+)    | `PDSUI` target, `com.pds.compose` module, `@pds/react-native` components                                                                                                                                                              | First native reference component                         |
+| Split repos          | Not planned                                                                                                                                                                                                                           | Only if independent native teams/cadences appear         |
 
 Target layout:
 
 ```
 /
-├─ design/            tokens/ · contracts/ · icons/ · fonts/   (platform-neutral, no code)
+├─ design/            tokens/ · contracts/ · fonts/ (+ icons/ later)   (platform-neutral, no code)
 ├─ packages/          tokens/ (@pds/tokens) · react/ (@pds/react) · react-native/ (@pds/react-native)
 ├─ platforms/         ios/ (PDSTokens, PDSUI) · android/ (com.pds.tokens, com.pds.compose)
 ├─ Package.swift
@@ -38,7 +39,7 @@ change.
 - Applied ADR 0014 source rules: px font sizes, em-fraction letter-spacing, hex8 overlays,
   single family identities, web platform tier for viewport / layout / font fallbacks,
   `elevation.flat` as an empty shadow list, numeric transition delay, `radius.full` shape marker.
-- Build refactored: resolve → `src/tokens/build/ir/<brand>.json` IR → guardrails (keyed by
+- Build refactored: resolve → `packages/tokens/build/ir/<brand>.json` IR → guardrails (keyed by
   token path, plus a new shared-must-not-alias-web scope check) → web emitter.
 - **Exit met:** web CSS/JS byte-identical; design-audit report unchanged; `tokens:build`,
   `typecheck`, `lint`, `build`, `build-storybook`, `design:audit`, `design:audit:test` green.
@@ -50,10 +51,10 @@ change.
 
 - Text-scaling anchors per typography role (`platform/native/semantic/text-scaling.json`) and
   provisional Android elevation (`platform/native/semantic/elevation.json`).
-- Font asset catalog (`src/tokens/fonts/fonts.json` + schema); per-brand manifests derived
+- Font asset catalog (`design/fonts/fonts.json` + schema); per-brand manifests derived
   into the IR. Metadata only — no font files.
 - Emitters over the IR: React Native TS, Swift (`PDSTokens`), Kotlin (`com.pds.tokens`) —
-  semantic + component-scoped only, both brands. Output in `src/tokens/build/`.
+  semantic + component-scoped only, both brands. Output in `packages/tokens/build/`.
 - `npm run tokens:test`: snapshots of all outputs (web byte-identical), IR ↔ native parity,
   RN strict type-check, design-audit resolver ↔ IR parity, guardrail negative tests. CI
   compiles the committed Swift / Kotlin snapshots.
@@ -97,12 +98,26 @@ change.
 - **Not done in Phase 3:** converting the other components' prose "Cross-platform contract"
   sections (Checkbox, Radio, Radio Group, Switch, …) — incremental, via the skill.
 
-### Phase 4 — Workspaces
+### Phase 4 — Workspaces ✅ (implemented 2026-10-12, ADR 0017)
 
-- npm workspaces; move token source to `design/tokens`, React to `packages/react`.
-- Scaffold `Package.swift` and Gradle modules (no components yet).
-- **Exit:** `@pds/react`'s public API and CSS entry unchanged for consumers; new ADR
-  superseding the rest of 0001.
+- Plain npm workspaces: `@pds/tokens` (build pipeline + generated web / RN outputs),
+  `@pds/react` (today's components, patterns, examples, Storybook), `@pds/react-native`
+  (reserved; re-exports the RN token themes). Root scripts keep their names and delegate.
+- Token source → `design/tokens/`, font catalog → `design/fonts/`. Contracts unchanged.
+- Root `Package.swift` (`PDSTokens`) and `platforms/android` Gradle build (`:tokens`,
+  Kotlin/JVM). The generated Swift / Kotlin are now **committed sources** in `platforms/`,
+  checked by `tokens:test` and a CI diff check. `PDSUI` and `com.pds.compose` reserved.
+- CI: `swift build` and `gradle -p platforms/android build` replace the raw `swiftc` /
+  `kotlinc` checks; Chromatic runs in `packages/react`.
+- **Exit:** `@pds/react`'s public API and CSS entry unchanged ✅ (`dist/` JS/CJS/types
+  byte-identical; `index.css` differs only in esbuild path comments); web token CSS/JS
+  byte-identical ✅; Storybook builds (143 stories) ✅; ADR 0017 supersedes 0001's structure ✅.
+  `swift build` and the Gradle build are new and run for the first time in CI.
+- **Before Phase 5:** pick iOS/macOS deployment targets (`PDSUI`), Android Gradle plugin /
+  compileSdk / minSdk / Compose versions and a Gradle wrapper (`com.pds.compose`), the React
+  Native version + peer range and a preview/test harness (`@pds/react-native`); icon catalog
+  manifest (carried from Phase 2); the Button implementation gaps and Phase 5 questions in
+  its contract.
 
 ### Phase 5 — Reference implementations
 

@@ -1,7 +1,14 @@
 node_modules/
 dist/
 storybook-static/
-src/tokens/build/
+# Generated token outputs (IR, web CSS/JS, React Native TS). The Swift and Kotlin outputs are
+# NOT ignored: they are the committed sources in platforms/ (ADR 0017).
+packages/tokens/build/
+# SwiftPM / Gradle local state
+.build/
+.swiftpm/
+.gradle/
+platforms/android/**/build/
 *.log
 .DS_Store
 .env

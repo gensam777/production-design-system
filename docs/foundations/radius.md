@@ -8,7 +8,7 @@ in their own `Semantic Radius` Figma collection.
 
 ## Primitives
 
-Raw scale in `src/tokens/core/radius.json`. No meaning attached.
+Raw scale in `design/tokens/core/radius.json`. No meaning attached.
 
 | Token (code) | Figma variable | Value |
 | --- | --- | --- |
@@ -31,7 +31,7 @@ literal path `radius.full` in code. Full reasoning in ADR 0006.
 
 ## Semantic tokens
 
-`src/tokens/semantic/radius.json` — the layer components actually consume. Every
+`design/tokens/semantic/radius.json` — the layer components actually consume. Every
 semantic token is an **alias** to a primitive, never a duplicated raw number. Four
 roles — not a full primitive cross-product:
 
@@ -59,11 +59,11 @@ Unlike spacing (which converts to rem for CSS output), radius stays a plain px v
 architecture: radius is visual geometry, not something that should scale with a user's
 root font-size preference the way spacing and typography intentionally do.
 
-- **CSS output** (`src/tokens/build/css/variables.css`): `--radius-control: 4px;`,
+- **CSS output** (`packages/tokens/build/css/variables.css`): `--radius-control: 4px;`,
   `--radius-full: 9999px;` — via a custom `size/radius-px` Style Dictionary transform
   (see ADR 0006 for why the existing `size/px-to-rem` transform had to be scoped away
   from radius rather than reused).
-- **JS/TS output** (`src/tokens/build/js/tokens.js`): plain px numbers, e.g.
+- **JS/TS output** (`packages/tokens/build/js/tokens.js`): plain px numbers, e.g.
   `export const RadiusControl = 4;`.
 
 ## Brands: remap Semantic, not Primitive

@@ -10,7 +10,7 @@ inventing new ones.
 
 ## Primitives
 
-Raw viewport breakpoint thresholds in `src/tokens/platform/web/core/viewport.json` (web
+Raw viewport breakpoint thresholds in `design/tokens/platform/web/core/viewport.json` (web
 platform tier — browser-viewport concepts, never emitted to native; ADR 0014). Mobile-first
 **`min-width`** scale — a breakpoint marks where a layout becomes viable at a larger
 size, not where it breaks at a smaller one.
@@ -43,7 +43,7 @@ would lie about what triggers it.
 
 ## Semantic tokens
 
-`src/tokens/platform/web/semantic/layout.json` — **one token**, not a restated copy of the primitive
+`design/tokens/platform/web/semantic/layout.json` — **one token**, not a restated copy of the primitive
 scale:
 
 | Semantic | → Primitive | px | Purpose |
@@ -82,11 +82,11 @@ against the actual device viewport width in physical pixels; scaling it with roo
 size would silently move *where* a layout changes shape, which isn't what that
 accessibility mechanism is for.
 
-- **CSS output** (`src/tokens/build/css/variables.css`): a new `size/viewport-px`
+- **CSS output** (`packages/tokens/build/css/variables.css`): a new `size/viewport-px`
   Style Dictionary transform pre-formats these as `"Npx"` before the built-in `size/rem`
   transform runs, e.g. `--viewport-md: 768px;`, `--layout-container-max-width: 1280px;`.
   No device-name aliases are generated — only the four custom properties above.
-- **JS/TS output** (`src/tokens/build/js/tokens.js`): plain px numbers, e.g.
+- **JS/TS output** (`packages/tokens/build/js/tokens.js`): plain px numbers, e.g.
   `export const ViewportMd = 768;`, `export const LayoutContainerMaxWidth = 1280;` — the
   `js` platform already excludes `size/rem` entirely, so this needed no new
   configuration.
@@ -118,7 +118,7 @@ any exist) — never inside a reusable component like Button, Card, or Input.
 
 ### Container queries — the default for reusable components
 
-Every reusable component in `src/components/` should respond to **the width of its own
+Every reusable component in `packages/react/src/components/` should respond to **the width of its own
 parent/container** (CSS `@container`), not to viewport breakpoints or device
 assumptions. A Card doesn't know if it's on a phone; it knows it has 320px of width
 because its parent gave it 320px — that's true whether the parent is a phone-width

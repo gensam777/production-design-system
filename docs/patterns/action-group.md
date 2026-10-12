@@ -33,7 +33,7 @@ composition constant, not a token.
 
 ## Implementation
 
-- React: `src/patterns/ActionGroup` (`<ActionGroup separated>`), used by
+- React: `packages/react/src/patterns/ActionGroup` (`<ActionGroup separated>`), used by
   `SettingsSection`.
 - Storybook: `Patterns/Action group`.
 - Figma: Patterns page → "Action group"; product frames 03/03b/03c use an `action-group`

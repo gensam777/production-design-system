@@ -27,11 +27,11 @@ prior foundation:
 
 ## Decision
 
-- **Primitive**: `src/tokens/primitive/viewport.json` — `viewport.md` (768),
+- **Primitive**: `design/tokens/primitive/viewport.json` — `viewport.md` (768),
   `viewport.lg` (1024), `viewport.xl` (1280). Raw `$type: "dimension"` numbers matching
   Figma exactly, same shape as every other primitive scale. No `viewport.sm` — deferred
   deliberately (see `docs/foundations/responsive.md`), not an oversight.
-- **Semantic**: `src/tokens/semantic/layout.json` — **one token only**,
+- **Semantic**: `design/tokens/semantic/layout.json` — **one token only**,
   `layout.container.maxWidth`, aliasing `{viewport.xl}`. Not a restated `layout.viewport.
   *` tree — the semantic layer here adds exactly the one derived value that doesn't
   already exist elsewhere, nothing more.
@@ -78,7 +78,7 @@ prior foundation:
   actual build output, don't assume a `transitive`-filtered transform cascades across a
   root-key boundary just because it worked for same-root-key cases.
 - `docs/foundations/responsive.md` is the single place per-breakpoint margin/gap values
-  are documented; `src/tokens/semantic/layout.json` intentionally stays a one-token
+  are documented; `design/tokens/semantic/layout.json` intentionally stays a one-token
   file. Anyone adding `layout.margin.*` or `layout.grid.gap.*` tokens later should reread
   this ADR's Decision section first — the exclusion was deliberate.
 - Native/mobile consumers get the raw `viewport.*`/`layout.*` numbers via the JS/TS

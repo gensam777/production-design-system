@@ -1,13 +1,13 @@
 ---
 name: pattern-production
-description: Production workflow for reusable design-system patterns and templates — compositions of existing components that solve a repeated layout/composition problem (auth layouts, app shells, settings sections, toolbars/filters, form layouts, empty states, confirmation layouts, dashboard sections). Discovers the Figma pattern/template and the repo, demands evidence of reuse, classifies the pattern and its target platform, audits Figma first, compares with existing patterns/components, proposes and pauses, then implements it in `src/patterns/` with Storybook stories and `docs/patterns/` guidance after approval and verifies it. Use for "/pattern-production", "sync this pattern", "create this reusable pattern", "update this pattern". Not for single components (component-production), one-off product screens (figma-screen-sync) or token architecture (token-production). Never commits, pushes, opens PRs, or accepts Chromatic baselines.
+description: Production workflow for reusable design-system patterns and templates — compositions of existing components that solve a repeated layout/composition problem (auth layouts, app shells, settings sections, toolbars/filters, form layouts, empty states, confirmation layouts, dashboard sections). Discovers the Figma pattern/template and the repo, demands evidence of reuse, classifies the pattern and its target platform, audits Figma first, compares with existing patterns/components, proposes and pauses, then implements it in `packages/react/src/patterns/` with Storybook stories and `docs/patterns/` guidance after approval and verifies it. Use for "/pattern-production", "sync this pattern", "create this reusable pattern", "update this pattern". Not for single components (component-production), one-off product screens (figma-screen-sync) or token architecture (token-production). Never commits, pushes, opens PRs, or accepts Chromatic baselines.
 ---
 
 # Pattern production
 
 This skill owns **reusable compositions**: patterns and templates built from existing DS
 components, documented in `docs/patterns/`, implemented as reference compositions in
-`src/patterns/`, shown under `Patterns/*` in Storybook, and drawn on the Figma
+`packages/react/src/patterns/`, shown under `Patterns/*` in Storybook, and drawn on the Figma
 **Patterns** (`150:83`) and **Templates** (`150:84`) pages. It makes creating or updating
 one a repeatable pipeline: discover → validity → classify → Figma audit → repo comparison →
 propose and pause → implement → stories and docs → verify → report.
@@ -16,8 +16,8 @@ propose and pause → implement → stories and docs → verify → report.
 guideline for every existing pattern that's related.
 
 **This repo's pattern status (approved decision):** patterns are documented compositions,
-**not public components**. They are not exported from `src/index.ts`; they're exported
-only from `src/patterns/index.ts` for use by `src/examples/` and stories. A pattern
+**not public components**. They are not exported from `packages/react/src/index.ts`; they're exported
+only from `packages/react/src/patterns/index.ts` for use by `packages/react/src/examples/` and stories. A pattern
 graduates to a real component only when repeated use proves it needs its own stable API.
 That graduation is a `component-production` task, not this skill's.
 
@@ -25,7 +25,7 @@ That graduation is a `component-production` task, not this skill's.
 - **Token issue** (missing or misused token, new semantic role) → `token-production`.
 - **Component architecture** (a component's API, variants or structure must change, or a
   pattern should become a component) → `component-production`.
-- **Product screen implementation** (applying the pattern to a screen in `src/examples/`)
+- **Product screen implementation** (applying the pattern to a screen in `packages/react/src/examples/`)
   → `figma-screen-sync`. Exception: migrating existing examples to an updated pattern is in
   scope when the approved proposal lists it.
 - **Drift/parity check** of an audited surface → `design-audit`.
@@ -40,7 +40,7 @@ That graduation is a `component-production` task, not this skill's.
    the proposal (step 6). A request like "create this pattern" authorizes discovery,
    classification, audit and the proposal only.
 4. **No pattern without reuse evidence** (step 2). A composition used once stays in
-   `src/examples/`. Promoting it anyway is the user's explicit decision, recorded in the
+   `packages/react/src/examples/`. Promoting it anyway is the user's explicit decision, recorded in the
    pattern's doc.
 5. **Never silently fix Figma**, and never "fix" a Figma problem in code by guessing what
    was meant. Report it and ask.
@@ -60,8 +60,8 @@ That graduation is a `component-production` task, not this skill's.
 
 ## Repo conventions for patterns
 
-- **Code:** `src/patterns/<Name>/<Name>.tsx`, `<Name>.css`, `<Name>.stories.tsx`, exported
-  from `src/patterns/index.ts` (never from `src/index.ts`). A behavior-only pattern may be
+- **Code:** `packages/react/src/patterns/<Name>/<Name>.tsx`, `<Name>.css`, `<Name>.stories.tsx`, exported
+  from `packages/react/src/patterns/index.ts` (never from `packages/react/src/index.ts`). A behavior-only pattern may be
   stories plus a doc with no component (precedent: `FormValidation`).
 - **Code style:**
   - classes `ds-pattern-<name>__<element>`;
@@ -89,7 +89,7 @@ That graduation is a `component-production` task, not this skill's.
 - Run `git status --short` and check the branch. Note pre-existing changes. If on `main`,
   propose a `feat/…` branch in the proposal.
 - Read `CLAUDE.md`, `docs/patterns/README.md`, the related pattern guidelines, and
-  `src/patterns/index.ts`.
+  `packages/react/src/patterns/index.ts`.
 
 ### 1. Discover (read-only)
 
@@ -99,11 +99,11 @@ That graduation is a `component-production` task, not this skill's.
    recorded ones the user says changed are updates. If several candidates are possible,
    list them with IDs and a thumbnail each and ask which one.
 2. **Determine:** what was created or changed, its **purpose** (the repeated problem it
-   solves), **where it's used** (Figma instances and frames, existing `src/examples/`
+   solves), **where it's used** (Figma instances and frames, existing `packages/react/src/examples/`
    screens, other patterns), the **components it composes**, and what it owns versus
    what consumers pass in.
 3. **Reusable or one-off?** Look for the same composition in other product frames on
-   Examples / Playground and in `src/examples/`. Note each occurrence with its node ID or
+   Examples / Playground and in `packages/react/src/examples/`. Note each occurrence with its node ID or
    file path.
 
 ### 2. Pattern validity
@@ -124,7 +124,7 @@ Flag **over-abstraction**:
 - a wrapper whose only job is to pass props through.
 
 Not reusable enough → classify it as such (step 3) and recommend leaving it in
-`src/examples/`.
+`packages/react/src/examples/`.
 
 ### 3. Classify
 
@@ -139,7 +139,7 @@ Not reusable enough → classify it as such (step 3) and recommend leaving it in
 | Data-display pattern | Stat rows, lists/tables, activity feeds |
 | Workflow pattern | Multi-step flows, wizards, review-and-confirm |
 | Template | Page-level frame: App shell, Centered card layout, auth layouts |
-| Not reusable enough yet | Stays in `src/examples/` |
+| Not reusable enough yet | Stays in `packages/react/src/examples/` |
 
 **Target platform:**
 
@@ -193,7 +193,7 @@ fix it. If the audit is clean, say so in one line.
 
 ### 5. Repo comparison
 
-- **Existing pattern already solving it?** Check `src/patterns/*` and `docs/patterns/*`.
+- **Existing pattern already solving it?** Check `packages/react/src/patterns/*` and `docs/patterns/*`.
   If one does, the right move is usually to extend that pattern (or document a variant
   of its usage), not to add a sibling.
 - **Components to reuse:** confirm each needed variant and state already exists (props
@@ -202,8 +202,8 @@ fix it. If the audit is clean, say so in one line.
   That part goes to `component-production`. Don't patch a component inside this skill.
 - **New token justified?** Only per step 4. Hand it to `token-production`. A one-pattern
   composition constant is documented in CSS and the doc, not tokenized.
-- **Pattern or example?** It belongs in `src/patterns/` only if step 2 passed. Otherwise
-  it stays in (or moves back to) `src/examples/`.
+- **Pattern or example?** It belongs in `packages/react/src/patterns/` only if step 2 passed. Otherwise
+  it stays in (or moves back to) `packages/react/src/examples/`.
 - **Consumers to migrate:** existing examples that hand-roll this composition, and
   whether migrating them belongs in this change.
 
@@ -225,13 +225,13 @@ Report concisely, then **stop and wait for approval**:
    order, live regions, keyboard behavior.
 10. **Brand A/B** — semantic-only confirmation and what to watch in Brand B.
 11. **Files expected to change** — new and modified paths (pattern, stories, doc,
-    `docs/patterns/README.md`, `src/patterns/index.ts`, `CLAUDE.md` rows, migrated
+    `docs/patterns/README.md`, `packages/react/src/patterns/index.ts`, `CLAUDE.md` rows, migrated
     examples if approved), plus Figma doc frames if any are to be added.
 
 ### 7. Implement (after approval only)
 
-- Build exactly the approved plan under `src/patterns/<Name>/`, export it from
-  `src/patterns/index.ts`, and follow the conventions above.
+- Build exactly the approved plan under `packages/react/src/patterns/<Name>/`, export it from
+  `packages/react/src/patterns/index.ts`, and follow the conventions above.
 - Reuse existing components unchanged; semantic tokens only; one code path for every
   brand.
 - Keep product copy and data out of the pattern: they come from props and `children`.

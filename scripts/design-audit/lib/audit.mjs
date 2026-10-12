@@ -156,7 +156,7 @@ const comparators = {
     const refs = varRefs(cv.raw);
     const codePaths = refs.map((r) => {
       const hit = tokens.cssVar(r);
-      if (!hit) fail(`code references \`${r}\`, which is not a token in src/tokens`);
+      if (!hit) fail(`code references \`${r}\`, which is not a token in design/tokens`);
       return hit.path;
     });
     const codeDisplay = refs.length
@@ -174,7 +174,7 @@ const comparators = {
     }
     const figmaPath = tokens.fromFigmaVariable(names[0]);
     if (!figmaPath || !tokens.has(figmaPath))
-      fail(`Figma variable "${names[0]}" has no matching token in src/tokens`);
+      fail(`Figma variable "${names[0]}" has no matching token in design/tokens`);
     if (!refs.length) {
       notes.push('Code uses a raw value, not a token.');
       return { status: 'DRIFT', figma, code, notes };
@@ -264,7 +264,7 @@ const comparators = {
     }
     const figmaRole = tokens.fromFigmaTextStyle(text.style);
     if (!tokens.has(figmaRole) || tokens.type(figmaRole) !== 'typography')
-      fail(`Figma text style "${text.style}" has no typography token in src/tokens`);
+      fail(`Figma text style "${text.style}" has no typography token in design/tokens`);
     if (role !== figmaRole) {
       notes.push(`Figma role ${figmaRole} ≠ code ${role ?? '(not a single role)'}.`);
       return { status: 'DRIFT', figma, code, notes };
@@ -298,7 +298,7 @@ const comparators = {
     const bm = frame.brandMode;
     const figmaBrand = contract.brandModes[bm.name] ?? null;
     const known = tokens.brands.includes(frameDef.brand);
-    if (!known) fail(`contract brand "${frameDef.brand}" has no src/tokens/brands/ directory`);
+    if (!known) fail(`contract brand "${frameDef.brand}" has no design/tokens/brands/ directory`);
     return {
       status: figmaBrand === frameDef.brand ? 'PASS' : 'DRIFT',
       figma: `${bm.name} (${bm.explicit ? 'explicit mode' : 'collection default'})`,

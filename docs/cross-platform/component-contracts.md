@@ -16,7 +16,7 @@ accessibility outcomes and token bindings. Every platform implements it natively
 - Format: YAML, validated by JSON Schema (draft 2020-12).
 - Location: `design/contracts/components/<kebab-name>.contract.yaml` (e.g.
   `password-input.contract.yaml`); `component:` inside is PascalCase (`PasswordInput`).
-- Web (`src/components/`) is the implemented reference. React Native, iOS and Android stay
+- Web (`packages/react/src/components/`) is the implemented reference. React Native, iOS and Android stay
   `planned` until Phase 5.
 
 ## Rules

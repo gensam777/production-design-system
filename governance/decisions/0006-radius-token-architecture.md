@@ -28,8 +28,8 @@ foundation:
 ## Decision
 
 - **Same primitive→semantic architecture as color/typography/spacing**: primitives
-  (`src/tokens/primitive/radius.json`) and semantics
-  (`src/tokens/semantic/radius.json`, alias-only, no raw duplicated values).
+  (`design/tokens/primitive/radius.json`) and semantics
+  (`design/tokens/semantic/radius.json`, alias-only, no raw duplicated values).
 - **Six primitives**: `radius.none` (0), `radius.sm` (4), `radius.md` (8), `radius.lg`
   (12), `radius.xl` (16), and one renamed exception — see below. `radius.md`/`radius.xl`
   are headroom, not yet aliased by any semantic role, same "unused primitive is fine"
@@ -74,12 +74,12 @@ foundation:
   no Sharp/Soft Figma modes and no code theme files exist yet.** When they're built:
   Figma gets `Sharp`/`Soft` modes added to the `Semantic Radius` collection (parallel to
   how dark mode is planned to extend `Semantic Color`, per 0002), and code likely gets a
-  `src/tokens/themes/` override file, mirroring the same deferred pattern documented for
+  `design/tokens/themes/` override file, mirroring the same deferred pattern documented for
   dark mode.
 
 ## Consequences
 
-- Anyone reading `src/tokens/primitive/radius.json` and expecting `radius.full` to exist
+- Anyone reading `design/tokens/primitive/radius.json` and expecting `radius.full` to exist
   there will find `radius.max` instead, with a `$description` explaining why — this is
   the one token path in the entire system where code and Figma primitive names diverge.
   Should not be treated as a precedent to casually rename other tokens; it was forced by

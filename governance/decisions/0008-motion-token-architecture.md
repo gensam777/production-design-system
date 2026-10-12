@@ -46,7 +46,7 @@ color/space/radius. The interesting problems in this foundation were on the code
   Always emits a unit even for `0` (`"0ms"`, not `"0"`) — CSS `<time>` values are not
   guaranteed unitless-zero-safe the way `<length>` values are.
 - **Reduced-motion required a dedicated output file
-  (`src/tokens/build/css/motion-reduced-motion.css`), not just a primitive-value
+  (`packages/tokens/build/css/motion-reduced-motion.css`), not just a primitive-value
   override**, because of a subtlety specific to how Style Dictionary resolves aliases:
   references (`{motion.duration.base}` inside `motion.overlay-enter`) are resolved at
   **build time**, not preserved as live `var(--motion-duration-base)` chains in the

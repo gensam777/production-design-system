@@ -32,8 +32,8 @@ section has no plain `01` frame, so Brand B is audited through 01b.
  │ npm run design:audit                                                       │
  │   surfaces/login.json        the contract: frames, files, checks           │
  │ + snapshots/login.figma.json the committed Figma evidence                  │
- │ + src/** (CSS, JSX literals) the code evidence                             │
- │ + src/tokens/** (DTCG source, resolved per brand — no build needed)        │
+ │ + packages/react/src/** (CSS, JSX literals) the code evidence                             │
+ │ + design/tokens/** (DTCG source, resolved per brand — no build needed)        │
  │ + known-differences.json     documented, value-pinned exceptions           │
  │   ──► terminal summary + design-audit-report.json, exit 0 / 1              │
  └────────────────────────────────────────────────────────────────────────────┘
@@ -141,7 +141,7 @@ runs against the **committed** snapshot.
 
 - **It does catch code-side drift.** Examples: a changed token or a hard-coded value in Login
   CSS, a different `width` or `compact` prop, a renamed selector, a component removed or
-  reordered, changed copy, or a token value change in `src/tokens` that no longer matches the
+  reordered, changed copy, or a token value change in `design/tokens` that no longer matches the
   values Figma had.
 - **It does not know whether live Figma changed after the last snapshot refresh.** It never
   contacts Figma. A Figma-side change shows up only after someone refreshes the snapshot

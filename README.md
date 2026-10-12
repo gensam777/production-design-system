@@ -10,14 +10,21 @@ for the current architectural decisions and what's deliberately deferred.
 
 ## Structure
 
-- `src/components/` — React components
-- `src/tokens/` — design token source (`primitive/`, `semantic/`, `themes/`) and generated
-  output (`build/`, gitignored)
-- `.storybook/` — Storybook configuration
-- `docs/` — `design-to-code-mappings.md` and foundation documentation
+One repository, plain npm workspaces (ADR 0013, 0017):
+
+- `design/` — platform-neutral source: `tokens/` (core, brands, semantic, platform tiers),
+  `fonts/` (font asset catalog), `contracts/` (cross-platform component contracts)
+- `packages/tokens/` — `@pds/tokens`: token build pipeline and generated web / React Native
+  outputs (`build/`, gitignored)
+- `packages/react/` — `@pds/react`: React components, patterns, examples and Storybook
+- `packages/react-native/` — `@pds/react-native` (reserved)
+- `platforms/ios/` + `Package.swift` — Swift package (`PDSTokens`; `PDSUI` reserved)
+- `platforms/android/` — Gradle build (`com.pds.tokens`; `com.pds.compose` reserved)
+- `docs/` — `design-to-code-mappings.md`, foundations, patterns, cross-platform docs
 - `governance/` — accessibility, component lifecycle, and versioning rules, plus
   architecture decision records in `decisions/`
-- `.claude/skills/` — custom Claude Code skills (none yet)
+- `scripts/` — repo tooling: token-usage guardrail, contract validator, design audit
+- `.claude/skills/` — custom Claude Code skills
 
 ## Getting started
 
@@ -25,7 +32,7 @@ for the current architectural decisions and what's deliberately deferred.
 npm install
 npm run storybook       # start Storybook
 npm run build           # build the library
-npm run tokens:build    # regenerate token output from src/tokens source
+npm run tokens:build    # regenerate token output from design/tokens source
 npm run typecheck
 npm run lint
 ```
@@ -35,8 +42,8 @@ npm run lint
 | Concern | Source of truth |
 | --- | --- |
 | Design intent | Figma |
-| Shipped token values | `src/tokens/{primitive,semantic}/*.json` |
-| Component behavior/API | React (`src/components/`) |
+| Shipped token values | `design/tokens/` |
+| Component behavior/API | React (`packages/react/src/components/`) |
 | Component documentation | Storybook |
 | Figma ↔ component mapping | `docs/design-to-code-mappings.md` (manual) |
 

@@ -11,7 +11,7 @@ but two things made it different from both:
 
 1. It was built **Figma-first**: the primitive and semantic Variables were created and
    approved in the production design-system Figma file before any code existed, then
-   mirrored into `src/tokens/`. Color and typography went code-first (color) or
+   mirrored into `design/tokens/`. Color and typography went code-first (color) or
    design-first-for-the-role-matrix-only (typography); spacing is the first foundation
    where the full primitive→semantic structure originated in Figma.
 2. While reorganizing the Figma file for scalability (still before code existed), the
@@ -24,8 +24,8 @@ but two things made it different from both:
 ## Decision
 
 - **Same primitive→semantic architecture as color/typography**: primitives
-  (`src/tokens/primitive/spacing.json`, scale-named, no meaning) and semantics
-  (`src/tokens/semantic/spacing.json`, role-named, alias primitives via `{space.x}`
+  (`design/tokens/primitive/spacing.json`, scale-named, no meaning) and semantics
+  (`design/tokens/semantic/spacing.json`, role-named, alias primitives via `{space.x}`
   references). No raw pixel values are duplicated in the semantic layer.
 - **Hybrid 4px/8px rhythm, capped at 64px for V1**: `space.none` (0) through
   `space.5xl` (64) — see full table in `docs/foundations/spacing.md`. No 80px/96px step
@@ -48,7 +48,7 @@ but two things made it different from both:
   0003), spacing keeps raw px numbers as the design-side value model, matching the
   approved proposal's explicit instruction not to treat rem as the design/naming layer.
 - **Style Dictionary needed two build-time fixes to make this work correctly**, both in
-  `style-dictionary.config.mjs`:
+  `packages/tokens/style-dictionary.config.mjs`:
   - A custom `size/px-to-rem` transform, inserted before the built-in `size/rem` in the
     `css` platform. The built-in `size/rem` transform does **not** scale a bare number —
     it only appends a unit, or passes an already-unitted value through unchanged. That's

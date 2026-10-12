@@ -206,7 +206,7 @@ export function tokenLeaves(c) {
 
 // ---------------------------------------------------------------- 4. tokens
 
-/** @param irs resolved IRs (scripts/tokens/ir.mjs resolveBrand), one per brand */
+/** @param irs resolved IRs (packages/tokens/scripts/ir.mjs resolveBrand), one per brand */
 export function checkTokens(c, irs) {
   const out = [];
   const maps = irs.map((ir) => ({
