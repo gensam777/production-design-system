@@ -188,6 +188,8 @@ public struct DSColorActionTertiary: Sendable, Equatable {
 public struct DSColorActionDanger: Sendable, Equatable {
     public let `default`: DSColorValue
     public let hover: DSColorValue
+    /// Disabled danger fill. Same neutral as action.primary.disabled — filled variants swap their color for the neutral disabled fill.
+    public let disabled: DSColorValue
     /// 4.83:1 on action.danger.default.
     public let onColor: DSColorValue
 }
@@ -282,6 +284,8 @@ public struct DSMotion: Sendable, Equatable {
     public let modalEnter: DSTransition
     /// Dialog/modal/drawer closing. Faster than its matching enter — standard UX practice.
     public let modalExit: DSTransition
+    /// One full rotation of a busy spinner, repeating. Reduced motion stops the rotation.
+    public let spinner: DSTransition
 }
 
 public struct DSRadius: Sendable, Equatable {

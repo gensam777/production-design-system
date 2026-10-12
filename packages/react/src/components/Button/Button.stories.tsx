@@ -1,4 +1,6 @@
+import type { CSSProperties } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { Button } from './Button';
 import type { ButtonProps, ButtonSize, ButtonVariant } from './Button';
@@ -15,7 +17,9 @@ const meta: Meta<typeof Button> = {
           'Button V1 — native `<button>`, provider-neutral icon slots (`leadingIcon`/' +
           '`trailingIcon` accept any `ReactNode`), spinner-only loading state. Hover, ' +
           'Pressed, and Focus-visible are native CSS states, not React props — see ' +
-          '`docs/design-to-code-mappings.md`.',
+          '`docs/design-to-code-mappings.md`. Loading keeps the variant colors, stays ' +
+          'focusable, sets `aria-busy` and blocks activation; disabled wins over loading. ' +
+          'Heights are minimums: the button grows with the label under text scaling.',
       },
     },
   },
@@ -107,7 +111,7 @@ export const Playground: StoryObj<PlaygroundProps> = {
       options: LEADING_ICON_NAMES,
       name: 'leadingIconName (Storybook only)',
       description:
-        'Storybook-only — not a Button prop. `\'none\'` omits the slot; otherwise renders ' +
+        "Storybook-only — not a Button prop. `'none'` omits the slot; otherwise renders " +
         '`<Icon name={leadingIconName} />` as `leadingIcon`.',
     },
     trailingIconName: {
@@ -115,7 +119,7 @@ export const Playground: StoryObj<PlaygroundProps> = {
       options: TRAILING_ICON_NAMES,
       name: 'trailingIconName (Storybook only)',
       description:
-        'Storybook-only — not a Button prop. `\'none\'` omits the slot; otherwise renders ' +
+        "Storybook-only — not a Button prop. `'none'` omits the slot; otherwise renders " +
         '`<Icon name={trailingIconName} />` as `trailingIcon`.',
     },
   },
@@ -204,37 +208,167 @@ export const WithIcons: Story = {
 };
 
 export const Loading: Story = {
+  args: { onClick: fn() },
   render: (args) => (
-    <div style={{ display: 'flex', gap: 16 }}>
-      <Button {...args} loading>
-        No icon
-      </Button>
-      <Button {...args} loading leadingIcon={<Icon name="plus" size={args.size} />}>
-        Leading icon
-      </Button>
-      <Button {...args} loading trailingIcon={<Icon name="arrow-right" size={args.size} />}>
-        Trailing icon
-      </Button>
-      <Button
-        {...args}
-        loading
-        leadingIcon={<Icon name="settings" size={args.size} />}
-        trailingIcon={<Icon name="chevron-down" size={args.size} />}
-      >
-        Both icons
-      </Button>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {ALL_VARIANTS.map((variant) => (
+        <div key={variant} style={{ display: 'flex', gap: 16 }}>
+          <Button {...args} variant={variant} loading>
+            {`${variant[0].toUpperCase() + variant.slice(1)} — no icon`}
+          </Button>
+          <Button
+            {...args}
+            variant={variant}
+            loading
+            leadingIcon={<Icon name="settings" size={args.size} />}
+            trailingIcon={<Icon name="chevron-down" size={args.size} />}
+          >
+            {`${variant[0].toUpperCase() + variant.slice(1)} — both icons`}
+          </Button>
+        </div>
+      ))}
     </div>
   ),
   parameters: {
     docs: {
       description: {
         story:
-          'Only the spinner is visible — the original label/icons stay in the layout, ' +
-          'just invisible (`opacity: 0`, not removed), so width never shifts and the ' +
-          'button keeps its accessible name (`aria-busy="true"`, native `disabled` ' +
-          'prevents repeat activation).',
+          'Only the spinner is visible — the label/icons stay in the layout, just invisible ' +
+          '(`opacity: 0`, not removed), so the size never shifts and the button keeps its ' +
+          'accessible name. Container, border and spinner keep the variant’s normal colors ' +
+          '(loading is never painted as disabled). The button is `aria-busy`, stays enabled ' +
+          'and focusable, and ignores clicks, Enter and Space.',
       },
     },
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const buttons = canvas.getAllByRole('button');
+    await expect(buttons).toHaveLength(ALL_VARIANTS.length * 2);
+    for (const button of buttons) {
+      await expect(button).toHaveAttribute('aria-busy', 'true');
+      await expect(button).toBeEnabled();
+      await userEvent.click(button);
+    }
+    // Keyboard activation is blocked too, and the button keeps focus.
+    buttons[0].focus();
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard(' ');
+    await expect(buttons[0]).toHaveFocus();
+    await expect(args.onClick).not.toHaveBeenCalled();
+  },
+};
+
+export const DisabledWhileLoading: Story = {
+  name: 'Disabled + loading',
+  args: { onClick: fn() },
+  render: (args) => (
+    <div style={{ display: 'flex', gap: 16 }}>
+      {ALL_VARIANTS.map((variant) => (
+        <Button key={variant} {...args} variant={variant} disabled loading>
+          {variant[0].toUpperCase() + variant.slice(1)}
+        </Button>
+      ))}
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Disabled wins over loading: the disabled look with the label shown (no spinner), ' +
+          'reported as disabled and not busy.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const button of canvas.getAllByRole('button')) {
+      await expect(button).toBeDisabled();
+      await expect(button).not.toHaveAttribute('aria-busy');
+      await expect(button.querySelector('.ds-button__spinner')).toBeNull();
+      await expect(button).not.toHaveClass('ds-button--loading');
+    }
+  },
+};
+
+// Story-only args: the form's submit handler (not a Button prop).
+export const LoadingSubmit: StoryObj<{ onSubmit: () => void }> = {
+  name: 'Loading submit button',
+  args: { onSubmit: fn() },
+  render: ({ onSubmit }) => (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSubmit();
+      }}
+      style={{ display: 'flex', gap: 16, alignItems: 'flex-end' }}
+    >
+      <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        Email
+        <input name="email" defaultValue="name@example.com" />
+      </label>
+      <Button type="submit" loading>
+        Save
+      </Button>
+    </form>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'A loading submit button does not submit its form — neither by click nor by ' +
+          'pressing Enter in a field (implicit submission) — so a pending save cannot be ' +
+          'sent twice.',
+      },
+    },
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: 'Save' }));
+    await userEvent.type(canvas.getByRole('textbox'), '{Enter}');
+    await expect(args.onSubmit).not.toHaveBeenCalled();
+  },
+};
+
+// Simulates 300% text-only zoom by scaling the three label roles' font-size custom properties
+// (Storybook-only — a real browser text zoom or root font-size change does the same).
+const TEXT_SCALE_300: CSSProperties = {
+  ['--text-label-sm-medium-font-size' as string]: '2.25rem',
+  ['--text-label-md-medium-font-size' as string]: '2.625rem',
+  ['--text-label-lg-medium-font-size' as string]: '3rem',
+};
+
+export const TextScaling: Story = {
+  name: 'Text scaling (300%)',
+  render: (args) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      {[{}, TEXT_SCALE_300].map((style, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 16, ...style }}>
+          {ALL_SIZES.map((size) => (
+            <Button key={size} {...args} size={size} leadingIcon={<Icon name="plus" size={size} />}>
+              {size.toUpperCase()}
+            </Button>
+          ))}
+        </div>
+      ))}
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Heights are minimums. Top row: default text size — exactly 32/40/48px. Bottom row: ' +
+          'label at 300% — the button grows (label + `space.inset.*` block padding) instead ' +
+          'of clipping. Icons stay at their token size on web (ADR 0010).',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const buttons = within(canvasElement).getAllByRole('button');
+    const heights = buttons.map((b) => b.getBoundingClientRect().height);
+    await expect(heights.slice(0, 3)).toEqual([32, 40, 48]);
+    for (const [i, scaled] of heights.slice(3).entries())
+      await expect(scaled).toBeGreaterThan(heights[i]);
   },
 };
 

@@ -6,8 +6,8 @@
     "version": 2
   },
   "fileKey": "zE07Pl0ioDayHN2GK2set7",
-  "capturedAt": "2026-10-02T04:27:47.502Z",
-  "checksum": "97a7f8c2",
+  "capturedAt": "2026-10-12T15:55:33.998Z",
+  "checksum": "ce0dd87f",
   "frames": {
     "01": {
       "nodeId": "998:9",
@@ -352,6 +352,16 @@
             "gap": {
               "px": 8,
               "token": "Semantic Space/inline/sm"
+            },
+            "padding": {
+              "top": {
+                "px": 8,
+                "token": "Semantic Space/inset/sm"
+              },
+              "bottom": {
+                "px": 8,
+                "token": "Semantic Space/inset/sm"
+              }
             }
           },
           "fill": {
@@ -772,6 +782,16 @@
             "gap": {
               "px": 8,
               "token": "Semantic Space/inline/sm"
+            },
+            "padding": {
+              "top": {
+                "px": 8,
+                "token": "Semantic Space/inset/sm"
+              },
+              "bottom": {
+                "px": 8,
+                "token": "Semantic Space/inset/sm"
+              }
             }
           },
           "fill": {
@@ -1192,6 +1212,16 @@
             "gap": {
               "px": 8,
               "token": "Semantic Space/inline/sm"
+            },
+            "padding": {
+              "top": {
+                "px": 8,
+                "token": "Semantic Space/inset/sm"
+              },
+              "bottom": {
+                "px": 8,
+                "token": "Semantic Space/inset/sm"
+              }
             }
           },
           "fill": {

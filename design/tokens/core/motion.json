@@ -5,12 +5,14 @@
       "fast": { "$value": 100, "$type": "duration" },
       "base": { "$value": 200, "$type": "duration" },
       "slow": { "$value": 300, "$type": "duration" },
-      "slower": { "$value": 400, "$type": "duration", "$description": "Headroom — no semantic role aliases this step in V1." }
+      "slower": { "$value": 400, "$type": "duration", "$description": "Headroom — no semantic role aliases this step in V1." },
+      "loop": { "$value": 600, "$type": "duration", "$description": "One cycle of a continuous loop (spinner rotation). Not part of the transition scale." }
     },
     "easing": {
       "standard": { "$value": [0.4, 0, 0.2, 1], "$type": "cubicBezier", "$description": "Default for most state changes — eases in and out." },
       "decelerate": { "$value": [0, 0, 0.2, 1], "$type": "cubicBezier", "$description": "Starts fast, settles slow — for things entering/appearing." },
-      "accelerate": { "$value": [0.4, 0, 1, 1], "$type": "cubicBezier", "$description": "Starts slow, speeds up — for things exiting/disappearing." }
+      "accelerate": { "$value": [0.4, 0, 1, 1], "$type": "cubicBezier", "$description": "Starts slow, speeds up — for things exiting/disappearing." },
+      "linear": { "$value": [0, 0, 1, 1], "$type": "cubicBezier", "$description": "Constant speed — for continuous loops (spinner rotation), never for state changes." }
     }
   }
 }

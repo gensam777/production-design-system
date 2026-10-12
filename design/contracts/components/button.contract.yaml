@@ -87,15 +87,17 @@ slots:
   label:
     type: text
     required: true
-    description: Short, verb-first action text. Single line.
+    description: >-
+      Short, verb-first action text. Single line at the default text size; it may wrap rather
+      than truncate when platform text scaling no longer fits it on one line.
   leadingIcon:
     type: icon
     required: false
     decorative: true
     description: >-
-      A name from the shared icon catalog (docs/foundations/icons.md). Sized by Button per
-      size, never by the icon. Presence reduces the container's inner spacing on that side
-      by one inset step (see tokens.container).
+      A name from the shared icon catalog (design/icons/icons.json, docs/foundations/icons.md).
+      Sized by Button per size, never by the icon. Presence reduces the container's inner
+      spacing on that side by one inset step (see tokens.container).
   trailingIcon:
     type: icon
     required: false
@@ -174,8 +176,9 @@ accessibility:
       When the platform's reduce-motion setting is on, the spinner stops rotating; the busy
       state is still exposed.
     text-scaling: >-
-      The label follows the platform's text scaling (rem / Dynamic Type / font scale). See
-      open question text-scaling-height.
+      The label follows the platform's text scaling (rem / Dynamic Type / font scale) and is
+      never clipped: the visual height is a minimum and the button grows with the label (see
+      sizing.height).
 
 tokens:
   container:
@@ -185,29 +188,36 @@ tokens:
         hover: color.action.primary.hover
         pressed: color.action.primary.active
         disabled: color.action.primary.disabled
+      # Disabled: filled variants (primary, danger) swap their color for the neutral
+      # action.*.disabled fill; outline (secondary) and ghost (tertiary) keep their container
+      # and only the label and icons fade (ADR 0018).
       secondary:
         default: color.action.secondary.default
         hover: color.action.secondary.hover
         pressed: color.action.secondary.hover
-        disabled: color.surface.disabled
+        disabled: color.action.secondary.default
       tertiary:
         default: none
         hover: color.action.tertiary.hover
         pressed: color.action.tertiary.hover
-        disabled: color.surface.disabled
+        disabled: none
       danger:
         default: color.action.danger.default
         hover: color.action.danger.hover
         pressed: color.action.danger.hover
-        disabled: color.surface.disabled
+        disabled: color.action.danger.disabled
     border-color:
       primary: none
-      secondary:
-        default: color.border.default
-        disabled: color.border.subtle
+      secondary: color.border.default
       tertiary: none
       danger: none
     radius: radius.control
+    # Block padding only matters once text scaling grows the label past the minimum height
+    # (sizing.height: minimum); at the default text size the minimum height wins.
+    padding-block:
+      sm: space.inset.xs
+      md: space.inset.sm
+      lg: space.inset.sm
     padding-inline:
       sm: space.inset.md
       md: space.inset.lg
@@ -260,6 +270,7 @@ tokens:
       md: icon.md
       lg: icon.lg
     radius: radius.full
+    rotation: motion.spinner
   focusIndicator:
     color: color.focus.ring
     offset-color: color.focus.ring-offset
@@ -276,13 +287,9 @@ component-constants:
     part: spinner
     value: 2
     unit: px
-    description: Ring stroke of the spinner, with a gap in one quarter.
-  spinner-rotation-duration:
-    part: spinner
-    value: 600
-    unit: ms
-    description: One full linear rotation, repeating.
-    token-gap: true
+    description: >-
+      Ring stroke of the spinner at every size (ADR 0018), drawn inside the spinner box with
+      flat ends and a gap in one quarter (a 270° arc). Rotation timing is tokens.spinner.rotation.
   focus-indicator-geometry:
     part: focusIndicator
     value:
@@ -295,6 +302,11 @@ component-constants:
 
 sizing:
   property: size
+  # Minimum, not fixed (ADR 0018): at the default text size the button is exactly this tall;
+  # when platform text scaling enlarges the label beyond it, the button grows (label plus
+  # tokens.container.padding-block) instead of clipping. On native platforms icons and the
+  # spinner scale with the label from these default sizes.
+  height: minimum
   visual-height:
     sm: 32
     md: 40
@@ -354,8 +366,10 @@ figma:
       Nested Button Content axis (None / Leading / Trailing / Both). Every platform derives
       it from which icon slots are filled; it is never a property.
     Tone: >-
-      Nested Button Content axis (Default / On-color / Disabled) selecting the label color.
-      Every platform derives it from variant + state; it is never a property.
+      Nested Button Content axis (Default / On-primary / On-danger / Disabled) selecting the
+      label and icon color: color.text.primary, color.action.primary.on-color,
+      color.action.danger.on-color, color.text.disabled. Every platform derives it from
+      variant + state; it is never a property.
 
 references:
   web:
@@ -413,83 +427,7 @@ intentional-differences:
       leading/trailing side, so it mirrors in right-to-left layouts.
     reason: Figma has no logical (start/end) padding.
 
-implementation-gaps:
-  - id: loading-keeps-variant-colors
-    platform: web
-    contract: >-
-      Loading without disabled keeps the variant's default colors (container, border,
-      spinner), shows the spinner, exposes busy, blocks activation and stays focusable.
-      Disabled is the only visually disabled state.
-    current: >-
-      The web Button turns on the native disabled state while loading, so the disabled color
-      cells apply — e.g. primary loading paints color.action.primary.disabled with a
-      color.text.disabled spinner; secondary/tertiary/danger loading paint
-      color.surface.disabled (secondary also color.border.subtle). Loading is also reported as
-      disabled, leaves the sequential focus order and loses focus if it had it.
-    raised: '2026-10-12'
-  - id: disabled-wins-over-loading
-    platform: web
-    contract: >-
-      Disabled + loading is the disabled state: disabled look with the label shown, reported
-      as disabled and not busy, cannot activate.
-    current: >-
-      With both set, the web Button hides the label and shows the spinner, and reports busy as
-      well as disabled (the busy state follows loading alone). Colors and activation already
-      match (disabled cells, activation blocked).
-    raised: '2026-10-12'
-
-# Phase 5 implementation questions — documented, not resolved in Phase 3.
-open-questions:
-  - id: disabled-figma-treatment
-    question: >-
-      Live Figma (2026-10-12) disagrees with code for three Disabled cells. Secondary: Figma
-      fill color.action.secondary.default + border color.border.default; code
-      color.surface.disabled + color.border.subtle. Tertiary: Figma no fill; code
-      color.surface.disabled. Danger: Figma color.action.primary.disabled; code
-      color.surface.disabled. Primary matches. The label tone (color.text.disabled) matches
-      everywhere. The contract follows code (code wins for released components) until this is
-      decided.
-    affects: [figma, web]
-    blocks: phase-5
-    raised: '2026-10-12'
-  - id: text-scaling-height
-    question: >-
-      Visual height is fixed in both Figma (fixed-height frames, 32/40/48) and code (fixed
-      height, no vertical padding, label line-height 1.25). The label fits up to about 200%
-      text size (e.g. md: 28px type, 35px line in 40px), but larger platform text scaling
-      (Dynamic Type accessibility sizes, Android font scale, browser text-only zoom) clips it.
-      Is visual-height a fixed height or a minimum height that grows with the label?
-    affects: [web, react-native, ios, android, figma]
-    blocks: phase-5
-    raised: '2026-10-12'
-  - id: figma-binding-gaps
-    question: >-
-      Live Figma (2026-10-12) Button Content is not bound to the shared roles the contract
-      uses: the label binds Core font sizes (xs/sm/md = 12/14/16) plus Brand weight / family
-      instead of the text.label.*.medium role (no text style, auto line-height instead of
-      1.25); icon and spinner sizes are raw 16/20/24 instead of icon.sm/md/lg. Values match;
-      bindings do not.
-    affects: [figma]
-    blocks: phase-5
-    raised: '2026-10-12'
-  - id: spinner-thickness-and-motion
-    question: >-
-      Spinner ring thickness differs: Figma's ring is 35% of its radius (about 2.8 / 3.5 /
-      4.2px for sm / md / lg), code uses a 2px constant (component-constants). The 600ms
-      rotation is a component constant because no loop/spinner motion token exists
-      (docs/foundations/motion.md). Decide the thickness rule and add a motion token before
-      native spinners are built.
-    affects: [figma, web, tokens]
-    blocks: phase-5
-    raised: '2026-10-12'
-  - id: on-color-token-path
-    question: >-
-      Live Figma (2026-10-12): the On-color tone binds label and icons to text.inverse, while
-      the primary / danger Loading spinners bind color.action.primary.on-color /
-      color.action.danger.on-color — Figma is inconsistent with itself. Code and this contract
-      use the action on-color tokens for label, icons and spinner. Same value (#FFFFFF) in both
-      brands today. Rebind the Figma On-color tone to the action on-color tokens before a
-      brand gives them different values.
-    affects: [figma]
-    blocks: phase-5
-    raised: '2026-10-12'
+# No open questions. Phase 5 (ADR 0018) resolved the Phase 3 questions (disabled colors,
+# minimum height, spinner thickness + motion token, on-color path, Figma bindings), closed the
+# web implementation gaps (loading-keeps-variant-colors, disabled-wins-over-loading), and live
+# Figma was aligned with those decisions on 2026-10-12 (former question figma-alignment).

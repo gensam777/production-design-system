@@ -86,6 +86,7 @@ export const ColorActionSecondaryHover = "#f3f4f6";
 export const ColorActionTertiaryHover = "#f3f4f6"; // Ghost/text button resting state has no background — 'transparent' isn't tokenized as a color. Only the hover fill needs a token.
 export const ColorActionDangerDefault = "#dc2626";
 export const ColorActionDangerHover = "#b91c1c";
+export const ColorActionDangerDisabled = "#d1d5db"; // Disabled danger fill. Same neutral as action.primary.disabled — filled variants swap their color for the neutral disabled fill.
 export const ColorActionDangerOnColor = "#ffffff"; // 4.83:1 on action.danger.default.
 export const ColorFeedbackSuccessSubtle = "#f0fdf4";
 export const ColorFeedbackSuccessDefault = "#16a34a"; // Icon/accent use; 3.30:1 vs white meets non-text minimum only.
@@ -119,9 +120,11 @@ export const MotionDurationFast = 100;
 export const MotionDurationBase = 200;
 export const MotionDurationSlow = 300;
 export const MotionDurationSlower = 400; // Headroom — no semantic role aliases this step in V1.
+export const MotionDurationLoop = 600; // One cycle of a continuous loop (spinner rotation). Not part of the transition scale.
 export const MotionEasingStandard = [0.4, 0, 0.2, 1]; // Default for most state changes — eases in and out.
 export const MotionEasingDecelerate = [0, 0, 0.2, 1]; // Starts fast, settles slow — for things entering/appearing.
 export const MotionEasingAccelerate = [0.4, 0, 1, 1]; // Starts slow, speeds up — for things exiting/disappearing.
+export const MotionEasingLinear = [0, 0, 1, 1]; // Constant speed — for continuous loops (spinner rotation), never for state changes.
 export const MotionMicro = {
   duration: 100,
   delay: "0ms",
@@ -147,6 +150,11 @@ export const MotionModalExit = {
   delay: "0ms",
   timingFunction: [0.4, 0, 1, 1],
 }; // Dialog/modal/drawer closing. Faster than its matching enter — standard UX practice.
+export const MotionSpinner = {
+  duration: 600,
+  delay: "0ms",
+  timingFunction: [0, 0, 1, 1],
+}; // One full rotation of a busy spinner, repeating. Reduced motion stops the rotation.
 export const RadiusNone = 0; // Raw scale, no meaning attached. Explicit zero — flat/square corners.
 export const RadiusSm = 4;
 export const RadiusMd = 8;

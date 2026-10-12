@@ -132,6 +132,8 @@ export interface Theme {
       readonly danger: {
         readonly default: string;
         readonly hover: string;
+        /** Disabled danger fill. Same neutral as action.primary.disabled — filled variants swap their color for the neutral disabled fill. */
+        readonly disabled: string;
         /** 4.83:1 on action.danger.default. */
         readonly onColor: string;
       };
@@ -209,6 +211,8 @@ export interface Theme {
     readonly modalEnter: Transition;
     /** Dialog/modal/drawer closing. Faster than its matching enter — standard UX practice. */
     readonly modalExit: Transition;
+    /** One full rotation of a busy spinner, repeating. Reduced motion stops the rotation. */
+    readonly spinner: Transition;
   };
   readonly radius: {
     /** Tables, dividers, code blocks — explicit square corners. */
@@ -491,6 +495,7 @@ export const brandA: Theme = {
       danger: {
         default: '#DC2626',
         hover: '#B91C1C',
+        disabled: '#D1D5DB',
         onColor: '#FFFFFF',
       },
     },
@@ -547,6 +552,7 @@ export const brandA: Theme = {
     overlayExit: { duration: 100, delay: 0, easing: [0.4, 0, 1, 1] },
     modalEnter: { duration: 300, delay: 0, easing: [0, 0, 0.2, 1] },
     modalExit: { duration: 200, delay: 0, easing: [0.4, 0, 1, 1] },
+    spinner: { duration: 600, delay: 0, easing: [0, 0, 1, 1] },
   },
   radius: {
     flat: 0,
@@ -772,6 +778,7 @@ export const brandB: Theme = {
       danger: {
         default: '#DC2626',
         hover: '#B91C1C',
+        disabled: '#D1D5DB',
         onColor: '#FFFFFF',
       },
     },
@@ -828,6 +835,7 @@ export const brandB: Theme = {
     overlayExit: { duration: 100, delay: 0, easing: [0.4, 0, 1, 1] },
     modalEnter: { duration: 300, delay: 0, easing: [0, 0, 0.2, 1] },
     modalExit: { duration: 200, delay: 0, easing: [0.4, 0, 1, 1] },
+    spinner: { duration: 600, delay: 0, easing: [0, 0, 1, 1] },
   },
   radius: {
     flat: 0,

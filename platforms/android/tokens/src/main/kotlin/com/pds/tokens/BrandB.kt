@@ -53,6 +53,7 @@ val BrandB: DsTheme = DsTheme(
             danger = DsColorActionDanger(
                 default = DsColorValue(0xFFDC2626L),
                 hover = DsColorValue(0xFFB91C1CL),
+                disabled = DsColorValue(0xFFD1D5DBL),
                 onColor = DsColorValue(0xFFFFFFFFL),
             ),
         ),
@@ -109,6 +110,7 @@ val BrandB: DsTheme = DsTheme(
         overlayExit = DsTransition(durationMillis = 100, delayMillis = 0, easing = DsCubicBezier(0.4f, 0f, 1f, 1f)),
         modalEnter = DsTransition(durationMillis = 300, delayMillis = 0, easing = DsCubicBezier(0f, 0f, 0.2f, 1f)),
         modalExit = DsTransition(durationMillis = 200, delayMillis = 0, easing = DsCubicBezier(0.4f, 0f, 1f, 1f)),
+        spinner = DsTransition(durationMillis = 600, delayMillis = 0, easing = DsCubicBezier(0f, 0f, 1f, 1f)),
     ),
     radius = DsRadius(
         flat = 0f,

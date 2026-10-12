@@ -150,6 +150,8 @@ data class DsColorActionTertiary(
 data class DsColorActionDanger(
     val default: DsColorValue,
     val hover: DsColorValue,
+    /** Disabled danger fill. Same neutral as action.primary.disabled — filled variants swap their color for the neutral disabled fill. */
+    val disabled: DsColorValue,
     /** 4.83:1 on action.danger.default. */
     val onColor: DsColorValue,
 )
@@ -244,6 +246,8 @@ data class DsMotion(
     val modalEnter: DsTransition,
     /** Dialog/modal/drawer closing. Faster than its matching enter — standard UX practice. */
     val modalExit: DsTransition,
+    /** One full rotation of a busy spinner, repeating. Reduced motion stops the rotation. */
+    val spinner: DsTransition,
 )
 
 data class DsRadius(

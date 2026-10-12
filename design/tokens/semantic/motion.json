@@ -44,6 +44,15 @@
         "timingFunction": "{motion.easing.accelerate}"
       },
       "$description": "Dialog/modal/drawer closing. Faster than its matching enter — standard UX practice."
+    },
+    "spinner": {
+      "$type": "transition",
+      "$value": {
+        "duration": "{motion.duration.loop}",
+        "delay": 0,
+        "timingFunction": "{motion.easing.linear}"
+      },
+      "$description": "One full rotation of a busy spinner, repeating. Reduced motion stops the rotation."
     }
   }
 }

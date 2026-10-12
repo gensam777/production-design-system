@@ -39,7 +39,7 @@ never a duplicated hex value. Six categories:
   `link-hover`, `danger`, `success`, `warning`
 - **`color.border.*`** — `subtle`, `default`, `strong`, `danger`, `success`, `warning`
 - **`color.action.*`** — `primary` (default/hover/active/disabled/on-color), `secondary`
-  (default/hover), `tertiary` (hover only), `danger` (default/hover/on-color)
+  (default/hover), `tertiary` (hover only), `danger` (default/hover/disabled/on-color)
 - **`color.feedback.*`** — `success` / `warning` / `danger` / `info`, each with
   `subtle` / `default` / `emphasis` / `on-color`
 - **`color.focus.*`** — `ring`, `ring-offset`

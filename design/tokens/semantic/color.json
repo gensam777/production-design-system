@@ -46,6 +46,7 @@
       "danger": {
         "default": { "$value": "{color.red.600}", "$type": "color" },
         "hover": { "$value": "{color.red.700}", "$type": "color" },
+        "disabled": { "$value": "{color.gray.300}", "$type": "color", "$description": "Disabled danger fill. Same neutral as action.primary.disabled — filled variants swap their color for the neutral disabled fill." },
         "on-color": { "$value": "{color.white}", "$type": "color", "$description": "4.83:1 on action.danger.default." }
       }
     },

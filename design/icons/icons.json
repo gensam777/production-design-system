@@ -1,0 +1,33 @@
+{
+  "$schema": "./icons.schema.json",
+  "$description": "Platform-neutral icon catalog (ADR 0010, 0019). The names here are the only icon names a component or product may use on any platform. Artwork comes from the provider below; no icon files are committed. Web/React Native render the provider's packages (lucide-react / lucide-react-native); SwiftUI and Compose render code generated from the provider's SVG paths at the same version. See docs/foundations/icons.md.",
+  "provider": {
+    "name": "lucide",
+    "version": "1.41.0",
+    "license": "ISC",
+    "viewBox": 24,
+    "strokeWidth": 2,
+    "strokeLinecap": "round",
+    "strokeLinejoin": "round"
+  },
+  "icons": {
+    "plus": { "lucide": "plus", "description": "Add / create." },
+    "minus": { "lucide": "minus", "description": "Remove / decrease." },
+    "check": { "lucide": "check", "description": "Confirm / done." },
+    "close": { "lucide": "x", "description": "Dismiss / close." },
+    "search": { "lucide": "search", "description": "Search." },
+    "arrow-left": { "lucide": "arrow-left", "description": "Back / previous." },
+    "arrow-right": { "lucide": "arrow-right", "description": "Forward / next." },
+    "chevron-down": { "lucide": "chevron-down", "description": "Expand / open a list." },
+    "chevron-up": { "lucide": "chevron-up", "description": "Collapse." },
+    "info": { "lucide": "info", "description": "Information status." },
+    "warning": { "lucide": "triangle-alert", "description": "Warning status." },
+    "success": { "lucide": "circle-check", "description": "Success status (Alert)." },
+    "danger": { "lucide": "circle-x", "description": "Danger / error status (Alert)." },
+    "trash": { "lucide": "trash", "description": "Delete." },
+    "edit": { "lucide": "pencil", "description": "Edit." },
+    "settings": { "lucide": "settings", "description": "Settings." },
+    "eye": { "lucide": "eye", "description": "Show a hidden value (PasswordInput)." },
+    "eye-off": { "lucide": "eye-off", "description": "Hide a shown value (PasswordInput)." }
+  }
+}

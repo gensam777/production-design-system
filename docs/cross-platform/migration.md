@@ -2,7 +2,10 @@
 
 Decision record: [ADR 0013](../../governance/decisions/0013-cross-platform-architecture.md).
 **Current phase: 4 complete (npm workspaces, `design/` source, native package scaffolding —
-[ADR 0017](../../governance/decisions/0017-workspace-structure.md)); Phase 5 not started.**
+[ADR 0017](../../governance/decisions/0017-workspace-structure.md)); Phase 5 in progress — decisions
+made ([ADR 0018](../../governance/decisions/0018-cross-platform-button.md),
+[ADR 0019](../../governance/decisions/0019-icon-catalog.md)), web Button updated; Figma alignment
+and the native Buttons pending.**
 
 ## Repo evolution
 
@@ -20,7 +23,7 @@ Target layout:
 
 ```
 /
-├─ design/            tokens/ · contracts/ · fonts/ (+ icons/ later)   (platform-neutral, no code)
+├─ design/            tokens/ · contracts/ · fonts/ · icons/   (platform-neutral, no code)
 ├─ packages/          tokens/ (@pds/tokens) · react/ (@pds/react) · react-native/ (@pds/react-native)
 ├─ platforms/         ios/ (PDSTokens, PDSUI) · android/ (com.pds.tokens, com.pds.compose)
 ├─ Package.swift
@@ -94,7 +97,7 @@ change.
   Disabled cells differ between Figma and code for secondary / tertiary / danger; fixed
   visual height vs. text scaling; Figma text-style / icon-size binding gaps; spinner
   thickness and motion token; Figma's On-color binding inconsistency (`text/inverse` vs its
-  own spinners' `action.*.on-color`).
+  own spinners' `action.*.on-color`). All resolved in Phase 5 (ADR 0018).
 - **Not done in Phase 3:** converting the other components' prose "Cross-platform contract"
   sections (Checkbox, Radio, Radio Group, Switch, …) — incremental, via the skill.
 
@@ -117,12 +120,37 @@ change.
   compileSdk / minSdk / Compose versions and a Gradle wrapper (`com.pds.compose`), the React
   Native version + peer range and a preview/test harness (`@pds/react-native`); icon catalog
   manifest (carried from Phase 2); the Button implementation gaps and Phase 5 questions in
-  its contract.
+  its contract. **All decided in Phase 5 — ADR 0018 / 0019.**
 
-### Phase 5 — Reference implementations
+### Phase 5 — Reference implementations (in progress)
 
-- Button: React Native → SwiftUI → Compose, each with previews, platform accessibility
-  audit, token parity check against the IR.
+**Done (2026-10-12):**
+
+- Decisions — platform versions and the Button contract questions
+  ([ADR 0018](../../governance/decisions/0018-cross-platform-button.md)).
+- Tokens: `color.action.danger.disabled`, `motion.spinner` (+ Core `motion.duration.loop`,
+  `motion.easing.linear`) — additive; existing web CSS/JS values unchanged.
+- Icon catalog `design/icons/icons.json` + `npm run icons:test`
+  ([ADR 0019](../../governance/decisions/0019-icon-catalog.md)).
+- Button contract: questions resolved, both web gaps closed, `sizing.height: minimum`.
+- Web Button: loading keeps variant colors / stays focusable / busy / blocks activation;
+  disabled wins; new disabled rule; minimum height; spinner on `motion.spinner`.
+
+**Pending:**
+
+- Button, one pull request per platform, in this order:
+  - **React Native** (`@pds/react-native`): `PDSThemeProvider` + `Button` (`children: string`,
+    `variant`, `size`, `disabled`, `loading`, `leadingIcon`/`trailingIcon: IconName`, `onPress`,
+    `loadingAccessibilityLabel`); `Pressable`, `hitSlop` 6/2/0 (iOS) · 8/4/0 (Android), busy +
+    disabled accessibility state; Jest + React Native Testing Library; Expo example app.
+  - **SwiftUI** (`PDSUI`): `DSButton` + `DSButtonStyle`, `.dsTheme(_:)`, disabled via
+    `.disabled`, localized "Loading" value, hit area expanded without layout change; Swift
+    Testing on a color resolver, `#Preview` grid; macOS CI job.
+  - **Compose** (`com.pds.compose`): `DsButton` + `PdsTheme`, `clickable(role = Button,
+indication = null)`, `stateDescription` while loading, built-in 48dp touch expansion, drawn
+    focus ring; Robolectric + compose-ui-test, `@Preview` grid; Gradle wrapper, Android SDK in CI.
+  - Native icon generators (SwiftUI shapes, Compose `ImageVector`s from `lucide-static`)
+    land with their platform.
 - Switch second.
 - **Exit:** contract checks pass on every platform; MobileLogin-equivalent screen renders
   natively in both brands.

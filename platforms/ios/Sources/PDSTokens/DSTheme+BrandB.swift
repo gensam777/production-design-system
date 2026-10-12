@@ -52,6 +52,7 @@ extension DSTheme {
                 danger: DSColorActionDanger(
                     default: DSColorValue(rgba: 0xDC2626FF),
                     hover: DSColorValue(rgba: 0xB91C1CFF),
+                    disabled: DSColorValue(rgba: 0xD1D5DBFF),
                     onColor: DSColorValue(rgba: 0xFFFFFFFF)
                 )
             ),
@@ -107,7 +108,8 @@ extension DSTheme {
             overlayEnter: DSTransition(duration: 0.2, delay: 0, easing: DSCubicBezier(x1: 0, y1: 0, x2: 0.2, y2: 1)),
             overlayExit: DSTransition(duration: 0.1, delay: 0, easing: DSCubicBezier(x1: 0.4, y1: 0, x2: 1, y2: 1)),
             modalEnter: DSTransition(duration: 0.3, delay: 0, easing: DSCubicBezier(x1: 0, y1: 0, x2: 0.2, y2: 1)),
-            modalExit: DSTransition(duration: 0.2, delay: 0, easing: DSCubicBezier(x1: 0.4, y1: 0, x2: 1, y2: 1))
+            modalExit: DSTransition(duration: 0.2, delay: 0, easing: DSCubicBezier(x1: 0.4, y1: 0, x2: 1, y2: 1)),
+            spinner: DSTransition(duration: 0.6, delay: 0, easing: DSCubicBezier(x1: 0, y1: 0, x2: 1, y2: 1))
         ),
         radius: DSRadius(
             flat: 0,

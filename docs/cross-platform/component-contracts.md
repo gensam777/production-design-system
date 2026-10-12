@@ -61,7 +61,7 @@ accessibility outcomes and token bindings. Every platform implements it natively
 | `accessibility`           | yes      | `role`, `name` (`source` slot + `rule`), `exposed-states`, `announcements`, `outcomes`                                        |
 | `tokens`                  | yes      | part → property → (enum value \| state)\* → semantic token path, or `none`. A state missing from a state map = unchanged from `default` |
 | `component-constants`     | no       | Values that are deliberately not tokens (`px` / `ms`), `token-gap: true` where a token should exist                          |
-| `sizing`                  | no       | `property` + `visual-height` per value; `width`; `hit-target` (`policy: platform-owned`, per-platform `minimum`)             |
+| `sizing`                  | no       | `property` + `visual-height` per value; `height` (`fixed` / `minimum` — grows with text scaling); `width`; `hit-target` (`policy: platform-owned`, per-platform `minimum`) |
 | `figma`                   | no       | `file-key`, `component-set`, `node-id`, `verified`, `variant-count`, `axes` (→ property or states), `component-properties` (→ slots), `figma-only` |
 | `references`              | no       | Repo paths per platform (`source`, `styles`, `stories`) + `docs`. `web` is checked while web is alpha/beta/stable            |
 | `platform-notes`          | no       | Per platform: `base` (what it is built on, in words) + `notes`                                                                |
@@ -112,19 +112,17 @@ design-audit snapshot — refresh that snapshot (design-audit skill) to check li
   is the only visually disabled state); platform-owned hover / pressed / focus.
   **Precedence disabled > loading > default:** disabled + loading is disabled (not busy,
   label shown, cannot activate); loading alone is busy, cannot activate, stays focusable.
-- **Tokens:** `action.*` / `surface.disabled` backgrounds, `border.*`, `text.*` /
+- **Tokens:** `action.*` backgrounds (including `action.*.disabled`), `border.*`, `text.*` /
   `action.*.on-color` label colors per variant × state; `radius.control`; `space.inset.*` /
   `space.inline.*` per size; `text.label.{sm,md,lg}.medium`; `icon.{sm,md,lg}`;
-  `motion.micro`; `radius.full` spinner; `focus.ring` / `focus.ring-offset`.
-- **Sizing:** visual height 32 / 40 / 48 (component constants); hit target platform-owned.
-- **Figma:** re-audited against live Figma 2026-10-12 (axes, 72 variants, bindings).
-- **Implementation gaps (web):** the web Button still turns on native `disabled` while
-  loading (disabled colors, not focusable); with disabled + loading it shows the spinner and
-  reports busy.
-- **Phase 5 implementation questions:** Disabled cells differ between Figma and code
-  (secondary / tertiary / danger), fixed height vs. text scaling, Figma text-style /
-  icon-size binding gaps, spinner thickness and motion token, Figma On-color binding
-  inconsistency.
+  `motion.micro`; `radius.full` spinner rotating per `motion.spinner`; `focus.ring` /
+  `focus.ring-offset`.
+- **Sizing:** minimum height 32 / 40 / 48 (component constants, `height: minimum`) with
+  `space.inset.*` block padding; hit target platform-owned.
+- **Figma:** aligned and re-audited 2026-10-12 (72 Button + 48 Button Content variants,
+  every binding token- or style-bound).
+- **Implementation gaps / open questions:** none — the Phase 3 web gaps and questions were
+  closed in Phase 5 (ADR 0018).
 
 ## Adding or updating a contract
 
