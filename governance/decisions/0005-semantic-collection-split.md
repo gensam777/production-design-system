@@ -41,8 +41,8 @@ unused mode to every other concern's variables too.
 
 ## Consequences
 
-- **Code required zero restructuring for this split.** `src/tokens/semantic/color.json`
-  and `src/tokens/semantic/spacing.json` were already separate files per foundation —
+- **Code required zero restructuring for this split.** `design/tokens/semantic/color.json`
+  and `design/tokens/semantic/spacing.json` were already separate files per foundation —
   code never had a single monolithic "Semantic" token tree to begin with. Token path
   naming (`color.surface.canvas`, `space.inset.md`) is unaffected; the Figma-side split
   just brings Figma's structure in line with what code already had. This was confirmed

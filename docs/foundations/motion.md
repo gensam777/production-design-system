@@ -6,7 +6,7 @@ decisions behind this foundation.
 
 ## Primitives
 
-Two separate raw scales in `src/tokens/core/motion.json` — duration and easing are
+Two separate raw scales in `design/tokens/core/motion.json` — duration and easing are
 different physical dimensions, not points on one axis, so they stay separate scales
 rather than one composite.
 
@@ -26,7 +26,7 @@ easing yet — deferred until a real spinner/loop consumer exists.
 
 ## Semantic tokens
 
-`src/tokens/semantic/motion.json` — DTCG `$type: "transition"` composites
+`design/tokens/semantic/motion.json` — DTCG `$type: "transition"` composites
 (`{ duration, delay, timingFunction }`), aliasing primitive duration + easing.
 `delay` is always `0` (ms number, like every duration) — V1 never needs a non-zero delay.
 It was the CSS string `"0ms"` before the cross-platform Phase 1 (ADR 0014).
@@ -58,7 +58,7 @@ Semantic:   motion.<role>            e.g. motion.overlay-enter
 
 ## Code output
 
-- **CSS** (`src/tokens/build/css/variables.css`): valid `transition` shorthand via
+- **CSS** (`packages/tokens/build/css/variables.css`): valid `transition` shorthand via
   Style Dictionary's built-in `transition/css/shorthand` + `cubicBezier/css` transforms
   (both present in this config since day one, dormant until now) — e.g.
   `--motion-overlay-enter: 200ms cubic-bezier(0, 0, 0.2, 1) 0ms;`. Standalone
@@ -70,7 +70,7 @@ Semantic:   motion.<role>            e.g. motion.overlay-enter
   unitless at zero the way `<length>` values are. This transform also has to run before
   the shorthand transform, which does no unit normalization of its own at all — see ADR
   0008 for what would break without it.
-- **JS/TS** (`src/tokens/build/js/tokens.js`): `motion.duration.*` as plain ms numbers,
+- **JS/TS** (`packages/tokens/build/js/tokens.js`): `motion.duration.*` as plain ms numbers,
   `motion.easing.*` as raw `[x1, y1, x2, y2]` arrays, semantic roles as objects
   (`{ duration, delay, timingFunction }` — `duration`/`timingFunction` raw,
   `delay` the string `"0ms"`, a documented shape asymmetry kept so the web JS output stays
@@ -78,7 +78,7 @@ Semantic:   motion.<role>            e.g. motion.overlay-enter
 
 ## Reduced-motion strategy
 
-`src/tokens/build/css/motion-reduced-motion.css` — generated, separate file. Under
+`packages/tokens/build/css/motion-reduced-motion.css` — generated, separate file. Under
 `@media (prefers-reduced-motion: reduce)`, forces **every** `--motion-*` custom
 property to an effectively-instant value: all 5 primitive `--motion-duration-*` → `0ms`,
 all 5 semantic `--motion-*` transition shorthands → `0ms linear 0ms`. Easing primitives

@@ -39,7 +39,7 @@ Only how text scales with the OS setting differs.
 | `caption.md` / `caption.sm` | 14 / 12 | `footnote` / `caption1`                           |
 | `code.md` / `code.sm`       | 14 / 12 | `body` / `caption1`                               |
 
-- **Anchors** (`src/tokens/platform/native/semantic/text-scaling.json`) don't change sizes;
+- **Anchors** (`design/tokens/platform/native/semantic/text-scaling.json`) don't change sizes;
   they pick the Dynamic Type scaling curve. Rule: the role's own family first, then the
   nearest default size. Title curves grow less at accessibility sizes, so large headings don't
   take over the screen. Code follows the body text it sits in.
@@ -65,7 +65,7 @@ Only how text scales with the OS setting differs.
 - **iOS** derives from the shared token: radius = blur ÷ 2, opacity = the shadow color's
   alpha (2 decimals), spread dropped. Apply to the background shape, not the container.
 - **Android** uses its own light model at Material 3 levels 1–3 — not derivable from the web
-  shadow, so the values live in `src/tokens/platform/native/semantic/elevation.json`
+  shadow, so the values live in `design/tokens/platform/native/semantic/elevation.json`
   (`elevationHeight.*`). Compose: `Surface(shadowElevation = …, tonalElevation = 0.dp)`.
   If Phase 5 finds Android's shadow too heavy, tune shadow color alpha (Android 9+) there.
 - **React Native** gets one style object for both platforms (iOS ignores `elevation`, Android
@@ -77,7 +77,7 @@ Only how text scales with the OS setting differs.
 
 ### 3. Fonts: one catalog, per-brand manifests derived at build time
 
-`src/tokens/fonts/fonts.json` (+ `fonts.schema.json`) lists each family with license, pinned
+`design/fonts/fonts.json` (+ `fonts.schema.json`) lists each family with license, pinned
 source, `verified` flag and faces `{weight, style, file, postScriptName}`. It replaces 0014's
 hand-written `fonts/<brand>.fonts.json`: a brand's manifest is **derived** into its IR
 (`ir.fonts`) from the brand's resolved families and the weights its roles use, so `brand.json`
@@ -101,14 +101,14 @@ stays the only place a brand picks a family and the shared mono family isn't dup
 ### 4. Output architecture
 
 ```
-src/tokens/{core, brands/<brand>, semantic, platform/{web,native}} + fonts/fonts.json
-  → resolved IR per brand (scripts/tokens/ir.mjs)        src/tokens/build/ir/<brand>.json
-  → guardrails (scripts/tokens/guards.mjs)
+design/tokens/{core, brands/<brand>, semantic, platform/{web,native}} + design/fonts/fonts.json
+  → resolved IR per brand (ir.mjs)                       packages/tokens/build/ir/<brand>.json
+  → guardrails (guards.mjs)
   → web CSS/JS           (emit-web.mjs)                   unchanged, byte-identical
   → native model         (native.mjs)                     semantic shared tokens only
       → React Native TS  (emit-react-native.mjs)          build/react-native/index.ts
-      → Swift PDSTokens  (emit-swift.mjs)                 build/swift/PDSTokens/*.swift
-      → Kotlin com.pds.tokens (emit-kotlin.mjs)           build/kotlin/com/pds/tokens/*.kt
+      → Swift PDSTokens  (emit-swift.mjs)                 platforms/ios/Sources/PDSTokens/*.swift  (committed, ADR 0017)
+      → Kotlin com.pds.tokens (emit-kotlin.mjs)           platforms/android/tokens/src/main/kotlin/com/pds/tokens/*.kt  (committed)
 ```
 
 - **Exposed:** semantic `shared` tokens (component-scoped ones included) and font roles. Core,
@@ -132,7 +132,7 @@ token type with no native mapping; two paths mapping to one native name; brands 
 different theme shapes.
 
 `npm run tokens:test` compares every output (8 web files, 1 RN, 3 Swift, 3 Kotlin) with
-committed snapshots in `scripts/tokens/__tests__/__snapshots__/`, checks IR ↔ output parity,
+committed snapshots in `packages/tokens/__tests__/__snapshots__/`, checks IR ↔ output parity,
 type-checks the RN module, checks the design audit's resolver against the IR, and runs negative
 tests for every guardrail. CI compiles the committed Swift (`swiftc -typecheck`, Swift 6
 mode) and Kotlin (`kotlinc`) snapshots.

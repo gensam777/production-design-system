@@ -26,8 +26,8 @@ become the shared API.
   engineers and designers must read and edit it; a TypeScript contract would tie the shared
   layer to JS.
 - Location: `design/contracts/components/<component>.contract.yaml`, schema at
-  `design/contracts/schema.json` (created in Phase 3; `design/` is additive and does not move
-  existing folders — that happens in Phase 4).
+  `design/contracts/schema.json` (created in Phase 3; token source and the font catalog moved
+  into `design/` in Phase 4 — ADR 0017).
 - File names are kebab-case (`password-input.contract.yaml`); the `component` field is
   PascalCase (`PasswordInput`), which is the shared, unprefixed name.
 

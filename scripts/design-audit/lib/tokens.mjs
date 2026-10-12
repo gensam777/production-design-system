@@ -1,8 +1,8 @@
 /**
- * Token resolution straight from the DTCG source (src/tokens/{core,brands/<brand>,semantic}
- * plus the web platform tier src/tokens/platform/web/{core,semantic}), so the audit never
+ * Token resolution straight from the DTCG source (design/tokens/{core,brands/<brand>,semantic}
+ * plus the web platform tier design/tokens/platform/web/{core,semantic}), so the audit never
  * depends on `npm run tokens:build` having run. Same layering as the build's resolve stage
- * (scripts/tokens/ir.mjs): core + one brand + semantic, aliases resolved per brand. The
+ * (packages/tokens/scripts/ir.mjs): core + one brand + semantic, aliases resolved per brand. The
  * audited surfaces are web, so web-only tokens (`viewport.*`, `layout.*`) are in scope.
  * Values are in source units (px numbers, hex/hex8, single family names) — see ADR 0014.
  */
@@ -70,7 +70,7 @@ function flatten(node, trail, out) {
  * @param {{ root?: string }} [opts]
  * @returns token API: brands, has(), type(), resolve(), cssVar(), fromFigmaVariable(), …
  */
-export function loadTokens({ root = 'src/tokens' } = {}) {
+export function loadTokens({ root = 'design/tokens' } = {}) {
   const brands = fs
     .readdirSync(path.join(root, 'brands'), { withFileTypes: true })
     .filter((d) => d.isDirectory())

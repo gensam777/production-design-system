@@ -19,8 +19,8 @@ end-aligned, wrapping below the text when narrow.
 
 ## Implementation
 
-- React: `src/patterns/PageHeader`; used by `src/examples/Dashboard` and
-  `src/examples/Settings`.
+- React: `packages/react/src/patterns/PageHeader`; used by `packages/react/src/examples/Dashboard` and
+  `packages/react/src/examples/Settings`.
 - Storybook: `Patterns/Page header`.
 - Figma: Patterns page → "Page header"; product frames use a `page-heading` frame.
 - Centered-card screens (Login, Success) put their `<h1>` in the card instead — see

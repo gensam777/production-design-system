@@ -29,14 +29,14 @@ Two more decisions were needed that didn't come up in earlier foundations:
   color/space/radius's Variable-aliases-Variable pattern). In code this has no equivalent
   distinction — both tiers are still plain JSON token files — but it's the reason the
   Figma-side implementation looked different from every foundation except typography.
-- **Primitive shadow geometry (`src/tokens/primitive/shadow.json`) is four separate
+- **Primitive shadow geometry (`design/tokens/primitive/shadow.json`) is four separate
   scalar leaf tokens per step** (`shadow.<step>.offset-x/offset-y/blur/spread`), not one
   composite — consistent with the rule, true of every primitive in every foundation so
   far, that primitives are scalar values with no meaning attached; composites only ever
   appear at the semantic tier (typography's role tokens, now elevation's role tokens
   too). This also matches the Figma primitive shape exactly: 20 separate FLOAT
   Variables, not a single shadow-shaped Variable (which doesn't exist as a type).
-- **Semantic elevation roles (`src/tokens/semantic/elevation.json`) are DTCG
+- **Semantic elevation roles (`design/tokens/semantic/elevation.json`) are DTCG
   `$type: "shadow"` composite tokens**, aliasing the primitive geometry and a new
   Semantic Color shadow role for `color`. This activates Style Dictionary's built-in
   `shadow/css/shorthand` transform, present in this repo's `css` platform transform list
@@ -53,10 +53,10 @@ Two more decisions were needed that didn't come up in earlier foundations:
   explicitly supports a plain string `$value` for exactly this case (passes it through
   unchanged when the value isn't an object) — this isn't a workaround, it's a shape the
   transform already anticipates.
-- **Shadow color lives in `src/tokens/semantic/color.json`, not a new file.** Three new
+- **Shadow color lives in `design/tokens/semantic/color.json`, not a new file.** Three new
   entries — `color.shadow.subtle/default/strong` — alongside `surface`/`text`/`border`/
   etc., each aliasing a new primitive: `color.overlay.subtle/default/strong` in
-  `src/tokens/primitive/color.json`. The primitive is deliberately named `overlay`, not
+  `design/tokens/primitive/color.json`. The primitive is deliberately named `overlay`, not
   `shadow` — it's alpha-blended black with no shadow-specific meaning, and naming it
   generically means a future `surface.overlay` (modal scrim) token, explicitly deferred
   in 0002 for lack of a real consumer, can reuse this same primitive scale for free

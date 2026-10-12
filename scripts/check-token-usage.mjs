@@ -3,7 +3,7 @@
  *
  * Fails (exit 1) when a file under the checked roots references:
  *   - a Core primitive custom property (e.g. `--color-blue-600`, `--space-xl`, `--radius-sm`)
- *     — the list is derived from src/tokens/core/*.json and src/tokens/platform/<p>/core/*.json
+ *     — the list is derived from design/tokens/core/*.json and design/tokens/platform/<p>/core/*.json
  *     (e.g. web-only `--viewport-*`), so it can't go stale;
  *   - any brand-layer custom property (`--brand-*`) — brand tokens are never emitted, and
  *     components must never know which brand is active;
@@ -15,13 +15,17 @@
  * was removed and the exception is stale — also fails, so exceptions can't silently grow.
  *
  * Usage: node scripts/check-token-usage.mjs [root ...]
- *        (default: src/components src/patterns src/examples)
+ *        (default: packages/react/src/components packages/react/src/patterns packages/react/src/examples)
  * Runs as part of `npm run lint`, and therefore in CI.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 
-const DEFAULT_ROOTS = ['src/components', 'src/patterns', 'src/examples'];
+const DEFAULT_ROOTS = [
+  'packages/react/src/components',
+  'packages/react/src/patterns',
+  'packages/react/src/examples',
+];
 const roots = process.argv.slice(2).length ? process.argv.slice(2) : DEFAULT_ROOTS;
 
 // Same naming as Style Dictionary's `name/kebab` for our token paths (camelCase → kebab).
@@ -44,9 +48,11 @@ const walk = (node, trail) => {
 };
 // Core tier = shared core + every platform tier's core (e.g. web-only `viewport.*`, ADR 0014).
 const coreDirs = [
-  'src/tokens/core',
-  ...(fs.existsSync('src/tokens/platform')
-    ? fs.readdirSync('src/tokens/platform').map((p) => path.join('src/tokens/platform', p, 'core'))
+  'design/tokens/core',
+  ...(fs.existsSync('design/tokens/platform')
+    ? fs
+        .readdirSync('design/tokens/platform')
+        .map((p) => path.join('design/tokens/platform', p, 'core'))
     : []),
 ].filter((d) => fs.existsSync(d));
 for (const dir of coreDirs) {

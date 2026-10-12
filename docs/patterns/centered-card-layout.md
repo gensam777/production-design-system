@@ -35,7 +35,7 @@ content (`space.stack.lg` between everything by default; `space.stack.md` with `
 
 ## Implementation
 
-- React: `src/patterns/CenteredCardLayout` (`width="narrow" | "regular"`, `compact`); used
+- React: `packages/react/src/patterns/CenteredCardLayout` (`width="narrow" | "regular"`, `compact`); used
   by Login (regular, compact) and Success (regular). `narrow` has no product-screen consumer
   today.
 - Storybook: `Patterns/Centered card layout`.

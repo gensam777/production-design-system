@@ -27,7 +27,7 @@ const readJsonAbs = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
 const contract = readJson('scripts/design-audit/surfaces/login.json');
 const baseSnapshot = readJson(contract.figma.snapshot);
 const knownDifferences = readJson('scripts/design-audit/known-differences.json');
-const tokens = loadTokens({ root: path.join(ROOT, 'src/tokens') });
+const tokens = loadTokens({ root: path.join(ROOT, 'design/tokens') });
 
 /** Deep-cloned snapshot with `mutate(frames)` applied and the checksum re-sealed. */
 function fixture(mutate) {
@@ -153,7 +153,7 @@ describe('code-side drift (in-memory overrides — no files touched)', () => {
   it('detects a different token in code', () => {
     const rep = audit({
       overrides: override(
-        'src/examples/Login/LoginScreen.css',
+        'packages/react/src/examples/Login/LoginScreen.css',
         'gap: var(--space-stack-md);',
         'gap: var(--space-stack-lg);',
       ),
@@ -163,7 +163,7 @@ describe('code-side drift (in-memory overrides — no files touched)', () => {
   it('detects a raw value replacing a token, even when the pixels match', () => {
     const rep = audit({
       overrides: override(
-        'src/examples/Login/LoginScreen.css',
+        'packages/react/src/examples/Login/LoginScreen.css',
         'gap: var(--space-stack-md);',
         'gap: 12px;',
       ),
@@ -175,7 +175,7 @@ describe('code-side drift (in-memory overrides — no files touched)', () => {
   it('detects a layout prop change (card width / density)', () => {
     const rep = audit({
       overrides: override(
-        'src/examples/Login/LoginScreen.tsx',
+        'packages/react/src/examples/Login/LoginScreen.tsx',
         /width="regular"\s+compact/, // line-ending agnostic (CRLF checkouts)
         'width="narrow"',
       ),
@@ -185,7 +185,11 @@ describe('code-side drift (in-memory overrides — no files touched)', () => {
   });
   it('fails the run (non-zero exit semantics)', () => {
     const rep = audit({
-      overrides: override('src/examples/Login/LoginScreen.tsx', 'Welcome back', 'Welcome'),
+      overrides: override(
+        'packages/react/src/examples/Login/LoginScreen.tsx',
+        'Welcome back',
+        'Welcome',
+      ),
     });
     assert.ok(rep.summary.DRIFT > 0);
   });
@@ -195,7 +199,7 @@ describe('known differences', () => {
   it('a known difference whose recorded values no longer match is DRIFT, not hidden', () => {
     const rep = audit({
       overrides: override(
-        'src/examples/Login/LoginScreen.css',
+        'packages/react/src/examples/Login/LoginScreen.css',
         'flex-wrap: wrap;',
         'flex-wrap: wrap-reverse;',
       ),
@@ -207,7 +211,7 @@ describe('known differences', () => {
   it('a stale known difference (Figma and code now agree) is ERROR', () => {
     const rep = audit({
       overrides: override(
-        'src/examples/Login/LoginScreen.css',
+        'packages/react/src/examples/Login/LoginScreen.css',
         'flex-wrap: wrap;',
         'flex-wrap: nowrap;',
       ),
@@ -270,7 +274,7 @@ describe('ERROR conditions', () => {
   it('reports a missing CSS selector as ERROR', () => {
     const rep = audit({
       overrides: override(
-        'src/examples/Login/LoginScreen.css',
+        'packages/react/src/examples/Login/LoginScreen.css',
         '.ds-example-login__submit {',
         '.ds-example-login__cta {',
       ),

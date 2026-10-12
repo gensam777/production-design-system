@@ -5,7 +5,7 @@ for the architectural decisions behind this foundation.
 
 ## Primitives
 
-Raw, un-opinionated hue scales in `src/tokens/core/color.json`. No meaning attached — a
+Raw, un-opinionated hue scales in `design/tokens/core/color.json`. No meaning attached — a
 primitive doesn't know it means "danger" or "brand." Named by hue, not role.
 
 | Hue | Steps | Role |
@@ -30,7 +30,7 @@ primary button don't read as the same color and lose meaning.
 
 ## Semantic tokens
 
-`src/tokens/semantic/color.json` — the layer components actually consume. Every
+`design/tokens/semantic/color.json` — the layer components actually consume. Every
 semantic token is an **alias** to a primitive (`{color.gray.900}` style reference),
 never a duplicated hex value. Six categories:
 
@@ -194,4 +194,4 @@ categories in this document stay the same.
   to share the same mode set. The `color/` prefix was dropped from variable names inside
   this collection at the same time, since the collection name itself now carries the
   category. See `governance/decisions/0005-semantic-collection-split.md`. Code required
-  no change for this split — `src/tokens/semantic/color.json` was already its own file.
+  no change for this split — `design/tokens/semantic/color.json` was already its own file.

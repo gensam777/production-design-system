@@ -1,5 +1,6 @@
-# Prettier also honours .gitignore (generated src/tokens/build/, dist/, …).
+# Prettier also honours .gitignore (generated packages/tokens/build/, dist/, …).
 
 # Committed copies of generated token outputs — byte-for-byte what the build emits
-# (npm run tokens:test compares them; npm run tokens:test:update rewrites them).
-scripts/tokens/__tests__/__snapshots__/
+# (npm run tokens:test compares them; npm run tokens:test:update rewrites them). The Swift and
+# Kotlin outputs in platforms/ are generated too, but Prettier does not format those languages.
+packages/tokens/__tests__/__snapshots__/

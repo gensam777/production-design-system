@@ -1,0 +1,98 @@
+// Design system entry point.
+// Components are exported from here as they are built.
+
+// Generated token CSS from the @pds/tokens workspace (produced by `npm run tokens:build`,
+// gitignored — see packages/tokens/build/). @pds/tokens is a devDependency that tsup bundles
+// (`noExternal` in tsup.config.ts), so dist/index.css stays self-contained. Imported first,
+// in this exact order, so tsup's esbuild-based CSS bundling (which concatenates in
+// module-graph traversal order, not alphabetically) places every custom property component
+// CSS below depends on before it in dist/index.css:
+//   1. variables.css   — brand-independent tokens: core primitives & shared semantics
+//   2. typography.css  — brand-independent sub-values of the 35 composite text.* roles,
+//                         split out because the built-in `css/variables` shorthand can't
+//                         express letter-spacing (see governance/decisions/0003)
+//   3. brands/*.css    — brand-dependent semantic tokens per brand (ADR 0011). brand-a is
+//                         the default (`:root`); brand-b applies under data-brand="brand-b"
+//                         on <html> or any container. Selectors are specificity-ordered, so
+//                         these two files don't depend on each other's load order.
+//   4. motion-reduced-motion.css — the `prefers-reduced-motion` override. Must load LAST:
+//                         it re-declares the same --motion-* custom properties inside an
+//                         `@media` block at equal specificity to variables.css's :root
+//                         block, so source order (not specificity) decides which wins
+//                         when the media query matches — loading it after variables.css
+//                         is what makes the override actually override.
+// `npm run build` builds @pds/tokens first (see package.json) specifically so these
+// files exist before tsup tries to resolve them — without that ordering this import
+// would fail the build outright (a loud failure, which is the point: a stale/missing
+// token build should break `npm run build`, not silently ship a component stylesheet
+// with undefined custom properties, which was the original bug this fixes).
+import '@pds/tokens/css/variables.css';
+import '@pds/tokens/css/typography.css';
+import '@pds/tokens/css/brands/brand-a.css';
+import '@pds/tokens/css/brands/brand-b.css';
+import '@pds/tokens/css/motion-reduced-motion.css';
+
+export const DESIGN_SYSTEM_VERSION = '0.0.0';
+
+export { Icon } from './icons';
+export type { IconProps, IconName, IconSize } from './icons';
+
+export { Button } from './components/Button';
+export type { ButtonProps, ButtonVariant, ButtonSize } from './components/Button';
+
+export { ButtonLink } from './components/ButtonLink';
+export type { ButtonLinkProps, ButtonLinkVariant } from './components/ButtonLink';
+
+export { Input } from './components/Input';
+export type { InputProps, InputSize } from './components/Input';
+
+export { PasswordInput } from './components/PasswordInput';
+export type { PasswordInputProps } from './components/PasswordInput';
+
+export { Checkbox } from './components/Checkbox';
+export type { CheckboxProps } from './components/Checkbox';
+
+export { Radio } from './components/Radio';
+export type { RadioProps } from './components/Radio';
+
+export { RadioGroup } from './components/RadioGroup';
+export type { RadioGroupProps } from './components/RadioGroup';
+
+export { Switch } from './components/Switch';
+export type { SwitchProps } from './components/Switch';
+
+export { Textarea } from './components/Textarea';
+export type { TextareaProps, TextareaSize } from './components/Textarea';
+
+export { Select } from './components/Select';
+export type { SelectProps, SelectSize } from './components/Select';
+
+export { Badge } from './components/Badge';
+export type { BadgeProps, BadgeStatus, BadgeEmphasis } from './components/Badge';
+
+export { Alert } from './components/Alert';
+export type { AlertProps, AlertStatus } from './components/Alert';
+
+export { Card } from './components/Card';
+export type { CardProps, CardVariant, CardPadding } from './components/Card';
+
+export { Divider } from './components/Divider';
+export type { DividerProps } from './components/Divider';
+
+export { Tooltip } from './components/Tooltip';
+export type { TooltipProps, TooltipPlacement } from './components/Tooltip';
+
+export { Accordion, AccordionItem } from './components/Accordion';
+export type { AccordionProps, AccordionItemProps } from './components/Accordion';
+
+export { Tabs, TabList, Tab, TabPanels, TabPanel } from './components/Tabs';
+export type {
+  TabsProps,
+  TabListProps,
+  TabProps,
+  TabPanelsProps,
+  TabPanelProps,
+} from './components/Tabs';
+
+export { Link } from './components/Link';
+export type { LinkProps } from './components/Link';

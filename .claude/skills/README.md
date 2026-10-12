@@ -18,19 +18,19 @@
   its target platform (web, web app, responsive web, mobile app, tablet app) and
   implementation intent, audits it in
   Figma first (stops on token/instance/Brand A-B issues), proposes a reuse-first plan and
-  pauses, then implements it in `src/examples/` + Storybook after approval and verifies it
+  pauses, then implements it in `packages/react/src/examples/` + Storybook after approval and verifies it
   at all three parity layers. No commits.
 
 - [`token-production`](./token-production/SKILL.md) — owns token and Figma-variable
   architecture changes (Core / Brand A-B / semantic / component-scoped; color,
   typography, spacing, radius, elevation, motion, breakpoints/layout, icon size): discovers
-  the change in Figma and/or `src/tokens/`, checks the Core → Brand → Semantic → Component
+  the change in Figma and/or `design/tokens/`, checks the Core → Brand → Semantic → Component
   layering, reports impact (aliases, brands, consumers, generated outputs, contrast,
   breaking changes) and pauses on conflicts and before applying; then updates source (and
   Figma if approved), regenerates outputs and verifies parity. No commits.
 
 - [`pattern-production`](./pattern-production/SKILL.md) — owns reusable compositions
-  (patterns and templates in `src/patterns/` + `docs/patterns/` + `Patterns/*` stories +
+  (patterns and templates in `packages/react/src/patterns/` + `docs/patterns/` + `Patterns/*` stories +
   the Figma Patterns/Templates pages): requires evidence of reuse, classifies the pattern
   kind and target platform, audits Figma first, prefers composition over new APIs,
   proposes and pauses, then implements with stories, usage/do-don't/when-not-to-use docs,

@@ -1,8 +1,0 @@
-/**
- * SuccessScreen (example composition, not a DS component). Page frame, card and heading
- * come from the Centered card layout template (src/patterns/CenteredCardLayout).
- */
-
-.ds-example-success__continue {
-  width: 100%;
-}

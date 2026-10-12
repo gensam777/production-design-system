@@ -31,3 +31,6 @@ jobs:
         uses: chromaui/action@latest
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          # Storybook lives in the @pds/react workspace (ADR 0017); its build-storybook script
+          # builds @pds/tokens and the package first.
+          workingDir: packages/react

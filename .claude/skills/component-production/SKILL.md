@@ -90,7 +90,7 @@ operation, and inspect the target page/component before making any change to it.
 
 Read, don't assume:
 
-- `src/components/Button/`, `src/components/Input/`, `src/components/Checkbox/` (full
+- `packages/react/src/components/Button/`, `packages/react/src/components/Input/`, `packages/react/src/components/Checkbox/` (full
   `.tsx`, `.css`, `.stories.tsx`) — the only implemented reference components.
 - `docs/design-to-code-mappings.md` — the authoritative record of Figma architecture and
   prop mapping for each shipped component. This is denser and more current than any
@@ -100,7 +100,7 @@ Read, don't assume:
 - `governance/component-lifecycle.md`, `governance/accessibility.md`,
   `governance/versioning.md`, and any `governance/decisions/*.md` ADR relevant to the
   token categories involved.
-- `src/tokens/{primitive,semantic}/*.json` for the actual current token values (never
+- `design/tokens/{primitive,semantic}/*.json` for the actual current token values (never
   trust a doc's numbers over the token source).
 
 ### 2. Identify closest reference component
@@ -145,7 +145,7 @@ Before writing any code, write down (and get alignment on, per **Pause points**)
 
 Follow `primitive → semantic → component usage`:
 
-- Use an existing semantic token first. Check `src/tokens/semantic/*.json` before
+- Use an existing semantic token first. Check `design/tokens/semantic/*.json` before
   assuming something is missing.
 - Do not hardcode a value when an appropriate semantic token exists.
 - Do not create a speculative token "just in case." A component-owned constant is
@@ -286,10 +286,10 @@ TypeScript, matching the exact conventions all three shipped components follow:
   "config object" props, no premature composition helpers.
 - CSS: reuse existing semantic tokens as CSS custom properties (matching the
   `var(--token-name)` pattern in `Button.css`/`Input.css`/`Checkbox.css`); reduced-motion
-  handling belongs in `src/tokens/build/css/motion-reduced-motion.css`'s pattern if the
+  handling belongs in `packages/tokens/build/css/motion-reduced-motion.css`'s pattern if the
   component animates anything non-essential.
-- File layout: `src/components/<ComponentName>/{<ComponentName>.tsx,.css,.stories.tsx,index.ts}`,
-  exported from `src/index.ts`.
+- File layout: `packages/react/src/components/<ComponentName>/{<ComponentName>.tsx,.css,.stories.tsx,index.ts}`,
+  exported from `packages/react/src/index.ts`.
 
 ### 9. Build Storybook coverage
 
@@ -420,8 +420,8 @@ it, which is exactly why it can't be optional.
 **Required parity flow, for every bound property:**
 
 ```
-Figma semantic token → token source (src/tokens/{primitive,semantic}/*.json)
-                     → generated platform token (src/tokens/build/**, e.g. a CSS custom
+Figma semantic token → token source (design/tokens/{primitive,semantic}/*.json)
+                     → generated platform token (packages/tokens/build/**, e.g. a CSS custom
                        property or the JS token export)
                      → component implementation (the actual property/class/style rule)
 ```

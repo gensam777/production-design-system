@@ -42,7 +42,7 @@ fonts/fonts.json ───────────┘   (contract, shared-   + d
    scheme, Gradle flavor or RN environment and drop the rest; the library ships one shape.
 8. **Fonts are the only native-specific brand asset.** Each brand uses its sans family (Inter,
    Figtree — both OFL-1.1) plus the shared Roboto Mono (Apache-2.0). One catalog
-   (`src/tokens/fonts/fonts.json`) lists files and PostScript names; each brand's manifest is
+   (`design/fonts/fonts.json`) lists files and PostScript names; each brand's manifest is
    derived from it and exposed as `fonts.sans` / `fonts.mono` in every native theme. A missing
    face falls back to the system font, never to another brand's family. Font files are
    bundled in Phase 5. Web keeps its fallback stack in the web platform tier.

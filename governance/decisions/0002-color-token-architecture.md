@@ -13,8 +13,8 @@ system meant to be reused as a template across products.
 
 ## Decision
 
-- **Two-tier token structure**: primitives (`src/tokens/primitive/color.json`, hue-named,
-  no meaning) and semantics (`src/tokens/semantic/color.json`, role-named, alias
+- **Two-tier token structure**: primitives (`design/tokens/primitive/color.json`, hue-named,
+  no meaning) and semantics (`design/tokens/semantic/color.json`, role-named, alias
   primitives via `{color.x.y}` references). No raw hex values are duplicated in the
   semantic layer.
 - **Components consume semantic tokens only.** Referencing a primitive

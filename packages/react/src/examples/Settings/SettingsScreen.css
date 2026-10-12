@@ -1,0 +1,11 @@
+/**
+ * SettingsScreen (example composition, not a DS component). Page header, form sections,
+ * paired-field layout and action groups come from the patterns in packages/react/src/patterns/; only the
+ * switch list's arrangement lives here.
+ */
+
+.ds-example-settings__switch-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-md);
+}

@@ -5,7 +5,7 @@ the architectural decisions behind this foundation.
 
 ## Primitives
 
-Raw, un-opinionated values in `src/tokens/core/typography.json`. No meaning attached
+Raw, un-opinionated values in `design/tokens/core/typography.json`. No meaning attached
 — a primitive doesn't know it's used for a heading or a caption.
 
 | Category | Values | Notes |
@@ -20,7 +20,7 @@ Raw, un-opinionated values in `src/tokens/core/typography.json`. No meaning atta
 
 ## Semantic tokens
 
-`src/tokens/semantic/typography.json` — **35 composite roles** (`role` × `size` × `weight`),
+`design/tokens/semantic/typography.json` — **35 composite roles** (`role` × `size` × `weight`),
 each a DTCG `$type: "typography"` token whose sub-values (`fontFamily`, `fontSize`,
 `fontWeight`, `lineHeight`, `letterSpacing`) alias primitives. No sub-value is ever a raw
 literal. This is the balanced matrix approved and migrated first in Figma (Text Styles),
@@ -124,7 +124,7 @@ Every platform uses the same roles, sizes, weights, line-height ratios and lette
 text scales with the OS setting the native way.
 
 - **iOS (SwiftUI, React Native):** each role has a Dynamic Type anchor in
-  `src/tokens/platform/native/semantic/text-scaling.json` — headings `largeTitle` / `title1`
+  `design/tokens/platform/native/semantic/text-scaling.json` — headings `largeTitle` / `title1`
   / `title2` / `title3`, `body.lg/md` `body`, `body.sm` `subheadline`, `label.lg/md/sm`
   `callout` / `subheadline` / `caption1`, `caption.md/sm` `footnote` / `caption1`,
   `code.md/sm` `body` / `caption1`. Sizes stay ours; the anchor picks the scaling curve.
@@ -132,20 +132,20 @@ text scales with the OS setting the native way.
 - **Line-height:** RN absolute `size × ratio`; SwiftUI `lineSpacing = size × (ratio − 1)`;
   Compose `ratio.em`. **Letter-spacing:** em fraction × size (RN, SwiftUI), `.em` (Compose).
 - **Fonts:** native outputs reference the exact face per weight (`Inter-SemiBold`, …) from the
-  font catalog `src/tokens/fonts/fonts.json`; no font files ship yet.
+  font catalog `design/fonts/fonts.json`; no font files ship yet.
 
 ## Style Dictionary mapping
 
-- `src/tokens/core/typography.json` — DTCG types `fontFamily` (a single family name —
+- `design/tokens/core/typography.json` — DTCG types `fontFamily` (a single family name —
   `font.family.mono` is `Roboto Mono`; the sans identity lives in each brand),
   `dimension` (font sizes as **px numbers**; the web emitter outputs rem), `number`
   (letter-spacing as a fraction of font size, marked `$extensions["com.pds"].unit = "em"`;
   line-height ratios), `fontWeight` (numeric). Source carries no CSS units or fallback
   stacks since the cross-platform Phase 1 (ADR 0014).
-- `src/tokens/platform/web/semantic/font-fallback.json` — web-only fallback stacks the web
+- `design/tokens/platform/web/semantic/font-fallback.json` — web-only fallback stacks the web
   emitter appends after each family (`-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
   sans-serif` / `SFMono-Regular, Consolas, monospace`); never emitted on their own.
-- `src/tokens/semantic/typography.json` — DTCG composite `$type: "typography"` tokens.
+- `design/tokens/semantic/typography.json` — DTCG composite `$type: "typography"` tokens.
 - **Style Dictionary config change required**: the built-in `css/variables` format
   collapses a composite typography token into a single CSS `font` shorthand value. CSS's
   `font` shorthand has no slot for letter-spacing, so it was silently dropped — confirmed
@@ -157,8 +157,8 @@ text scales with the OS setting the native way.
      format out of one file wasn't enough — the collapsing happened upstream of the
      filter). Every other css transform (`size/rem`, `fontFamily/css`, `color/css`, etc.)
      is unchanged.
-- Output: `src/tokens/build/css/variables.css` (colors + typography primitives, unchanged
-  shape) and `src/tokens/build/css/typography.css` (the 35 roles, 5 properties each — 175
+- Output: `packages/tokens/build/css/variables.css` (colors + typography primitives, unchanged
+  shape) and `packages/tokens/build/css/typography.css` (the 35 roles, 5 properties each — 175
   custom properties total):
   ```css
   --text-heading-lg-bold-font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -190,14 +190,14 @@ token has an exact-value successor:
 
 This is a **breaking rename**, not a value change — every mapped pair has identical
 `fontFamily`/`fontSize`/`fontWeight`/`lineHeight`/`letterSpacing`. No components consume
-these tokens yet (`src/components/` is still empty), so there are no call sites to update
+these tokens yet (`packages/react/src/components/` is still empty), so there are no call sites to update
 in this repo; a consuming product on the old names would need to rename references.
 
 ## Font loading is a consumer responsibility
 
 This library defines Inter as Brand A's `sans` family and Figtree as Brand B's
 (`brand.font.family.sans` — the sans family is a brand choice, see [theming.md](./theming.md)) and ships that as a **token value**, but does not bundle or serve the
-actual Inter font files as part of the published package. `src/index.ts` never imports a
+actual Inter font files as part of the published package. `packages/react/src/index.ts` never imports a
 font, and no component imports one either — every component only ever consumes the
 `text.*`/`font.*` custom properties, which resolve to a `font-family` string
 (`Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`), not an
@@ -214,10 +214,10 @@ not fonts — the same way this library doesn't bundle icons beyond the provider
 
 **Storybook is the one exception**, and only for development/review purposes: it self-
 hosts Inter via `@fontsource/inter` (a `devDependency`, imported once in
-`.storybook/preview.ts`, weights 400/500/600/700 only — the four this foundation
+`packages/react/.storybook/preview.ts`, weights 400/500/600/700 only — the four this foundation
 actually defines) so that visual review in Storybook reflects the real intended typeface,
 not whatever happens to be installed on the reviewer's machine. This package is never
-imported by `src/index.ts` or any component — it does not ship in `dist/` and is not a
+imported by `packages/react/src/index.ts` or any component — it does not ship in `dist/` and is not a
 dependency of the published library.
 
 ## Accessibility & readability

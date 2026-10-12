@@ -75,13 +75,13 @@ and its Elevation/Flat style already has an empty effects list.
 ## Build pipeline (implemented)
 
 ```
-src/tokens/{core, brands/<brand>, semantic} + platform/{web,native}/{core,semantic} + fonts/fonts.json
-  → scripts/tokens/ir.mjs        resolve one brand (Style Dictionary, references only, no transforms)
-  → src/tokens/build/ir/<brand>.json   platform-neutral IR (+ derived font manifest)
-  → scripts/tokens/guards.mjs    brand contract + platform overrides (on source), scopes, shared
+design/tokens/{core, brands/<brand>, semantic} + platform/{web,native}/{core,semantic} + fonts/fonts.json
+  → packages/tokens/scripts/ir.mjs        resolve one brand (Style Dictionary, references only, no transforms)
+  → packages/tokens/build/ir/<brand>.json   platform-neutral IR (+ derived font manifest)
+  → packages/tokens/scripts/guards.mjs    brand contract + platform overrides (on source), scopes, shared
                                  invariance, contrast, fonts, native mappings
-  → scripts/tokens/emit-web.mjs  web CSS + JS (style-dictionary.config.mjs transforms/formats)
-  → scripts/tokens/native.mjs    native model (semantic shared tokens + native tier folded in)
+  → packages/tokens/scripts/emit-web.mjs  web CSS + JS (packages/tokens/style-dictionary.config.mjs transforms/formats)
+  → packages/tokens/scripts/native.mjs    native model (semantic shared tokens + native tier folded in)
       → emit-react-native.mjs / emit-swift.mjs / emit-kotlin.mjs
 ```
 
@@ -130,22 +130,22 @@ are byte-identical to the pre-Phase-1 build; the design-audit report is unchange
 | Letter-spacing | em                 | absolute                                                     | `tracking` (pt)                                                   | `em`                                                              |
 | Role           | expanded longhands | `TextStyle` object                                           | `DSTextStyle` → `Font` + modifiers                                | `TextStyle`                                                       |
 
-**Text-scaling anchors** (`src/tokens/platform/native/semantic/text-scaling.json`,
+**Text-scaling anchors** (`design/tokens/platform/native/semantic/text-scaling.json`,
 `textScaling.<group>.<size>`): the Apple text style each role scales with — `heading.xl/lg/md/sm`
 → `largeTitle/title1/title2/title3`, `body.lg/md` → `body`, `body.sm` → `subheadline`,
 `label.lg/md/sm` → `callout/subheadline/caption1`, `caption.md/sm` → `footnote/caption1`,
 `code.md/sm` → `body/caption1`. Full rationale in ADR 0016 §1. Android uses `sp` + system
 nonlinear scaling, no anchors.
 
-**Font asset catalog** (`src/tokens/fonts/fonts.json` + `fonts.schema.json`): family → license,
+**Font asset catalog** (`design/fonts/fonts.json` + `fonts.schema.json`): family → license,
 pinned source, `verified`, faces `{weight, style, file, postScriptName}`. Each brand's manifest
 is derived into its IR (`ir.fonts.{sans,mono}`) from the brand's families and the weights its
 roles use. Not tokens; no font files in the repo (ADR 0016 §3).
 
 ## Native outputs (implemented — Phase 2)
 
-Generated into `src/tokens/build/` (gitignored); reviewed copies are committed in
-`scripts/tokens/__tests__/__snapshots__/`.
+Generated into `packages/tokens/build/` (gitignored); reviewed copies are committed in
+`packages/tokens/__tests__/__snapshots__/`.
 
 | Output       | Files                                                              | Shape                                                                                                     |
 | ------------ | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |

@@ -8,28 +8,28 @@ this table is updated by hand whenever a component ships or a mapping changes.
 
 | Figma component | Figma link | React component | Notes |
 | --- | --- | --- | --- |
-| Button | _(Figma Button V1 component — link not captured in this pass)_ | `src/components/Button/Button.tsx` | See [Button](#button) below. |
-| Input | _(Figma Input V1 component — link not captured in this pass)_ | `src/components/Input/Input.tsx` | See [Input](#input) below. |
-| Checkbox | _(Figma Checkbox V1 component — link not captured in this pass)_ | `src/components/Checkbox/Checkbox.tsx` | See [Checkbox](#checkbox) below. |
-| Radio | Radio V1, page `903:9`, component set `905:44` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Radio/Radio.tsx` | See [Radio](#radio) below. |
-| Radio Group | Radio Group V1, page `907:1396`, component set `907:1435` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/RadioGroup/RadioGroup.tsx` | See [Radio Group](#radio-group) below. |
-| Switch | Switch V1, page `934:9`, component set `934:50` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Switch/Switch.tsx` | See [Switch](#switch) below. |
-| Badge | Badge V1, page `958:9`, component set `958:1573` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Badge/Badge.tsx` | See [Badge](#badge) below. |
-| Alert | Alert V1, page `961:9`, component set `961:1634` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Alert/Alert.tsx` | See [Alert](#alert) below. |
-| Textarea | Textarea V1, page `961:1669`, component set `961:1811` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Textarea/Textarea.tsx` | See [Textarea](#textarea) below. |
-| Select | Select V1, page `961:1846`, component set `961:2074` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Select/Select.tsx` | See [Select](#select) below. |
-| Card | Card V1, page `967:9`, component set `967:1625` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Card/Card.tsx` | See [Card](#card) below. |
-| Tooltip | Tooltip V1, page `968:9`, single component `968:10` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Tooltip/Tooltip.tsx` | See [Tooltip](#tooltip) below. |
-| Accordion | Accordion V1, page `968:1638`, component set `968:1736` ("Accordion Item") — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Accordion/Accordion.tsx`, `AccordionItem.tsx` | See [Accordion](#accordion) below. |
-| Tabs | Tabs V1, page `968:1781`, component set `968:1847` ("Tab") — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Tabs/Tabs.tsx`, `TabList.tsx`, `Tab.tsx`, `TabPanels.tsx`, `TabPanel.tsx` | See [Tabs](#tabs) below. |
-| Link | Link V1, page `1036:11`, component set `1038:15` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Link/Link.tsx` | See [Link](#link) below. |
-| Button (navigation) | Same Figma **Button** component (`115:224`) — no separate Figma component | `src/components/ButtonLink/ButtonLink.tsx` | See [ButtonLink](#buttonlink) below. Element difference (`<a href>` vs `<button>`) is code-only. |
-| Divider | Divider V1, page `1036:10`, component `1037:11` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/Divider/Divider.tsx` | See [Divider](#divider) below. |
-| Password Input | Password Input V1, page `1036:9`, component set `1039:86` — see `CLAUDE.md`'s Canonical Figma Source table | `src/components/PasswordInput/PasswordInput.tsx` | See [PasswordInput](#passwordinput) below. Built on Input's new `trailingAction` slot. |
+| Button | _(Figma Button V1 component — link not captured in this pass)_ | `packages/react/src/components/Button/Button.tsx` | See [Button](#button) below. |
+| Input | _(Figma Input V1 component — link not captured in this pass)_ | `packages/react/src/components/Input/Input.tsx` | See [Input](#input) below. |
+| Checkbox | _(Figma Checkbox V1 component — link not captured in this pass)_ | `packages/react/src/components/Checkbox/Checkbox.tsx` | See [Checkbox](#checkbox) below. |
+| Radio | Radio V1, page `903:9`, component set `905:44` — see `CLAUDE.md`'s Canonical Figma Source table | `packages/react/src/components/Radio/Radio.tsx` | See [Radio](#radio) below. |
+| Radio Group | Radio Group V1, page `907:1396`, component set `907:1435` — see `CLAUDE.md`'s Canonical Figma Source table | `packages/react/src/components/RadioGroup/RadioGroup.tsx` | See [Radio Group](#radio-group) below. |
+| Switch | Switch V1, page `934:9`, component set `934:50` — see `CLAUDE.md`'s Canonical Figma Source table | `packages/react/src/components/Switch/Switch.tsx` | See [Switch](#switch) below. |
+| Badge | Badge V1, page `958:9`, component set `958:1573` — see `CLAUDE.md`'s Canonical Figma Source table | `packages/react/src/components/Badge/Badge.tsx` | See [Badge](#badge) below. |
+| Alert | Alert V1, page `961:9`, component set `961:1634` — see `CLAUDE.md`'s Canonical Figma Source table | `packages/react/src/components/Alert/Alert.tsx` | See [Alert](#alert) below. |
+| Textarea | Textarea V1, page `961:1669`, component set `961:1811` — see `CLAUDE.md`'s Canonical Figma Source table | `packages/react/src/components/Textarea/Textarea.tsx` | See [Textarea](#textarea) below. |
+| Select | Select V1, page `961:1846`, component set `961:2074` — see `CLAUDE.md`'s Canonical Figma Source table | `packages/react/src/components/Select/Select.tsx` | See [Select](#select) below. |
+| Card | Card V1, page `967:9`, component set `967:1625` — see `CLAUDE.md`'s Canonical Figma Source table | `packages/react/src/components/Card/Card.tsx` | See [Card](#card) below. |
+| Tooltip | Tooltip V1, page `968:9`, single component `968:10` — see `CLAUDE.md`'s Canonical Figma Source table | `packages/react/src/components/Tooltip/Tooltip.tsx` | See [Tooltip](#tooltip) below. |
+| Accordion | Accordion V1, page `968:1638`, component set `968:1736` ("Accordion Item") — see `CLAUDE.md`'s Canonical Figma Source table | `packages/react/src/components/Accordion/Accordion.tsx`, `AccordionItem.tsx` | See [Accordion](#accordion) below. |
+| Tabs | Tabs V1, page `968:1781`, component set `968:1847` ("Tab") — see `CLAUDE.md`'s Canonical Figma Source table | `packages/react/src/components/Tabs/Tabs.tsx`, `TabList.tsx`, `Tab.tsx`, `TabPanels.tsx`, `TabPanel.tsx` | See [Tabs](#tabs) below. |
+| Link | Link V1, page `1036:11`, component set `1038:15` — see `CLAUDE.md`'s Canonical Figma Source table | `packages/react/src/components/Link/Link.tsx` | See [Link](#link) below. |
+| Button (navigation) | Same Figma **Button** component (`115:224`) — no separate Figma component | `packages/react/src/components/ButtonLink/ButtonLink.tsx` | See [ButtonLink](#buttonlink) below. Element difference (`<a href>` vs `<button>`) is code-only. |
+| Divider | Divider V1, page `1036:10`, component `1037:11` — see `CLAUDE.md`'s Canonical Figma Source table | `packages/react/src/components/Divider/Divider.tsx` | See [Divider](#divider) below. |
+| Password Input | Password Input V1, page `1036:9`, component set `1039:86` — see `CLAUDE.md`'s Canonical Figma Source table | `packages/react/src/components/PasswordInput/PasswordInput.tsx` | See [PasswordInput](#passwordinput) below. Built on Input's new `trailingAction` slot. |
 
 - **Figma component** — the component/variant name as it appears in the Figma library.
 - **Figma link** — direct link to the node in the library file.
-- **React component** — path to the component in `src/components/`.
+- **React component** — path to the component in `packages/react/src/components/`.
 - **Notes** — known deviations between design and implementation, if any.
 
 ## Guidelines
@@ -40,9 +40,9 @@ this table is updated by hand whenever a component ships or a mapping changes.
 
 ## Button
 
-- React: `src/components/Button/Button.tsx`
-- Styles: `src/components/Button/Button.css`
-- Storybook: `src/components/Button/Button.stories.tsx` (`Components/Button`)
+- React: `packages/react/src/components/Button/Button.tsx`
+- Styles: `packages/react/src/components/Button/Button.css`
+- Storybook: `packages/react/src/components/Button/Button.stories.tsx` (`Components/Button`)
 - Figma: Button V1 (approved), nested architecture — node reference not captured in this
   pass; add the direct link here when available.
 
@@ -164,7 +164,7 @@ independently, so "both icons" reduces both sides.
   already-correctly-padded Button Content variant. See **Figma architecture** above for the
   full ownership split.
 - No new spacing tokens were created — every value above is an existing
-  `src/tokens/semantic/spacing.json` `inset.*` step.
+  `design/tokens/semantic/spacing.json` `inset.*` step.
 
 ### Color tokens by variant/state
 
@@ -310,9 +310,9 @@ The State row in **Prop mapping** above lists five values; Figma's State axis ha
 
 ## Input
 
-- React: `src/components/Input/Input.tsx`
-- Styles: `src/components/Input/Input.css`
-- Storybook: `src/components/Input/Input.stories.tsx` (`Components/Input`)
+- React: `packages/react/src/components/Input/Input.tsx`
+- Styles: `packages/react/src/components/Input/Input.css`
+- Storybook: `packages/react/src/components/Input/Input.stories.tsx` (`Components/Input`)
 - Figma: Input V1 (approved), nested architecture — node reference not captured in this
   pass; add the direct link here when available.
 
@@ -486,9 +486,9 @@ provider in the Figma library, not a constraint — same note as Button's.
 
 ## Checkbox
 
-- React: `src/components/Checkbox/Checkbox.tsx`
-- Styles: `src/components/Checkbox/Checkbox.css`
-- Storybook: `src/components/Checkbox/Checkbox.stories.tsx` (`Components/Checkbox`)
+- React: `packages/react/src/components/Checkbox/Checkbox.tsx`
+- Styles: `packages/react/src/components/Checkbox/Checkbox.css`
+- Storybook: `packages/react/src/components/Checkbox/Checkbox.stories.tsx` (`Components/Checkbox`)
 - Figma: Checkbox V1 (approved), flat 12-variant component set — node reference not
   captured in this pass; add the direct link here when available.
 
@@ -712,9 +712,9 @@ exists today:
 
 ## Radio
 
-- React: `src/components/Radio/Radio.tsx`
-- Styles: `src/components/Radio/Radio.css`
-- Storybook: `src/components/Radio/Radio.stories.tsx` (`Components/Radio`)
+- React: `packages/react/src/components/Radio/Radio.tsx`
+- Styles: `packages/react/src/components/Radio/Radio.css`
+- Storybook: `packages/react/src/components/Radio/Radio.stories.tsx` (`Components/Radio`)
 - Figma: Radio V1 (approved), flat 8-variant component set. Page `903:9` ("Radio"),
   component set `905:44`. See `CLAUDE.md`'s Canonical Figma Source table for the current
   node references.
@@ -841,9 +841,9 @@ variable bindings before building, not re-derived from the token names alone).
 
 ## Radio Group
 
-- React: `src/components/RadioGroup/RadioGroup.tsx`
-- Styles: `src/components/RadioGroup/RadioGroup.css`
-- Storybook: `src/components/RadioGroup/RadioGroup.stories.tsx` (`Components/RadioGroup`)
+- React: `packages/react/src/components/RadioGroup/RadioGroup.tsx`
+- Styles: `packages/react/src/components/RadioGroup/RadioGroup.css`
+- Storybook: `packages/react/src/components/RadioGroup/RadioGroup.stories.tsx` (`Components/RadioGroup`)
 - Figma: Radio Group V1 (approved), 2-variant component set composing Radio instances.
   Page `907:1396` ("Radio Group"), component set `907:1435`. See `CLAUDE.md`'s Canonical
   Figma Source table for the current node references.
@@ -955,9 +955,9 @@ whether it's actually meaningful — it wasn't for this V1.
 
 ## Switch
 
-- React: `src/components/Switch/Switch.tsx`
-- Styles: `src/components/Switch/Switch.css`
-- Storybook: `src/components/Switch/Switch.stories.tsx` (`Components/Switch`)
+- React: `packages/react/src/components/Switch/Switch.tsx`
+- Styles: `packages/react/src/components/Switch/Switch.css`
+- Storybook: `packages/react/src/components/Switch/Switch.stories.tsx` (`Components/Switch`)
 - Figma: Switch V1 (approved), flat 8-variant component set. Page `934:9` ("Switch"),
   component set `934:50`. See `CLAUDE.md`'s Canonical Figma Source table for the current
   node references.
@@ -1013,8 +1013,8 @@ Originally built as an unbound literal (`2px`) on both sides, matching Checkbox/
 own control-geometry precedent. A manual Figma edit bound the track's padding to a new
 primitive, `space/3xs` (2px, scope `GAP`) — discovered during a Figma→code sync and
 confirmed with the user before mirroring: added `space.3xs` to
-`src/tokens/primitive/spacing.json` and `space.inset.3xs` to
-`src/tokens/semantic/spacing.json` (aliasing the primitive, following the exact same
+`design/tokens/primitive/spacing.json` and `space.inset.3xs` to
+`design/tokens/semantic/spacing.json` (aliasing the primitive, following the exact same
 `inset.*` shape as every other inset step), generating `--space-inset-3xs`. `Switch.css`
 consumes `var(--space-inset-3xs)` for the thumb's `left` offset — never a hardcoded
 `2px`. This is the first consumer of `space.inset.3xs`; promote/rename only if a future
@@ -1094,7 +1094,7 @@ approximation, no reuse of a differently-scoped token, no hardcoded value.
 ### New tokens (component-scoped, not promoted to a shared family)
 
 `switch.track.background.off.default` / `.hover` / `.disabled` — added to
-`src/tokens/semantic/color.json` under a new `color.switch` key, aliasing
+`design/tokens/semantic/color.json` under a new `color.switch` key, aliasing
 `{color.gray.500}` / `{color.gray.600}` / `{color.gray.300}` respectively. **Deliberately
 not** generalized into a shared `action.neutral.*` family: Switch is currently the only
 confirmed consumer of a neutral filled interactive surface in this system. If a future
@@ -1108,8 +1108,8 @@ Added 2026-09-12 during a Figma→code sync, after the user confirmed the placem
 **general** `space.inset.3xs` (unlike the color tokens above, this one lives in the
 regular `inset.*` semantic family, not a `switch.*`-scoped key), since a tight inset is a
 reusable spacing concept, not something Switch-specific the way a neutral fill color was.
-`src/tokens/primitive/spacing.json` gained `space.3xs` (2px, one step below the existing
-smallest `2xs`/4px); `src/tokens/semantic/spacing.json` gained `space.inset.3xs` aliasing
+`design/tokens/primitive/spacing.json` gained `space.3xs` (2px, one step below the existing
+smallest `2xs`/4px); `design/tokens/semantic/spacing.json` gained `space.inset.3xs` aliasing
 it. See the Thumb inset section above for the full story of how this was discovered (a
 manual Figma edit bound Switch's track padding to a Figma primitive with no semantic
 token yet in between — flagged rather than silently mirrored, since skipping the semantic
@@ -1164,9 +1164,9 @@ tier would have broken this system's primitive → semantic → component rule).
 
 ## Badge
 
-- React: `src/components/Badge/Badge.tsx`
-- Styles: `src/components/Badge/Badge.css`
-- Storybook: `src/components/Badge/Badge.stories.tsx` (`Components/Badge`)
+- React: `packages/react/src/components/Badge/Badge.tsx`
+- Styles: `packages/react/src/components/Badge/Badge.css`
+- Storybook: `packages/react/src/components/Badge/Badge.stories.tsx` (`Components/Badge`)
 - Figma: Badge V1 (approved), flat 10-variant component set. Page `958:9` ("Badge"),
   component set `958:1573`. See `CLAUDE.md`'s Canonical Figma Source table for the
   current node references.
@@ -1258,9 +1258,9 @@ One size only — see Prop mapping above.
 
 ## Alert
 
-- React: `src/components/Alert/Alert.tsx`
-- Styles: `src/components/Alert/Alert.css`
-- Storybook: `src/components/Alert/Alert.stories.tsx` (`Components/Alert`)
+- React: `packages/react/src/components/Alert/Alert.tsx`
+- Styles: `packages/react/src/components/Alert/Alert.css`
+- Storybook: `packages/react/src/components/Alert/Alert.stories.tsx` (`Components/Alert`)
 - Figma: Alert V1 (approved), flat 5-variant component set. Page `961:9` ("Alert"),
   component set `961:1634`. See `CLAUDE.md`'s Canonical Figma Source table for the
   current node references.
@@ -1304,8 +1304,8 @@ across all three required files per ADR 0010:
 
 | DS name | Lucide implementation | Added in |
 | --- | --- | --- |
-| `success` | `CircleCheck` | `src/icons/types.ts`, `src/icons/providers/lucide.ts`, `docs/foundations/icons.md` |
-| `danger` | `CircleX` | `src/icons/types.ts`, `src/icons/providers/lucide.ts`, `docs/foundations/icons.md` |
+| `success` | `CircleCheck` | `packages/react/src/icons/types.ts`, `packages/react/src/icons/providers/lucide.ts`, `docs/foundations/icons.md` |
+| `danger` | `CircleX` | `packages/react/src/icons/types.ts`, `packages/react/src/icons/providers/lucide.ts`, `docs/foundations/icons.md` |
 
 Both parallel the existing `info`/`warning` precedent of a name that is simultaneously
 status vocabulary and an icon name. `Neutral` and `Info` both use `info`; `Success` uses
@@ -1381,9 +1381,9 @@ One size only — no Sm/Md/Lg axis in V1.
 
 ## Textarea
 
-- React: `src/components/Textarea/Textarea.tsx`
-- Styles: `src/components/Textarea/Textarea.css`
-- Storybook: `src/components/Textarea/Textarea.stories.tsx` (`Components/Textarea`)
+- React: `packages/react/src/components/Textarea/Textarea.tsx`
+- Styles: `packages/react/src/components/Textarea/Textarea.css`
+- Storybook: `packages/react/src/components/Textarea/Textarea.stories.tsx` (`Components/Textarea`)
 - Figma: Textarea V1 (approved), flat 24-variant component set. Page `961:1669`
   ("Textarea"), component set `961:1811`. See `CLAUDE.md`'s Canonical Figma Source table
   for the current node references.
@@ -1484,9 +1484,9 @@ Disabled+Default). No new tokens were created.
 
 ## Select
 
-- React: `src/components/Select/Select.tsx`
-- Styles: `src/components/Select/Select.css`
-- Storybook: `src/components/Select/Select.stories.tsx` (`Components/Select`)
+- React: `packages/react/src/components/Select/Select.tsx`
+- Styles: `packages/react/src/components/Select/Select.css`
+- Storybook: `packages/react/src/components/Select/Select.stories.tsx` (`Components/Select`)
 - Figma: Select V1 (approved), flat 24-variant component set. Page `961:1846` ("Select"),
   component set `961:2074`. See `CLAUDE.md`'s Canonical Figma Source table for the
   current node references.
@@ -1587,9 +1587,9 @@ pattern Input's own icon slots use. No new tokens were created.
 
 ## Card
 
-- React: `src/components/Card/Card.tsx`
-- Styles: `src/components/Card/Card.css`
-- Storybook: `src/components/Card/Card.stories.tsx` (`Components/Card`)
+- React: `packages/react/src/components/Card/Card.tsx`
+- Styles: `packages/react/src/components/Card/Card.css`
+- Storybook: `packages/react/src/components/Card/Card.stories.tsx` (`Components/Card`)
 - Figma: Card V1 (approved), flat 6-variant component set. Page `967:9` ("Card"),
   component set `967:1625`. See `CLAUDE.md`'s Canonical Figma Source table for the
   current node references.
@@ -1702,9 +1702,9 @@ already documented for exactly this use (`radius.container`: "Cards, panels...";
 
 ## Tooltip
 
-- React: `src/components/Tooltip/Tooltip.tsx`
-- Styles: `src/components/Tooltip/Tooltip.css`
-- Storybook: `src/components/Tooltip/Tooltip.stories.tsx` (`Components/Tooltip`)
+- React: `packages/react/src/components/Tooltip/Tooltip.tsx`
+- Styles: `packages/react/src/components/Tooltip/Tooltip.css`
+- Storybook: `packages/react/src/components/Tooltip/Tooltip.stories.tsx` (`Components/Tooltip`)
 - Figma: Tooltip V1 (approved), single component, no variant axis. Page `968:9`
   ("Tooltip"), component `968:10`. See `CLAUDE.md`'s Canonical Figma Source table for the
   current node references.
@@ -1777,9 +1777,9 @@ literal Figma animation source). Zero new tokens.
 
 ## Accordion
 
-- React: `src/components/Accordion/Accordion.tsx`, `src/components/Accordion/AccordionItem.tsx`
-- Styles: `src/components/Accordion/Accordion.css`
-- Storybook: `src/components/Accordion/Accordion.stories.tsx` (`Components/Accordion`)
+- React: `packages/react/src/components/Accordion/Accordion.tsx`, `packages/react/src/components/Accordion/AccordionItem.tsx`
+- Styles: `packages/react/src/components/Accordion/Accordion.css`
+- Storybook: `packages/react/src/components/Accordion/Accordion.stories.tsx` (`Components/Accordion`)
 - Figma: Accordion V1 (approved), flat 8-variant component set. Page `968:1638`
   ("Accordion"), component set `968:1736` ("Accordion Item"). See `CLAUDE.md`'s Canonical
   Figma Source table for the current node references.
@@ -1949,10 +1949,10 @@ consumer has asked for yet.
 
 ## Tabs
 
-- React: `src/components/Tabs/Tabs.tsx`, `TabList.tsx`, `Tab.tsx`, `TabPanels.tsx`,
+- React: `packages/react/src/components/Tabs/Tabs.tsx`, `TabList.tsx`, `Tab.tsx`, `TabPanels.tsx`,
   `TabPanel.tsx`
-- Styles: `src/components/Tabs/Tabs.css`
-- Storybook: `src/components/Tabs/Tabs.stories.tsx` (`Components/Tabs`)
+- Styles: `packages/react/src/components/Tabs/Tabs.css`
+- Storybook: `packages/react/src/components/Tabs/Tabs.stories.tsx` (`Components/Tabs`)
 - Figma: Tabs V1 (approved), flat 8-variant component set. Page `968:1781` ("Tabs"),
   component set `968:1847` ("Tab"). See `CLAUDE.md`'s Canonical Figma Source table for
   the current node references. The Figma page documents the `Tab` trigger only —
@@ -2054,9 +2054,9 @@ Accordion's trigger (adjacent siblings sitting flush against each other). No new
 
 ## Link
 
-- React: `src/components/Link/Link.tsx`
-- Styles: `src/components/Link/Link.css`
-- Storybook: `src/components/Link/Link.stories.tsx` (`Components/Link`)
+- React: `packages/react/src/components/Link/Link.tsx`
+- Styles: `packages/react/src/components/Link/Link.css`
+- Storybook: `packages/react/src/components/Link/Link.stories.tsx` (`Components/Link`)
 - Figma: Link V1, page `1036:11` ("Link", under Navigation), component set `1038:15`.
 
 ### Why this component exists
@@ -2151,9 +2151,9 @@ transition: `motion.micro` (code only).
 
 ## Divider
 
-- React: `src/components/Divider/Divider.tsx`
-- Styles: `src/components/Divider/Divider.css`
-- Storybook: `src/components/Divider/Divider.stories.tsx` (`Components/Divider`)
+- React: `packages/react/src/components/Divider/Divider.tsx`
+- Styles: `packages/react/src/components/Divider/Divider.css`
+- Storybook: `packages/react/src/components/Divider/Divider.stories.tsx` (`Components/Divider`)
 - Figma: Divider V1, page `1036:10` ("Divider", under Containers & Disclosure), single
   component `1037:11`.
 
@@ -2210,9 +2210,9 @@ No component properties: the semantic/decorative choice has no visual difference
 
 ## PasswordInput
 
-- React: `src/components/PasswordInput/PasswordInput.tsx` (no own stylesheet — all
+- React: `packages/react/src/components/PasswordInput/PasswordInput.tsx` (no own stylesheet — all
   styling is Input's, including the new `trailingAction` slot)
-- Storybook: `src/components/PasswordInput/PasswordInput.stories.tsx`
+- Storybook: `packages/react/src/components/PasswordInput/PasswordInput.stories.tsx`
   (`Components/PasswordInput`)
 - Figma: Password Input V1, page `1036:9` ("Password Input", under Form Controls),
   component set `1039:86`.
@@ -2279,7 +2279,7 @@ Everything is Input's (field, label, support, error, sizes — see [Input](#inpu
 `trailingAction` slot: icon `text.tertiary` (`text.disabled` when disabled), box
 `icon.sm`/`md`/`lg`, focus ring `focus.ring-offset` + `focus.ring`, radius
 `radius.control`. No new tokens. Icons: `eye` / `eye-off` added to the icon catalog
-(`src/icons/types.ts`, `providers/lucide.ts`, `docs/foundations/icons.md`, Figma Icons
+(`packages/react/src/icons/types.ts`, `providers/lucide.ts`, `docs/foundations/icons.md`, Figma Icons
 page) per ADR 0010.
 
 ### Accessibility (implemented and spot-checked, not a certified audit)
@@ -2309,9 +2309,9 @@ page) per ADR 0010.
 
 ## ButtonLink
 
-- React: `src/components/ButtonLink/ButtonLink.tsx` (styles: `Button.css` + a two-line
+- React: `packages/react/src/components/ButtonLink/ButtonLink.tsx` (styles: `Button.css` + a two-line
   `ButtonLink.css` anchor reset)
-- Storybook: `src/components/ButtonLink/ButtonLink.stories.tsx` (`Components/ButtonLink`)
+- Storybook: `packages/react/src/components/ButtonLink/ButtonLink.stories.tsx` (`Components/ButtonLink`)
 - Figma: **none of its own** — designers use the regular Button component (`115:224`).
   Whether a button-styled control is a `<button>` or an `<a href>` is a semantic decision
   made in code.

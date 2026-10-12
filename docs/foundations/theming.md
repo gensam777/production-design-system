@@ -35,7 +35,7 @@ Chromatic snapshots every story once per brand (modes `Brand A`, `Brand B`).
 
 ## What a brand may change (the brand contract)
 
-`src/tokens/brands/<id>/brand.json`, exactly these 13 tokens:
+`design/tokens/brands/<id>/brand.json`, exactly these 13 tokens:
 
 | Token                          | Drives (semantic)                                                                                                                             |
 | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -54,9 +54,9 @@ never looks like Radio).
 
 ## Adding a brand
 
-1. `src/tokens/brands/<id>/brand.json` with the 13 contract tokens.
-2. Add `<id>` to `BRANDS` in `scripts/tokens/ir.mjs`; import
-   `tokens/build/css/brands/<id>.css` in `src/index.ts` and `.storybook/preview.ts`; add a
+1. `design/tokens/brands/<id>/brand.json` with the 13 contract tokens.
+2. Add `<id>` to `BRANDS` in `packages/tokens/scripts/ir.mjs`; import
+   `tokens/build/css/brands/<id>.css` in `packages/react/src/index.ts` and `packages/react/.storybook/preview.ts`; add a
    toolbar item and a Chromatic mode.
 3. Figma: add a mode to the **Brand** collection with the same variables (including the
    `font/weight/*` style names for the new font).

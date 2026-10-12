@@ -18,19 +18,19 @@
 The token **names and layering** (Core → Brand → Semantic → component-scoped) are
 platform-neutral. Several **source values** and the **build** are not:
 
-| Finding                                                                                           | Where                                                    |
-| ------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| `font.size.*` authored as rem strings (`"1rem"`)                                                  | `src/tokens/core/typography.json`                        |
-| `font.letterSpacing.*` authored as em strings (`"-0.01em"`)                                       | `src/tokens/core/typography.json`                        |
-| `color.overlay.*` authored as `rgba(…)` CSS function strings                                      | `src/tokens/core/color.json`                             |
-| `brand.font.family.sans` is a CSS fallback stack (`-apple-system`, …)                             | `src/tokens/brands/*/brand.json`                         |
-| `radius.max = 9999` — a CSS "always a capsule" trick                                              | `src/tokens/core/radius.json`                            |
-| `viewport.*`, `layout.container.maxWidth` — browser-viewport concepts                             | `core/viewport.json`, `semantic/layout.json`             |
-| Elevation is a CSS `box-shadow` composite with `spread`                                           | `semantic/elevation.json`                                |
-| Reduced motion is a generated `@media` override file                                              | `scripts/build-tokens.mjs`                               |
-| Contrast pairs keyed by **CSS custom-property names**; resolution runs through the `css` platform | `scripts/build-tokens.mjs` (`CONTRAST_PAIRS`, `analyze`) |
-| Brand delivery relies on CSS cascade scoping (`[data-brand]` files)                               | `scripts/build-tokens.mjs`                               |
-| JS output is 256 flat PascalCase constants (`TextHeadingXlBold`)                                  | `src/tokens/build/js/tokens.js`                          |
+| Finding                                                                                           | Where                                                             |
+| ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `font.size.*` authored as rem strings (`"1rem"`)                                                  | `design/tokens/core/typography.json`                              |
+| `font.letterSpacing.*` authored as em strings (`"-0.01em"`)                                       | `design/tokens/core/typography.json`                              |
+| `color.overlay.*` authored as `rgba(…)` CSS function strings                                      | `design/tokens/core/color.json`                                   |
+| `brand.font.family.sans` is a CSS fallback stack (`-apple-system`, …)                             | `design/tokens/brands/*/brand.json`                               |
+| `radius.max = 9999` — a CSS "always a capsule" trick                                              | `design/tokens/core/radius.json`                                  |
+| `viewport.*`, `layout.container.maxWidth` — browser-viewport concepts                             | `core/viewport.json`, `semantic/layout.json`                      |
+| Elevation is a CSS `box-shadow` composite with `spread`                                           | `semantic/elevation.json`                                         |
+| Reduced motion is a generated `@media` override file                                              | `packages/tokens/scripts/build.mjs`                               |
+| Contrast pairs keyed by **CSS custom-property names**; resolution runs through the `css` platform | `packages/tokens/scripts/build.mjs` (`CONTRAST_PAIRS`, `analyze`) |
+| Brand delivery relies on CSS cascade scoping (`[data-brand]` files)                               | `packages/tokens/scripts/build.mjs`                               |
+| JS output is 256 flat PascalCase constants (`TextHeadingXlBold`)                                  | `packages/tokens/build/js/tokens.js`                              |
 
 ## Decision
 
@@ -101,7 +101,7 @@ Dynamic Type and Android font scale behave per role. Font files per family × we
 tokens; the native counterpart of Figma's `Brand/font/weight/*` style-name adapter.
 
 > **Superseded in part by [0016](./0016-native-token-mappings.md):** the anchor table is final
-> there, and fonts are one shared catalog (`src/tokens/fonts/fonts.json`) with each brand's
+> there, and fonts are one shared catalog (`design/fonts/fonts.json`) with each brand's
 > manifest derived into its IR, instead of hand-written per-brand files.
 
 ### 6. Output shapes and names
@@ -147,17 +147,17 @@ Encodings chosen (these refine §1 where Phase 0 left them open):
 - **`elevation.flat`:** `[]`, an empty shadow list (Figma's Elevation/Flat has an empty effects
   array). Web outputs keep `none`.
 - **Transition `delay`:** `0` (ms number) instead of the CSS string `"0ms"`.
-- **Platform tier:** `src/tokens/platform/web/{core,semantic}/`. `viewport.json` → web core,
+- **Platform tier:** `design/tokens/platform/web/{core,semantic}/`. `viewport.json` → web core,
   `layout.json` and `font-fallback.json` → web semantic. Within the core and semantic layers,
   shared and platform files merge as one file-name-sorted list, so output order is unchanged.
-- **IR:** `src/tokens/build/ir/<brand>.json` (generated, gitignored), `format:
+- **IR:** `packages/tokens/build/ir/<brand>.json` (generated, gitignored), `format:
 "pds.tokens.ir"`, `version: 1`. Each entry has `path`, `type`, `value` (resolved, source
   units), `tier`, `scope`, plus `ref`/`refs`, `brandDependent` and `brandDependentSubs` where
   they apply. `brand.*` is excluded.
-- **Build modules:** `scripts/tokens/ir.mjs` (resolve), `scripts/tokens/guards.mjs`
-  (contract, scopes, invariance, contrast keyed by path), `scripts/tokens/emit-web.mjs` (web
-  emitter, which reads only the IR), and `style-dictionary.config.mjs` (web transforms and
-  formats). `scripts/build-tokens.mjs` orchestrates them.
+- **Build modules:** `packages/tokens/scripts/ir.mjs` (resolve), `packages/tokens/scripts/guards.mjs`
+  (contract, scopes, invariance, contrast keyed by path), `packages/tokens/scripts/emit-web.mjs` (web
+  emitter, which reads only the IR), and `packages/tokens/style-dictionary.config.mjs` (web transforms and
+  formats). `packages/tokens/scripts/build.mjs` orchestrates them.
 - **New guardrail:** a shared token may not alias a platform-scoped (web) token.
 - **Web JS output** keeps its historical web shapes (font sizes as rem strings, letter-spacing
   as em strings, `delay: "0ms"`, `elevation.flat: "none"`) so it stays byte-identical. Native

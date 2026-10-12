@@ -1,0 +1,24 @@
+{
+  "name": "@pds/tokens",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Production Design System tokens — build pipeline (design/tokens → IR → web CSS/JS, React Native TS, Swift, Kotlin) and the generated web / React Native outputs.",
+  "type": "module",
+  "exports": {
+    "./css/*": "./build/css/*",
+    "./js/*": "./build/js/*",
+    "./react-native": "./build/react-native/index.ts",
+    "./ir/*": "./build/ir/*"
+  },
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test __tests__/tokens.test.mjs",
+    "test:update": "node __tests__/tokens.test.mjs --update"
+  },
+  "devDependencies": {
+    "style-dictionary": "^5.5.2"
+  }
+}

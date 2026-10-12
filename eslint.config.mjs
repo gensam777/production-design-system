@@ -7,11 +7,11 @@ import globals from 'globals';
 export default [
   {
     ignores: [
-      'dist/**',
-      'storybook-static/**',
-      'src/tokens/build/**',
+      '**/dist/**',
+      '**/storybook-static/**',
+      'packages/tokens/build/**',
       // Committed copies of generated token outputs (npm run tokens:test compares them).
-      'scripts/tokens/__tests__/__snapshots__/**',
+      'packages/tokens/__tests__/__snapshots__/**',
       'node_modules/**',
       // Figma Plugin API script *bodies* (top-level await/return, `figma` global) executed via
       // the Figma MCP — not Node modules. Their read-only guardrail is a test in
@@ -58,7 +58,7 @@ export default [
   {
     // Build/guardrail scripts (token build, token-usage check) run under Node, not in the
     // browser.
-    files: ['scripts/**/*.mjs'],
+    files: ['scripts/**/*.mjs', 'packages/tokens/**/*.mjs'],
     languageOptions: { globals: globals.node },
   },
 ];
