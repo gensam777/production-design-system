@@ -51,6 +51,11 @@ jobs:
       - name: Component contract tests
         run: npm run contracts:test
 
+      # Platform-neutral icon catalog (design/icons/, ADR 0019) ↔ the web IconName union, the
+      # Lucide provider map and the installed lucide-react version.
+      - name: Icon catalog tests
+        run: npm run icons:test
+
       - name: Typecheck
         run: npm run typecheck
 

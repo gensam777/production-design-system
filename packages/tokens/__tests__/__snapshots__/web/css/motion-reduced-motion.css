@@ -14,10 +14,12 @@
     --motion-duration-base: 0ms;
     --motion-duration-slow: 0ms;
     --motion-duration-slower: 0ms;
+    --motion-duration-loop: 0ms;
     --motion-micro: 0ms linear 0ms;
     --motion-overlay-enter: 0ms linear 0ms;
     --motion-overlay-exit: 0ms linear 0ms;
     --motion-modal-enter: 0ms linear 0ms;
     --motion-modal-exit: 0ms linear 0ms;
+    --motion-spinner: 0ms linear 0ms;
   }
 }

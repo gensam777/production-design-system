@@ -82,6 +82,7 @@
   --color-action-tertiary-hover: #f3f4f6; /** Ghost/text button resting state has no background — 'transparent' isn't tokenized as a color. Only the hover fill needs a token. */
   --color-action-danger-default: #dc2626;
   --color-action-danger-hover: #b91c1c;
+  --color-action-danger-disabled: #d1d5db; /** Disabled danger fill. Same neutral as action.primary.disabled — filled variants swap their color for the neutral disabled fill. */
   --color-action-danger-on-color: #ffffff; /** 4.83:1 on action.danger.default. */
   --color-feedback-success-subtle: #f0fdf4;
   --color-feedback-success-default: #16a34a; /** Icon/accent use; 3.30:1 vs white meets non-text minimum only. */
@@ -114,14 +115,17 @@
   --motion-duration-base: 200ms;
   --motion-duration-slow: 300ms;
   --motion-duration-slower: 400ms; /** Headroom — no semantic role aliases this step in V1. */
+  --motion-duration-loop: 600ms; /** One cycle of a continuous loop (spinner rotation). Not part of the transition scale. */
   --motion-easing-standard: cubic-bezier(0.4, 0, 0.2, 1); /** Default for most state changes — eases in and out. */
   --motion-easing-decelerate: cubic-bezier(0, 0, 0.2, 1); /** Starts fast, settles slow — for things entering/appearing. */
   --motion-easing-accelerate: cubic-bezier(0.4, 0, 1, 1); /** Starts slow, speeds up — for things exiting/disappearing. */
+  --motion-easing-linear: cubic-bezier(0, 0, 1, 1); /** Constant speed — for continuous loops (spinner rotation), never for state changes. */
   --motion-micro: 100ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; /** Hover, press/active, focus-ring appearance. Shared across all three for V1 — split only if a real component proves different timing is needed. */
   --motion-overlay-enter: 200ms cubic-bezier(0, 0, 0.2, 1) 0ms; /** Menu/popover/tooltip opening. */
   --motion-overlay-exit: 100ms cubic-bezier(0.4, 0, 1, 1) 0ms; /** Menu/popover/tooltip closing. Faster than its matching enter — standard UX practice. */
   --motion-modal-enter: 300ms cubic-bezier(0, 0, 0.2, 1) 0ms; /** Dialog/modal/drawer opening. */
   --motion-modal-exit: 200ms cubic-bezier(0.4, 0, 1, 1) 0ms; /** Dialog/modal/drawer closing. Faster than its matching enter — standard UX practice. */
+  --motion-spinner: 600ms cubic-bezier(0, 0, 1, 1) 0ms; /** One full rotation of a busy spinner, repeating. Reduced motion stops the rotation. */
   --radius-none: 0; /** Raw scale, no meaning attached. Explicit zero — flat/square corners. */
   --radius-sm: 4px;
   --radius-md: 8px;

@@ -210,8 +210,8 @@ describe('Button reference parity (Button.css, cell by cell)', () => {
   const cssVar = (path) => (path === 'none' ? 'transparent' : `var(--${path.replace(/\./g, '-')})`);
   const STATE_SELECTOR = {
     default: '',
-    hover: ':hover:not(:disabled)',
-    pressed: ':active:not(:disabled)',
+    hover: ':hover:not(:disabled):not(.ds-button--loading)',
+    pressed: ':active:not(:disabled):not(.ds-button--loading)',
     disabled: ':disabled',
   };
   // contract (part, property) → CSS property on the variant selector
@@ -257,45 +257,50 @@ describe('Button reference parity (Button.css, cell by cell)', () => {
       );
   });
 
-  // Intended: loading keeps the variant's default cells (no tokens-from). The web Button still
-  // forces native `disabled` while loading, so the disabled cells apply — a declared
-  // implementation gap. Fails if the gap disappears from the contract while the code still
-  // has it, or if the code is fixed while the gap is still listed (remove it then).
-  test('loading: contract keeps variant colors; web gap is declared while it exists', () => {
+  // Loading keeps the variant's default cells (no tokens-from): the web Button must not turn on
+  // the native disabled state while loading, and the loading class must not paint any color.
+  // (Regression guard for the Phase 3 gap loading-keeps-variant-colors, closed in Phase 5.)
+  test('loading: keeps variant colors — not natively disabled, no loading color rules', () => {
     assert.equal(button.states.shared.loading['tokens-from'], undefined);
     assert.ok(button.properties.loading.behavior['keeps-variant-colors']);
-    const gap = (button['implementation-gaps'] ?? []).find(
-      (g) => g.id === 'loading-keeps-variant-colors' && g.platform === 'web',
-    );
-    const webForcesDisabled = /disabled\s*\|\|\s*loading/.test(
-      read('packages/react/src/components/Button/Button.tsx'),
-    );
-    if (webForcesDisabled) assert.ok(gap, 'web still disables while loading — declare the gap');
-    else assert.ok(!gap, 'web no longer disables while loading — remove the implementation gap');
+    assert.ok(!button['implementation-gaps']?.length, 'no open implementation gaps');
+    const source = read('packages/react/src/components/Button/Button.tsx');
+    assert.match(source, /disabled=\{disabled\}/, 'native disabled follows `disabled` only');
+    assert.doesNotMatch(source, /disabled\s*\|\|\s*loading/);
+    const rules = css();
+    for (const prop of ['background-color', 'border-color', 'color'])
+      assert.equal(getDeclaration(rules, '.ds-button--loading', prop), null, prop);
   });
 
-  // Intended: disabled + loading → disabled wins (not busy, label shown). The web Button's
-  // busy state follows `loading` alone — a declared gap while that is still the case.
-  test('disabled + loading: disabled wins; web gap is declared while it exists', () => {
+  // Disabled + loading → disabled wins: busy, the spinner and the loading class all follow
+  // `loading && !disabled`. (Regression guard for disabled-wins-over-loading.)
+  test('disabled + loading: disabled wins', () => {
     assert.deepEqual(button.states.precedence, ['disabled', 'loading', 'default']);
     assert.ok(button.properties.loading.behavior['yields-to-disabled']);
     assert.ok(button.properties.loading.behavior['remains-focusable']);
-    const gap = (button['implementation-gaps'] ?? []).find(
-      (g) => g.id === 'disabled-wins-over-loading' && g.platform === 'web',
-    );
-    const busyIgnoresDisabled = /aria-busy=\{\s*loading\s*\|\|\s*undefined\s*\}/.test(
-      read('packages/react/src/components/Button/Button.tsx'),
-    );
-    if (busyIgnoresDisabled) assert.ok(gap, 'web reports busy while disabled — declare the gap');
-    else assert.ok(!gap, 'web no longer reports busy while disabled — remove the gap');
+    const source = read('packages/react/src/components/Button/Button.tsx');
+    assert.match(source, /const isLoading = loading && !disabled;/);
+    assert.match(source, /aria-busy=\{isLoading \|\| undefined\}/);
+    assert.match(source, /isLoading && 'ds-button--loading'/);
+    assert.match(source, /\{isLoading && <span className="ds-button__spinner"/);
+    assert.match(source, /if \(isLoading\) \{\s*event\.preventDefault\(\);\s*return;/);
   });
 
-  test('size-keyed tokens and visual height', () => {
+  test('size-keyed tokens and minimum height', () => {
     const rules = css();
     const t = button.tokens;
+    assert.equal(button.sizing.height, 'minimum');
     for (const size of Object.keys(button.properties.size.values)) {
       const s = `.ds-button--${size}`;
-      assert.equal(getDeclaration(rules, s, 'height'), `${button.sizing['visual-height'][size]}px`);
+      assert.equal(getDeclaration(rules, s, 'height'), null, `${s} must not fix the height`);
+      assert.equal(
+        getDeclaration(rules, s, 'min-height'),
+        `${button.sizing['visual-height'][size]}px`,
+      );
+      assert.equal(
+        getDeclaration(rules, s, 'padding-block'),
+        cssVar(t.container['padding-block'][size]),
+      );
       assert.equal(
         getDeclaration(rules, s, 'padding-inline'),
         cssVar(t.container['padding-inline'][size]),
@@ -362,9 +367,9 @@ describe('Button reference parity (Button.css, cell by cell)', () => {
       getDeclaration(rules, '.ds-button__spinner', 'border'),
       new RegExp(`^${k['spinner-stroke-width'].value}px `),
     );
-    assert.match(
+    assert.equal(
       getDeclaration(rules, '.ds-button__spinner', 'animation'),
-      new RegExp(`\\b${k['spinner-rotation-duration'].value / 1000}s linear infinite`),
+      `ds-button-spin ${cssVar(t.spinner.rotation)} infinite`,
     );
   });
 });

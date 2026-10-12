@@ -16,6 +16,7 @@ design/                 # platform-neutral source — no platform code
   tokens/               # token source: core/, brands/<brand>/, semantic/, platform/{web,native}/
   fonts/                # font asset catalog fonts.json + schema (metadata, not tokens; ADR 0016)
   contracts/            # schema.json + components/*.contract.yaml (ADR 0015)
+  icons/                # icons.json + schema — platform-neutral icon catalog (DS name → Lucide, pinned version; ADR 0019)
 packages/               # npm workspaces
   tokens/               # @pds/tokens — token build pipeline (scripts/), tests, generated build/ (gitignored: IR, web CSS/JS, RN TS)
   react/                # @pds/react — the web design system
@@ -77,7 +78,7 @@ this file exclusively.
 
 | Component | Page (canvas) | Component set(s) | Notes |
 | --- | --- | --- | --- |
-| Button | `180:10` ("Button") | Outer: `115:224` (72 variants — Variant × Size × State). Nested: `678:802` ("Button Content", 36 variants — Size × Icon Layout × Tone). | See `docs/design-to-code-mappings.md` (Button section) for the full architecture. Outer set's own properties are Variant/Size/State only — Label and icons live on the exposed nested `content` instance (three unwired outer duplicates removed 2026-09-29). |
+| Button | `180:10` ("Button") | Outer: `115:224` (72 variants — Variant × Size × State). Nested: `678:802` ("Button Content", 48 variants — Size × Icon Layout × Tone; Tone = Default / On-primary / On-danger / Disabled). | See `docs/design-to-code-mappings.md` (Button section) for the full architecture. Outer set's own properties are Variant/Size/State only — Label and icons live on the exposed nested `content` instance (three unwired outer duplicates removed 2026-09-29). |
 | Input | `714:10` ("Input") | Outer: `722:305` (24 variants — Size × Interaction × Validation). Nested Input Content, six sets (one per Size × Tone, 8 variants each = 48 total): `736:1018` (Sm/Default), `746:9` (Md/Default), `746:1018` (Lg/Default), `736:1019` (Sm/Disabled), `746:1017` (Md/Disabled), `746:1019` (Lg/Disabled). | See `docs/design-to-code-mappings.md` (Input section) for the full architecture. React `trailingAction` slot (interactive, not aria-hidden) added 2026-09-29 — no Figma property. |
 | Password Input (verified 2026-09-29) | `1036:9` ("Password Input") | `1039:86` (4 variants — Visibility × Toggle) | Dedicated component built on Input (not an Input axis): each variant wraps an exposed nested Input instance named `input`, trailing icon swapped to Lucide `eye`/`eye-off`. React: `packages/react/src/components/PasswordInput/PasswordInput.tsx`. |
 | Checkbox | `769:9` ("Checkbox") | `769:74` (12 variants — Selection × Interaction) | Flat set, no nesting. Box radius bound to shared `Semantic Radius/checkbox` (not the brandable `radius/control`) so it stays square in every brand. |
@@ -158,6 +159,9 @@ repo root.
   enums + committed design-audit snapshots, and the web reference (enum unions, defaults,
   token set ↔ styles). `npm run contracts:test` — negative tests for each check + Button's
   cell-by-cell CSS parity. Both run in CI.
+- `npm run icons:test` — the icon catalog (`design/icons/icons.json`, ADR 0019) against its
+  schema, the web `IconName` union, the Lucide provider map and the installed `lucide-react`
+  version (must equal `provider.version`). Runs in CI.
 - `npm run storybook` — Storybook dev server (`@pds/react`)
 - `npm run build-storybook` — static Storybook build → `packages/react/storybook-static/`
 - Native (CI only; no local toolchain required): `swift build` at the repo root (`Package.swift`
@@ -186,9 +190,19 @@ repo root.
 - Versioning is currently manual (see `governance/versioning.md`) — Changesets tooling
   is deferred, not yet wired up.
 
-## Cross-platform (Phase 4 — workspaces)
+## Cross-platform (Phase 5 — reference implementations, in progress)
 
-Web is the only platform with components. Phases 1 (portable token source + IR), 2 (native
+Phase 5 was approved 2026-10-12. Decided: platform versions and the Button contract questions
+(ADR 0018 — iOS 17 / macOS 14 host, RN peer `>=0.81`, Android minSdk 23 / compileSdk 36 /
+AGP 9.1 / Kotlin 2.2 / Compose BOM without Material; disabled rule, minimum height, 2px
+spinner + `motion.spinner`, `action.*.on-color`) and the icon catalog (ADR 0019). Done: those
+tokens, the catalog, the contract update, the web Button and the live Figma Button alignment
+(2026-10-12: 48-variant Button Content with On-primary / On-danger tones, label Text Styles,
+`icon/*`-bound icon and spinner sizes, minimum-height masters, 2px spinner ring, reference
+`spinner/*` motion variables). Pending: the React Native → SwiftUI → Compose Buttons, one PR
+each (plan in `docs/cross-platform/migration.md`).
+
+Web is the only platform with components so far. Phases 1 (portable token source + IR), 2 (native
 token outputs), 3 (component contracts) and 4 (npm workspaces + `design/` + native package
 scaffolding, ADR 0017) are done: the build emits React Native, Swift
 (`PDSTokens`) and Kotlin (`com.pds.tokens`) token outputs for both brands — semantic tokens
@@ -201,8 +215,8 @@ component-production skill does this). React Native (`@pds/react-native`), Swift
 and Compose (`com.pds.compose`) UI are planned per ADR 0013; see `docs/cross-platform/`.
 Share semantic intent, contracts and tokens — never convert React components or DOM props to
 other platforms. No native UI code or font files exist yet: `@pds/react-native`,
-`platforms/ios/Sources/PDSUI/` and `platforms/android/compose/` are reserved placeholders. Don't
-start Phase 5 (reference implementations) without explicit approval. Web CSS/JS output must stay
+`platforms/ios/Sources/PDSUI/` and `platforms/android/compose/` are reserved placeholders until
+their Phase 5 PRs. Web CSS/JS output must stay
 byte-identical unless a change is intentional and reviewed (`npm run tokens:test` enforces it).
 
 ## Currently deferred (do not assume these exist)

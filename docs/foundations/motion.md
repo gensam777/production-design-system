@@ -17,12 +17,16 @@ rather than one composite.
 | `motion.duration.base` | `motion/duration/base` | 200ms |
 | `motion.duration.slow` | `motion/duration/slow` | 300ms |
 | `motion.duration.slower` | `motion/duration/slower` | 400ms |
+| `motion.duration.loop` | `motion/duration/loop` | 600ms |
 | `motion.easing.standard` | `motion/easing/standard` (EASING) | `cubic-bezier(0.4, 0, 0.2, 1)` |
 | `motion.easing.decelerate` | `motion/easing/decelerate` | `cubic-bezier(0, 0, 0.2, 1)` |
 | `motion.easing.accelerate` | `motion/easing/accelerate` | `cubic-bezier(0.4, 0, 1, 1)` |
+| `motion.easing.linear` | `motion/easing/linear` | `cubic-bezier(0, 0, 1, 1)` |
 
-`motion.duration.slower` is headroom — no semantic role aliases it in V1. No `linear`
-easing yet — deferred until a real spinner/loop consumer exists.
+`motion.duration.slower` is headroom — no semantic role aliases it in V1. `motion.duration.loop`
+and `motion.easing.linear` were added in Phase 5 (ADR 0018) for the first loop consumer, the
+Button spinner: `loop` is one cycle of a continuous animation, not a step on the transition
+scale, and `linear` is for constant-speed loops only — never for state changes.
 
 ## Semantic tokens
 
@@ -38,12 +42,22 @@ It was the CSS string `"0ms"` before the cross-platform Phase 1 (ADR 0014).
 | `motion.overlay-exit` | `fast` (100) | `accelerate` | Menu/popover/tooltip closing. |
 | `motion.modal-enter` | `slow` (300) | `decelerate` | Dialog/modal/drawer opening. |
 | `motion.modal-exit` | `base` (200) | `accelerate` | Dialog/modal/drawer closing. |
+| `motion.spinner` | `loop` (600) | `linear` | One full rotation of a busy spinner, repeating (Button loading). Added Phase 5. |
 
 Exit is intentionally faster than its matching enter — standard UX practice.
 `motion.micro` is deliberately **not** split into hover/press/focus-specific tokens —
 split only if a real component later proves different timing is needed.
 
-Not covered in V1 (no real consumer yet): page/section transitions, spinners/loops.
+Not covered yet (no real consumer): page/section transitions, loops other than the spinner.
+
+`motion.spinner` is a transition composite too, so every platform gets it without new
+emitter types: web `--motion-spinner: 600ms cubic-bezier(0, 0, 1, 1) 0ms` slots straight into
+the `animation` shorthand (`animation: <name> var(--motion-spinner) infinite`); Swift/Kotlin/RN
+get a `DSTransition` / `DsTransition` / `Transition`. Figma has no composite variables, so its
+mirror is `spinner/duration` (→ Core `motion/duration/loop`, 0.6s) + `spinner/easing` (→ Core
+`motion/easing/linear`) in Semantic Motion. They are reference variables only: Figma cannot bind
+motion variables to a node (see **Figma prototype-binding limitation** below), so the Button
+spinner in Figma carries no motion binding.
 
 ## Naming convention
 
@@ -80,8 +94,9 @@ Semantic:   motion.<role>            e.g. motion.overlay-enter
 
 `packages/tokens/build/css/motion-reduced-motion.css` — generated, separate file. Under
 `@media (prefers-reduced-motion: reduce)`, forces **every** `--motion-*` custom
-property to an effectively-instant value: all 5 primitive `--motion-duration-*` → `0ms`,
-all 5 semantic `--motion-*` transition shorthands → `0ms linear 0ms`. Easing primitives
+property to an effectively-instant value: every primitive `--motion-duration-*` → `0ms`,
+every semantic `--motion-*` transition shorthand → `0ms linear 0ms` (including
+`--motion-spinner`, so a spinner animated with it stops rotating). Easing primitives
 are untouched — irrelevant once duration is zero.
 
 **Why both tiers need overriding, not just the primitive**: Style Dictionary resolves
@@ -111,8 +126,10 @@ implemented:
 - Reduced-motion is the headline concern — covered above.
 - `motion.micro` (100ms) stays fast deliberately so a keyboard user's focus ring never
   feels laggy.
-- No role involves scale/rotation/parallax — only opacity/position, deliberately
-  conservative for vestibular safety.
+- No transition role involves scale/rotation/parallax — only opacity/position, deliberately
+  conservative for vestibular safety. The one rotation is `motion.spinner`, a small
+  continuous busy indicator; it stops under reduced motion on every platform while the
+  busy state stays exposed.
 - Motion is never the sole signal of a state change — same principle as color/elevation.
 
 ## Figma prototype-binding limitation
@@ -121,8 +138,8 @@ Confirmed directly against the Plugin API types, not assumed:
 
 - `TIMING` and `EASING` **are** real Figma Variable types — unlike shadow, motion needed
   no Effect-Style-style workaround. Both `Core` (duration/easing) and
-  `Semantic Motion` (5 roles × 2 fields each, since Figma Variables are always scalar)
-  are genuine Variables aliasing Variables.
+  `Semantic Motion` (6 roles × 2 fields each — including `spinner` since Phase 5 — since
+  Figma Variables are always scalar) are genuine Variables aliasing Variables.
 - **Figma's `VariableScope` enum has no entry for a prototype interaction's transition
   duration/easing.** A click reaction's "Smart Animate" duration and curve are literal,
   unbound settings in Figma's Prototype panel — they cannot be bound to

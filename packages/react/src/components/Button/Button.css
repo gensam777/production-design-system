@@ -7,7 +7,10 @@
  * Height (32/40/48px) is a Button-owned constant, not a token — see CLAUDE.md's "do not
  * create speculative control-height tokens" and governance/decisions/0010 for why other
  * fixed-px dimensions (icon size) stayed tokens while this one didn't: no second control
- * has asked for these heights yet.
+ * has asked for these heights yet. It is a MINIMUM height (contract sizing.height: minimum,
+ * ADR 0018): at the default text size the label plus its block padding is shorter, so the
+ * button renders at exactly 32/40/48px; when text-only zoom enlarges the label past that,
+ * the button grows instead of clipping it.
  */
 
 .ds-button {
@@ -33,6 +36,13 @@
   cursor: not-allowed;
 }
 
+/* Loading is not disabled (it stays focusable and keeps its variant colors — Button.tsx blocks
+   activation), but it is not interactive either: no hover/pressed visuals (see the
+   `:not(.ds-button--loading)` state selectors below). */
+.ds-button--loading {
+  cursor: progress;
+}
+
 /* Preserves Secondary's normal 1px border (box-shadow layers on top of it rather than
    replacing outline) and stays visible across every variant, including borderless ones. */
 .ds-button:focus-visible {
@@ -45,7 +55,8 @@
 /* ---- Sizes ---- */
 
 .ds-button--sm {
-  height: 32px;
+  min-height: 32px;
+  padding-block: var(--space-inset-xs);
   padding-inline: var(--space-inset-md);
   font-family: var(--text-label-sm-medium-font-family);
   font-size: var(--text-label-sm-medium-font-size);
@@ -63,7 +74,8 @@
 }
 
 .ds-button--md {
-  height: 40px;
+  min-height: 40px;
+  padding-block: var(--space-inset-sm);
   padding-inline: var(--space-inset-lg);
   font-family: var(--text-label-md-medium-font-family);
   font-size: var(--text-label-md-medium-font-size);
@@ -81,7 +93,8 @@
 }
 
 .ds-button--lg {
-  height: 48px;
+  min-height: 48px;
+  padding-block: var(--space-inset-sm);
   padding-inline: var(--space-inset-xl);
   font-family: var(--text-label-lg-medium-font-family);
   font-size: var(--text-label-lg-medium-font-size);
@@ -131,16 +144,23 @@
 
 /* ---- Variants ---- */
 /* Foreground (color) is set once per variant/state and inherited by both the label text
-   and any icon slot content via currentColor — see .ds-button__icon below. */
+   and any icon slot content via currentColor — see .ds-button__icon below.
+
+   Hover/pressed exclude :disabled and loading (.ds-button--loading): a loading button keeps
+   the variant's default cells and shows no interaction visuals.
+
+   Disabled (ADR 0018): filled variants (primary, danger) swap their color for the neutral
+   action.*.disabled fill; outline (secondary) and ghost (tertiary) keep their container and
+   only the label/icons fade to text.disabled. */
 
 .ds-button--primary {
   background-color: var(--color-action-primary-default);
   color: var(--color-action-primary-on-color);
 }
-.ds-button--primary:hover:not(:disabled) {
+.ds-button--primary:hover:not(:disabled):not(.ds-button--loading) {
   background-color: var(--color-action-primary-hover);
 }
-.ds-button--primary:active:not(:disabled) {
+.ds-button--primary:active:not(:disabled):not(.ds-button--loading) {
   background-color: var(--color-action-primary-active);
 }
 .ds-button--primary:disabled {
@@ -155,16 +175,12 @@
 }
 /* No dedicated action.secondary.active token exists — Pressed reuses the approved Hover
    token, per the approved V1 behavior (see docs/design-to-code-mappings.md). */
-.ds-button--secondary:hover:not(:disabled),
-.ds-button--secondary:active:not(:disabled) {
+.ds-button--secondary:hover:not(:disabled):not(.ds-button--loading),
+.ds-button--secondary:active:not(:disabled):not(.ds-button--loading) {
   background-color: var(--color-action-secondary-hover);
 }
-/* No dedicated secondary-disabled token exists — reuses the shared disabled treatment
-   (surface.disabled fill + text.disabled foreground) used by every variant below that
-   lacks its own disabled token. */
+/* Outline keeps its container (fill + border); only the foreground fades. */
 .ds-button--secondary:disabled {
-  background-color: var(--color-surface-disabled);
-  border-color: var(--color-border-subtle);
   color: var(--color-text-disabled);
 }
 
@@ -174,12 +190,12 @@
 }
 /* No dedicated action.tertiary.active token exists — Pressed reuses the approved Hover
    token, same rule as Secondary. */
-.ds-button--tertiary:hover:not(:disabled),
-.ds-button--tertiary:active:not(:disabled) {
+.ds-button--tertiary:hover:not(:disabled):not(.ds-button--loading),
+.ds-button--tertiary:active:not(:disabled):not(.ds-button--loading) {
   background-color: var(--color-action-tertiary-hover);
 }
+/* Ghost stays unfilled; only the foreground fades. */
 .ds-button--tertiary:disabled {
-  background-color: var(--color-surface-disabled);
   color: var(--color-text-disabled);
 }
 
@@ -189,14 +205,12 @@
 }
 /* No dedicated action.danger.active token exists — Pressed reuses the approved Hover
    token, same rule as Secondary/Tertiary. */
-.ds-button--danger:hover:not(:disabled),
-.ds-button--danger:active:not(:disabled) {
+.ds-button--danger:hover:not(:disabled):not(.ds-button--loading),
+.ds-button--danger:active:not(:disabled):not(.ds-button--loading) {
   background-color: var(--color-action-danger-hover);
 }
-/* Danger Disabled reuses the shared disabled treatment — no dedicated danger-disabled
-   token exists, per the approved V1 behavior. */
 .ds-button--danger:disabled {
-  background-color: var(--color-surface-disabled);
+  background-color: var(--color-action-danger-disabled);
   color: var(--color-text-disabled);
 }
 
@@ -233,6 +247,10 @@
   opacity: 0;
 }
 
+/* A 2px ring (component constant spinner-stroke-width) with a transparent quarter, painted
+   with currentColor — the variant's default label color. One full linear rotation per
+   motion.spinner (600ms); the token's "duration timing-function delay" shorthand slots
+   straight into the animation shorthand. */
 .ds-button__spinner {
   position: absolute;
   top: 50%;
@@ -241,7 +259,7 @@
   border: 2px solid currentColor;
   border-right-color: transparent;
   border-radius: var(--radius-full);
-  animation: ds-button-spin 0.6s linear infinite;
+  animation: ds-button-spin var(--motion-spinner) infinite;
 }
 
 @keyframes ds-button-spin {
@@ -250,12 +268,8 @@
   }
 }
 
-/* No spinner/loop duration token exists yet (see docs/foundations/motion.md — "Not
-   covered in V1: spinners/loops"), so 0.6s above is a Button-local constant, not a token
-   reference — flagged as a token gap in docs/design-to-code-mappings.md rather than
-   inventing a new semantic motion token silently. Reduced motion freezes the spin instead
-   of speeding it up or removing the spinner: aria-busy plus the native disabled state
-   still communicate the loading state without motion. */
+/* Reduced motion stops the rotation (the token is also 0ms there — motion-reduced-motion.css)
+   instead of removing the spinner: aria-busy still communicates the loading state. */
 @media (prefers-reduced-motion: reduce) {
   .ds-button__spinner {
     animation: none;

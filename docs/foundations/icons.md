@@ -59,6 +59,26 @@ icon internally (`eye` while the value is hidden — the control's action is "sh
 `eye-off` while it is shown). In Figma both are real Lucide Icons (Community) library
 instances (`eye`, `eye-off`), added to the Icons page's Reference Icons section.
 
+## Platform-neutral catalog (`design/icons/icons.json`)
+
+Since Phase 5 (ADR 0019) the list above is defined once, outside any platform, in
+`design/icons/icons.json` (schema `icons.schema.json`): each DS name → its Lucide name plus a
+short description, and the provider block (`lucide`, exact version, ISC licence, 24 viewBox,
+stroke 2, round caps/joins). No icon files are committed.
+
+| Platform               | Name type                                                             | Artwork                                                                |
+| ---------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Web                    | `IconName` union (`packages/react/src/icons/types.ts`, hand-written)  | `lucide-react` via `providers/lucide.ts`                               |
+| React Native (planned) | the same `IconName` strings                                           | `lucide-react-native` + `react-native-svg`, same version               |
+| iOS (planned)          | `DSIcon` enum, raw value = catalog name (`.arrowLeft = "arrow-left"`) | SwiftUI shapes generated from `lucide-static` SVGs at the same version |
+| Android (planned)      | `DsIcon` enum, id = catalog name                                      | Compose `ImageVector`s generated from the same SVGs                    |
+
+`npm run icons:test` (CI) fails when the web union, the Lucide map or the installed
+`lucide-react` version drifts from the catalog. To add an icon: add it to `icons.json`, then
+to `IconName` and `lucideIconMap` (the test names what's missing). To move to a new Lucide
+version: bump `provider.version` and every platform's Lucide package together. The native
+generators arrive with the first native components.
+
 ## Sizes
 
 Approved display sizes, matching the Figma Icons foundation exactly:

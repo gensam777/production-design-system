@@ -20,6 +20,7 @@
     "tokens:test:update": "npm run test:update -w @pds/tokens",
     "contracts:validate": "node scripts/contracts/validate.mjs",
     "contracts:test": "node --test scripts/contracts/__tests__/contracts.test.mjs",
+    "icons:test": "node --test scripts/icons/__tests__/icons.test.mjs",
     "design:audit": "node scripts/design-audit/audit.mjs",
     "design:audit:test": "node --test scripts/design-audit/__tests__/audit.test.mjs",
     "design:audit:snapshot": "node scripts/design-audit/snapshot.mjs",

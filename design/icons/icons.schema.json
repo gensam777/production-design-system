@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pds.local/design/icons/icons.schema.json",
+  "title": "Icon catalog",
+  "description": "Platform-neutral icon names mapped to the artwork provider (ADR 0019).",
+  "type": "object",
+  "required": ["provider", "icons"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "$description": { "type": "string" },
+    "provider": {
+      "type": "object",
+      "required": [
+        "name",
+        "version",
+        "license",
+        "viewBox",
+        "strokeWidth",
+        "strokeLinecap",
+        "strokeLinejoin"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "const": "lucide" },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Exact provider version. Every platform's artwork source is pinned to it."
+        },
+        "license": { "type": "string" },
+        "viewBox": { "type": "number", "exclusiveMinimum": 0 },
+        "strokeWidth": { "type": "number", "exclusiveMinimum": 0 },
+        "strokeLinecap": { "enum": ["butt", "round", "square"] },
+        "strokeLinejoin": { "enum": ["miter", "round", "bevel"] }
+      }
+    },
+    "icons": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["lucide", "description"],
+        "additionalProperties": false,
+        "properties": {
+          "lucide": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+            "description": "The provider's kebab-case icon name (lucide-static / lucide.dev)."
+          },
+          "description": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

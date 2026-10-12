@@ -171,6 +171,10 @@
           "description": "The enum property whose values key `visual-height`.",
           "$ref": "#/$defs/identifier"
         },
+        "height": {
+          "description": "How visual-height applies. `fixed`: always exactly that tall. `minimum`: that tall at the default text size, growing with the content under platform text scaling instead of clipping it.",
+          "enum": ["fixed", "minimum"]
+        },
         "visual-height": {
           "type": "object",
           "propertyNames": { "$ref": "#/$defs/kebab" },

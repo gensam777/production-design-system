@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, MouseEvent, ReactNode } from 'react';
 
 import './Button.css';
 
@@ -12,9 +12,11 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Control size. Defaults to `'md'`. */
   size?: ButtonSize;
   /**
-   * Shows a spinner in place of the label/icons while keeping the button's width and
-   * accessible name unchanged. Sets `aria-busy` and forces `disabled` (native V1
-   * behavior — see `docs/design-to-code-mappings.md`).
+   * The action has been triggered and its result is pending. Shows a spinner in place of the
+   * label/icons (width, height and accessible name unchanged), keeps the variant's normal
+   * colors, sets `aria-busy`, stays focusable and blocks activation — `onClick` doesn't run and
+   * a submit button doesn't submit its form. Ignored while `disabled` is set: disabled wins
+   * (contract `states.precedence`, `design/contracts/components/button.contract.yaml`).
    */
   loading?: boolean;
   /** Icon rendered before the label. Any `ReactNode` — Button never imports an icon library. */
@@ -39,13 +41,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     trailingIcon,
     children,
     type = 'button',
-    disabled,
+    disabled = false,
     className,
+    onClick,
     ...rest
   },
   ref,
 ) {
-  const isDisabled = disabled || loading;
+  // Disabled wins over loading: a disabled button is never busy and shows its label.
+  const isLoading = loading && !disabled;
   // Icon presence, not just the slot content, drives the horizontal-padding refinement
   // below — see Button.css's "Icon-adjacent padding" block and
   // docs/design-to-code-mappings.md for the approved per-size values.
@@ -55,7 +59,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     'ds-button',
     `ds-button--${variant}`,
     `ds-button--${size}`,
-    loading && 'ds-button--loading',
+    isLoading && 'ds-button--loading',
     hasLeadingIcon && 'ds-button--has-leading-icon',
     hasTrailingIcon && 'ds-button--has-trailing-icon',
     className,
@@ -63,13 +67,25 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     .filter(Boolean)
     .join(' ');
 
+  // Loading is not `disabled` (that would drop focus and report the button as unavailable),
+  // so activation is blocked here instead. Pointer, Enter/Space and a form's implicit
+  // submission all arrive as a click on the button; preventDefault also stops the submit.
+  const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+    if (isLoading) {
+      event.preventDefault();
+      return;
+    }
+    onClick?.(event);
+  };
+
   return (
     <button
       ref={ref}
       type={type}
       className={classes}
-      disabled={isDisabled}
-      aria-busy={loading || undefined}
+      disabled={disabled}
+      aria-busy={isLoading || undefined}
+      onClick={handleClick}
       {...rest}
     >
       <span className="ds-button__content">
@@ -88,7 +104,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
           </span>
         )}
       </span>
-      {loading && <span className="ds-button__spinner" aria-hidden="true" />}
+      {isLoading && <span className="ds-button__spinner" aria-hidden="true" />}
     </button>
   );
 });

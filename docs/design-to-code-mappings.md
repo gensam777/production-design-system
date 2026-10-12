@@ -43,8 +43,8 @@ this table is updated by hand whenever a component ships or a mapping changes.
 - React: `packages/react/src/components/Button/Button.tsx`
 - Styles: `packages/react/src/components/Button/Button.css`
 - Storybook: `packages/react/src/components/Button/Button.stories.tsx` (`Components/Button`)
-- Figma: Button V1 (approved), nested architecture — node reference not captured in this
-  pass; add the direct link here when available.
+- Figma: Button V1 (approved), nested architecture — page `180:10`, outer set `115:224`,
+  nested Button Content set `678:802` (see `CLAUDE.md`'s Canonical Figma Source table).
 
 ### Figma architecture (current, authoritative)
 
@@ -52,29 +52,39 @@ Figma Button is two component sets, not one flat set:
 
 | Component set | Variant axes | Count | Owns |
 | --- | --- | --- | --- |
-| **Button** (outer) | Variant × Size × State | 72 | Container styling (background/border per variant+state), focus ring, loading spinner, height, radius |
-| **Button Content** (nested) | Size × Icon Layout × Tone | 36 | Label, leading icon, trailing icon, Icon Layout, asymmetric icon-adjacent padding, icon gap, icon sizing, foreground Tone |
+| **Button** (outer) | Variant × Size × State | 72 | Container styling (background/border per variant+state), focus ring, loading spinner, minimum height + vertical padding, radius |
+| **Button Content** (nested) | Size × Icon Layout × Tone | 48 | Label, leading icon, trailing icon, Icon Layout, asymmetric icon-adjacent padding, icon gap, icon sizing, foreground Tone |
 
 Every one of the 72 outer masters contains exactly one Button Content instance, pre-set at
 author time to the matching Size and the correct Tone (see mapping below) — this is fixed
 per master, not switchable, the same way Size itself is fixed per master rather than a
 runtime toggle.
 
-**Tone** (`Default` / `On-color` / `Disabled`) is Button Content's own foreground-color
-axis, native to the component (bound directly to a semantic color token per Tone value),
-not a per-instance override:
+**Tone** (`Default` / `On-primary` / `On-danger` / `Disabled`) is Button Content's own
+foreground-color axis, native to the component (label fill and icon strokes bound directly to
+a semantic color token per Tone value), not a per-instance override:
 
 | Outer Variant | Non-disabled states | Disabled |
 | --- | --- | --- |
-| Primary | On-color | Disabled |
-| Danger | On-color | Disabled |
+| Primary | On-primary | Disabled |
+| Danger | On-danger | Disabled |
 | Secondary | Default | Disabled |
 | Tertiary | Default | Disabled |
 
-Tone token bindings: `Default` → `text/primary`, `On-color` → `text/inverse` (the same
-primitive, `color/white`, that `action/primary/on-color` and `action/danger/on-color`
-already resolve to — a genuinely shared token, not a borrowed one), `Disabled` →
-`text/disabled`.
+Tone token bindings: `Default` → `text/primary`, `On-primary` → `action/primary/on-color`,
+`On-danger` → `action/danger/on-color`, `Disabled` → `text/disabled` — the same tokens code
+and the contract use. Phase 5 (ADR 0018, applied 2026-10-12) split the former single
+`On-color` value, which bound `text/inverse`: one tone can bind only one variable, and the
+two on-color tokens are separate so a brand can give them different values.
+
+Other Button Content bindings: labels use the `text/label/{sm,md,lg}/medium` Text Styles
+(line height 125%); leading/trailing icon instances are sized by `icon/{sm,md,lg}`. In Icon
+Layouts without a given icon, that icon instance stays in place absolute-positioned at
+opacity 0, so the instance-swap properties remain wired in every variant.
+
+Outer Button bindings: masters hug vertically with a minimum height of 32 / 40 / 48 and
+top/bottom padding bound to `inset/xs` (Sm) / `inset/sm` (Md, Lg) — the same minimum-height
+rule as code (see **Size parity**). The Loading spinner is sized by `icon/{sm,md,lg}`.
 
 **Figma limitation — Icon Layout is not a top-level property (intentional, not drift).**
 Nested `VARIANT`-type component properties (Icon Layout, Tone) cannot be surfaced as
@@ -111,23 +121,28 @@ any future scripted edit to a master's nested instance must re-assert
 | Label | `children: React.ReactNode` | Required. |
 | Leading icon slot | `leadingIcon?: React.ReactNode` | Provider-neutral — accepts `<Icon name="..." />`, a raw provider element, or any other node. See `governance/decisions/0010-icon-token-architecture.md`. |
 | Trailing icon slot | `trailingIcon?: React.ReactNode` | Same contract as `leadingIcon`. |
-| Loading | `loading?: boolean` | Default `false`. See Loading parity below. |
-| Disabled | native `disabled` (standard `<button>` HTML attribute, passed through) | Not a design-system-specific prop — Button extends `ButtonHTMLAttributes`. |
+| Loading | `loading?: boolean` | Default `false`. Ignored while `disabled` (disabled wins). See Loading parity below. |
+| Disabled | native `disabled` (standard `<button>` HTML attribute, destructured with default `false` and set on the element) | Not a design-system-specific prop — Button extends `ButtonHTMLAttributes`. Loading never sets it. |
 | State (Default/Hover/Pressed/Focus-visible/Disabled) | **not a prop** | Hover, Pressed, and Focus-visible are native CSS states (`:hover`, `:active`, `:focus-visible`) — Figma's State property is documentation/prototyping only and has no React equivalent. Disabled is the one State value with a real prop, and it's the *native* HTML `disabled` attribute, not a design-system-specific one. |
 | Icon Layout (nested, None/Leading/Trailing/Both) | **no `iconLayout` prop — does not exist in code** | Purely a Figma authoring convenience for Button Content's own padding/gap variant. React derives the equivalent layout implicitly from `Boolean(leadingIcon)`/`Boolean(trailingIcon)` — there is nothing for a prop to control that isn't already implied by which icon slots are populated. |
-| Tone (nested, Default/On-color/Disabled) | **no `tone` prop — does not exist in code** | Figma-internal only, used to pick the correct native foreground binding for Button Content. In code, foreground color is never a discrete state — it falls out of the CSS rules for `variant`+native state (see Color tokens below), the same way it always has. |
+| Tone (nested, Default/On-primary/On-danger/Disabled) | **no `tone` prop — does not exist in code** | Figma-internal only, used to pick the correct native foreground binding for Button Content. In code, foreground color is never a discrete state — it falls out of the CSS rules for `variant`+native state (see Color tokens below), the same way it always has. |
 
 ### Size parity
 
-| Size | Height | Base horizontal padding (no icon) | Icon | Gap | Typography |
-| --- | --- | --- | --- | --- | --- |
-| Sm | 32px (component constant, not a token) | `space.inset.md` (12px) | `icon.sm` (16px) | `space.inline.xs` | `text.label.sm.medium` |
-| Md | 40px (component constant, not a token) | `space.inset.lg` (16px) | `icon.md` (20px) | `space.inline.sm` | `text.label.md.medium` |
-| Lg | 48px (component constant, not a token) | `space.inset.xl` (20px) | `icon.lg` (24px) | `space.inline.sm` | `text.label.lg.medium` |
+| Size | Minimum height | Block padding | Base horizontal padding (no icon) | Icon | Gap | Typography |
+| --- | --- | --- | --- | --- | --- | --- |
+| Sm | 32px (component constant, not a token) | `space.inset.xs` (4px) | `space.inset.md` (12px) | `icon.sm` (16px) | `space.inline.xs` | `text.label.sm.medium` |
+| Md | 40px (component constant, not a token) | `space.inset.sm` (8px) | `space.inset.lg` (16px) | `icon.md` (20px) | `space.inline.sm` | `text.label.md.medium` |
+| Lg | 48px (component constant, not a token) | `space.inset.sm` (8px) | `space.inset.xl` (20px) | `icon.lg` (24px) | `space.inline.sm` | `text.label.lg.medium` |
 
 Height is intentionally **not** tokenized — see `CLAUDE.md`'s "do not create speculative
-control-height tokens." Radius uses `radius.control` (4px) at every size. "Base" here means
-no icon on that side — see **Icon-adjacent padding** below for what changes when one is
+control-height tokens." Since Phase 5 (ADR 0018) it is a **minimum** (`min-height`), not a
+fixed `height`: at the default text size the label line (15/17.5/20px) plus the block padding
+is shorter than 32/40/48, so the button renders at exactly those heights; when text-only zoom
+enlarges the label beyond that, the button grows instead of clipping it (see the
+`Text scaling (300%)` story). Figma matches: the outer masters hug vertically with the same
+minimum heights and block padding. Radius uses `radius.control` (4px) at every size. "Base" here
+means no icon on that side — see **Icon-adjacent padding** below for what changes when one is
 present.
 
 ### Icon-adjacent padding
@@ -152,7 +167,7 @@ independently, so "both icons" reduces both sides.
   `-left`/`-right`), so it's RTL-correct automatically — a minor implementation difference
   from Figma (below).
 - **Figma**: owned natively by the nested Button Content component (Size × Icon Layout ×
-  Tone, 36 variants) — each of its 12 Size×Icon-Layout combinations has this exact padding
+  Tone, 48 variants) — each of its 12 Size×Icon-Layout combinations has this exact padding
   pair bound directly to the matching `inset/*` variable on the component itself, once,
   shared by reference across all 72 outer Button masters. This replaced an earlier
   approach (a flat 288-variant Button with Icon Layout baked in as a 4th outer axis, before
@@ -171,16 +186,29 @@ independently, so "both icons" reduces both sides.
 | Variant | Default | Hover | Pressed (active) | Disabled |
 | --- | --- | --- | --- | --- |
 | Primary | bg `action.primary.default`, fg `action.primary.on-color` | bg `action.primary.hover` | bg `action.primary.active` | bg `action.primary.disabled`, fg `text.disabled` |
-| Secondary | bg `action.secondary.default`, border `border.default`, fg `text.primary` | bg `action.secondary.hover` | bg `action.secondary.hover` (reused — no dedicated active token, approved V1 behavior) | bg `surface.disabled`, border `border.subtle`, fg `text.disabled` (shared disabled treatment — no dedicated token) |
-| Tertiary | bg transparent, fg `text.primary` | bg `action.tertiary.hover` | bg `action.tertiary.hover` (reused — no dedicated active token) | bg `surface.disabled`, fg `text.disabled` (shared disabled treatment) |
-| Danger | bg `action.danger.default`, fg `action.danger.on-color` | bg `action.danger.hover` | bg `action.danger.hover` (reused — no dedicated active token) | bg `surface.disabled`, fg `text.disabled` (shared disabled treatment, per approved V1 behavior) |
+| Secondary | bg `action.secondary.default`, border `border.default`, fg `text.primary` | bg `action.secondary.hover` | bg `action.secondary.hover` (reused — no dedicated active token, approved V1 behavior) | container unchanged (bg `action.secondary.default`, border `border.default`), fg `text.disabled` |
+| Tertiary | bg transparent, fg `text.primary` | bg `action.tertiary.hover` | bg `action.tertiary.hover` (reused — no dedicated active token) | bg transparent, fg `text.disabled` |
+| Danger | bg `action.danger.default`, fg `action.danger.on-color` | bg `action.danger.hover` | bg `action.danger.hover` (reused — no dedicated active token) | bg `action.danger.disabled`, fg `text.disabled` |
+
+**Disabled rule (ADR 0018, Phase 5):** filled variants (Primary, Danger) swap their color for
+the neutral `action.*.disabled` fill; outline (Secondary) and ghost (Tertiary) keep their
+container and only the label and icons fade to `text.disabled`. This replaced the V1 "shared
+disabled treatment" (`surface.disabled` fill for Secondary/Tertiary/Danger, Secondary also
+`border.subtle`), which made a disabled ghost button gain a fill and disagreed with live Figma
+for those three cells. Figma follows the same rule: Secondary and Tertiary already did, and
+Danger Disabled binds `action/danger/disabled` (since 2026-10-12; it previously borrowed
+`action/primary/disabled`, same value).
+
+**Loading** has no cells of its own: it keeps the variant's Default cells (see **Loading
+parity**). Hover and Pressed rules exclude both `:disabled` and `.ds-button--loading`.
 
 Icon color is never set directly — every icon slot uses `color: inherit`, so it always
 matches the variant/state foreground above via `currentColor`. This is the code-side
 equivalent of what Figma's Tone axis does structurally: in Figma, label and icon
 foreground are a native Button Content variant binding keyed by Tone (`Default` →
-`text/primary`, `On-color` → `text/inverse`, `Disabled` → `text/disabled` — see **Figma
-architecture** above), not a per-instance color override reaching into the icon. An
+`text/primary`, `On-primary` → `action/primary/on-color`, `On-danger` →
+`action/danger/on-color`, `Disabled` → `text/disabled` — see **Figma architecture** above),
+not a per-instance color override reaching into the icon. An
 earlier iteration of the Figma file did apply icon color as a deep per-instance override
 from outside Button Content; it was confirmed unreliable (state-scoped, non-deterministic
 on first render) and was fully replaced by the native Tone binding — there is no
@@ -193,42 +221,56 @@ resolved semantic token.
   exists. Pressed reuses each variant's approved Hover token, per the explicitly approved
   V1 behavior. Add dedicated active tokens if a future variant needs Pressed to look
   different from Hover.
-- No `action.secondary.disabled`, `action.tertiary.disabled`, or `action.danger.disabled`
-  token exists (only Primary has one). These three reuse the shared disabled treatment
-  (`surface.disabled` background + `text.disabled` foreground), matching the approved
-  "Danger Disabled may reuse the approved shared disabled treatment" V1 behavior, extended
-  to Secondary/Tertiary for consistency since they have the same gap.
-- No spinner/loop motion token exists (`docs/foundations/motion.md` lists this as an
-  explicit V1 gap). The spinner's `0.6s` rotation in `Button.css` is a hardcoded
-  component-local constant, not a token reference.
+- Closed in Phase 5 (ADR 0018): `action.danger.disabled` (gray.300, same neutral as
+  `action.primary.disabled`) and the spinner motion token `motion.spinner` (600ms, linear —
+  Core `motion.duration.loop` + `motion.easing.linear`). Secondary and Tertiary need no
+  disabled fill token: they keep their own container when disabled.
 
 ### Loading parity
 
 - Only the spinner is visibly shown; the label and any icons stay mounted and keep their
   layout box (`opacity: 0`, not `display: none`/`visibility: hidden`) so the button's
-  width never shifts and the label text stays in the accessibility tree — the accessible
+  size never shifts and the label text stays in the accessibility tree — the accessible
   name is unchanged while loading.
-- `aria-busy="true"` is set while loading.
-- Loading forces the native `disabled` attribute (`disabled || loading`), which is what
-  prevents repeated activation and removes the button from the tab order — this is the
-  approved native-`disabled` V1 behavior, not a custom `aria-disabled`/pointer-events
-  approach that would keep the button focusable.
-- Spinner uses `currentColor`, so it matches whatever foreground the variant/state has.
-- Verified with no icon, leading icon, trailing icon, and both icons — see the `Loading`
-  Storybook story.
+- Loading **keeps the variant's normal colors** (container, border, spinner) — it never
+  paints the disabled cells. Hover/Pressed visuals are suppressed and the cursor is
+  `progress`.
+- `aria-busy="true"` is set while loading, and the button stays **enabled and focusable**
+  (it keeps focus if it had it, e.g. after keyboard activation). Activation is blocked in
+  `Button.tsx`: `onClick` does not run and the click's default action is prevented, so a
+  loading submit button submits neither on click nor on implicit (Enter-in-a-field)
+  submission. Before Phase 5 the web Button forced native `disabled` while loading, which
+  painted the disabled cells and dropped focus (closed implementation gap
+  `loading-keeps-variant-colors`).
+- **Disabled wins over loading** (`states.precedence: disabled > loading > default`): with
+  both set the button is natively disabled, shows its label (no spinner) and is not busy —
+  `isLoading = loading && !disabled` drives busy, the spinner and the loading class (closed
+  gap `disabled-wins-over-loading`).
+- Spinner uses `currentColor`, so it matches the variant's default foreground. It is a 2px
+  ring with a transparent quarter, rotating once per `motion.spinner`
+  (`animation: ds-button-spin var(--motion-spinner) infinite` — the token's
+  `duration timing-function delay` shorthand fits the animation shorthand). Reduced motion
+  stops the rotation (`animation: none`; the token is also `0ms` there); busy is still
+  exposed.
+- Verified with no icon and both icons for every variant — see the `Loading`, `Disabled +
+  loading` and `Loading submit button` stories, whose play functions assert busy, enabled,
+  focus retention and blocked activation (Chromatic runs them).
 - Icon-adjacent padding (see below) is derived from `Boolean(leadingIcon)`/
   `Boolean(trailingIcon)`, not from `loading` — the same padding classes apply whether or
   not `loading` is set, so entering/leaving the loading state never itself changes width.
 - **Figma**: Loading is one of the outer Button's own State values (owned by the outer
   master, not Button Content) — the master contains its normal Button Content instance at
-  `opacity: 0` (still in layout, matching the code's width-preservation approach above)
+  `opacity: 0` (still in layout, matching the code's size-preservation approach above)
   plus a spinner shape, centered over the full button independent of label length or icon
-  presence. The spinner is a static ring with a gap (an `arcData` annulus, not a filled
-  circle), colored via the same foreground binding Button Content's label uses for that
-  master — Figma has no way to show the real spin animation, so the ring-with-a-gap shape
-  is what communicates "this is a loading indicator" in a still frame. Code owns the actual
-  animation (`0.6s` rotation, hardcoded, no motion token — see Token gaps above); Figma's
-  shape is documentation only.
+  presence, on the variant's Default fill/border (matches code). The spinner is a static ring
+  with a gap (an `arcData` annulus, not a filled circle), bound to the variant's on-color /
+  `text/primary` and sized by `icon/{sm,md,lg}`. Its ring is 2px thick at every size, like
+  code (inner radius 0.75 / 0.80 / 0.8333 of the 16 / 20 / 24 spinner). Figma has no way to
+  show the real spin animation, so the ring-with-a-gap shape is what communicates "this is a
+  loading indicator" in a still frame. The motion lives in code (`motion.spinner`); Figma has
+  matching reference variables (Semantic Motion `spinner/duration` → Core
+  `motion/duration/loop` 0.6s, `spinner/easing` → `motion/easing/linear`), but Figma cannot
+  bind motion variables to a node, so the spinner itself carries no motion binding.
 
 ### Focus-visible implementation difference (intentional)
 
@@ -260,50 +302,21 @@ Formal, validated contract (ADR 0015):
 [`design/contracts/components/button.contract.yaml`](../design/contracts/components/button.contract.yaml)
 — web `alpha`, React Native / iOS / Android `planned`. `npm run contracts:validate` and
 `npm run contracts:test` check it against this implementation (enum unions, defaults, every
-token cell in `Button.css`) and against the Figma axes above. Re-audited against live Figma
-2026-10-12 (read-only).
+token cell in `Button.css`, minimum heights, block padding, the spinner token, and the
+loading / disabled-precedence rules in `Button.tsx`) and against the Figma axes above.
 
-**Loading (decided 2026-10-12, not yet implemented on web).** Intended cross-platform rule:
-loading blocks activation, exposes busy, keeps the variant's normal colors and shows the
-spinner; Disabled stays the only visually disabled state. Live Figma already matches: every
-Loading master keeps its Default fill/border, the content is at opacity 0, and the spinner is
-bound to `action/primary/on-color` (Primary), `text/primary` (Secondary, Tertiary) or
-`action/danger/on-color` (Danger). **Current React mismatch:** `Button.tsx` sets
-`disabled={disabled || loading}`, so a loading button matches `:disabled` and paints the
-disabled cells (Primary `action.primary.disabled` + `text.disabled` spinner; the others
-`surface.disabled`, Secondary also `border.subtle`). It is also exposed as disabled and drops
-out of the tab order. Recorded as the contract's `implementation-gaps` entry
-`loading-keeps-variant-colors`; the Button code is unchanged.
+Phase 5 (ADR 0018) resolved the Phase 3 open questions and closed both web implementation
+gaps: loading keeps the variant colors, stays focusable, exposes busy and blocks activation;
+disabled wins over loading; the disabled rule above; minimum height; 2px spinner stroke at
+every size; `motion.spinner`; and `action.*.on-color` as the on-color path. Icon slots name
+icons from the platform-neutral catalog `design/icons/icons.json` (ADR 0019).
 
-**State precedence (decided 2026-10-12): disabled > loading > default.**
-
-- **Disabled + loading** → disabled wins visually and semantically: disabled look with the
-  label shown, reported as disabled and not busy, cannot activate.
-- **Loading alone** → normal variant colors, spinner shown, reported as busy, cannot
-  activate, stays focusable (keeps focus if it has it).
-
-**Current React mismatch:** with both set, `Button.tsx` hides the label behind the spinner and
-sets `aria-busy` (it follows `loading` alone), although colors and blocked activation already
-match. Recorded as the `implementation-gaps` entry `disabled-wins-over-loading`.
-
-Phase 5 implementation questions recorded in the contract (documented, not resolved):
-
-- **Disabled cells differ between live Figma and code** — Secondary: Figma
-  `action/secondary/default` fill + `border/default`, code `surface.disabled` +
-  `border.subtle`. Tertiary: Figma no fill, code `surface.disabled`. Danger: Figma
-  `action/primary/disabled`, code `surface.disabled`. Primary and the Disabled label tone
-  match. This contradicts the **Color tokens by variant/state** table above, which describes
-  the code. The contract follows code until this is decided.
-- **On-color token path** — Figma's On-color tone binds label and icons to `text/inverse`,
-  but Figma's own Loading spinners use `action/*/on-color`; code uses `action.*.on-color`
-  throughout (same value in both brands today).
-- **Fixed visual height vs. text scaling** — fixed in both Figma and code; the label fits to
-  about 200% text size, then clips.
-- **Figma binding gaps** — label binds Core font sizes + Brand weight/family (not the
-  `text.label.*.medium` role, line-height auto); icon and spinner sizes are raw 16/20/24, not
-  bound to `icon.*`.
-- **Spinner thickness and motion** — Figma's ring is ~35% of the radius thick versus code's
-  2px; the 600ms rotation has no motion token (see Token gaps above).
+Live Figma was aligned with those decisions on 2026-10-12 (Danger Disabled binding,
+minimum-height frames with bound vertical padding, label Text Styles, icon/spinner size
+bindings, 2px spinner ring, the On-primary / On-danger Tone split, and the reference
+`spinner/*` motion variables), re-audited across all 72 Button and 48 Button Content variants
+with no raw values left, and the design-audit snapshot was refreshed. The contract has no
+open questions. The Focus-visible rendering difference above remains intentional.
 
 The State row in **Prop mapping** above lists five values; Figma's State axis has six
 (72 = 4 × 3 × 6) — **Loading** is the sixth, mapped to the `loading` prop.
