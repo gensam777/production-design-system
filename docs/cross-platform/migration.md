@@ -4,8 +4,8 @@ Decision record: [ADR 0013](../../governance/decisions/0013-cross-platform-archi
 **Current phase: 4 complete (npm workspaces, `design/` source, native package scaffolding —
 [ADR 0017](../../governance/decisions/0017-workspace-structure.md)); Phase 5 in progress — decisions
 made ([ADR 0018](../../governance/decisions/0018-cross-platform-button.md),
-[ADR 0019](../../governance/decisions/0019-icon-catalog.md)), web Button updated; Figma alignment
-and the native Buttons pending.**
+[ADR 0019](../../governance/decisions/0019-icon-catalog.md)), web Button updated, Figma aligned,
+React Native Button implemented; SwiftUI and Compose Buttons pending.**
 
 ## Repo evolution
 
@@ -136,13 +136,28 @@ change.
 - Web Button: loading keeps variant colors / stays focusable / busy / blocks activation;
   disabled wins; new disabled rule; minimum height; spinner on `motion.spinner`.
 
+**Done (2026-10-19) — React Native Button** (`@pds/react-native`, contract `react-native: alpha`;
+details in ADR 0018 "React Native implementation"):
+
+- `PDSThemeProvider` (`brand`, `fontsLoaded`; nestable) + `usePDSTheme`, `resolveTextStyle`,
+  `useReducedMotion`, `IconName` (RN union, checked by `icons:test`); internal `Icon` (per-icon
+  `lucide-react-native` imports) and `Spinner`.
+- `Button` (`children: string`, `variant`, `size`, `disabled`, `loading`,
+  `leadingIcon`/`trailingIcon: IconName`, `onPress`, `accessibilityHint`,
+  `loadingAccessibilityValue` — renamed from the planned `loadingAccessibilityLabel`, since it
+  sets the state value, not the name — `testID`, `ref`, layout-only `style`); `Pressable`,
+  hit-slop 6/2/0 (iOS) · 8/4/0 (Android) from the measured size, busy + disabled
+  accessibility state.
+- Jest + React Native Testing Library (`npm run test:react-native`): behavior, accessibility,
+  reduced motion, text scaling, contract token parity in Brand A and Brand B.
+  `contracts:validate` gained `react-native-reference`.
+- Expo SDK 58 preview app `packages/react-native-example` (both brands, every variant, size and
+  state); `expo export` runs in CI. Toolchain: React Native 0.88.0 / React 19.3.0 shared by the
+  whole workspace; CI on Node 22.
+
 **Pending:**
 
 - Button, one pull request per platform, in this order:
-  - **React Native** (`@pds/react-native`): `PDSThemeProvider` + `Button` (`children: string`,
-    `variant`, `size`, `disabled`, `loading`, `leadingIcon`/`trailingIcon: IconName`, `onPress`,
-    `loadingAccessibilityLabel`); `Pressable`, `hitSlop` 6/2/0 (iOS) · 8/4/0 (Android), busy +
-    disabled accessibility state; Jest + React Native Testing Library; Expo example app.
   - **SwiftUI** (`PDSUI`): `DSButton` + `DSButtonStyle`, `.dsTheme(_:)`, disabled via
     `.disabled`, localized "Loading" value, hit area expanded without layout change; Swift
     Testing on a color resolver, `#Preview` grid; macOS CI job.

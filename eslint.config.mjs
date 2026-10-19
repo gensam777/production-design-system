@@ -17,6 +17,8 @@ export default [
       // the Figma MCP — not Node modules. Their read-only guardrail is a test in
       // scripts/design-audit/__tests__/audit.test.mjs.
       'scripts/design-audit/figma/**',
+      // Expo CLI state (expo start / expo export).
+      '**/.expo/**',
     ],
   },
   js.configs.recommended,
@@ -60,5 +62,20 @@ export default [
     // browser.
     files: ['scripts/**/*.mjs', 'packages/tokens/**/*.mjs'],
     languageOptions: { globals: globals.node },
+  },
+  {
+    // React Native packages: Metro defines `__DEV__` (development builds) as a global.
+    files: ['packages/react-native/**/*.{ts,tsx}', 'packages/react-native-example/**/*.{ts,tsx}'],
+    languageOptions: { globals: { __DEV__: 'readonly' } },
+  },
+  {
+    // @pds/react-native's Jest suite (React Native Testing Library) runs under Node.
+    files: ['packages/react-native/__tests__/**/*.{ts,tsx}'],
+    languageOptions: { globals: { ...globals.jest, ...globals.node } },
+  },
+  {
+    // CommonJS tool config (Jest / Babel) in "type": "module" packages.
+    files: ['**/*.cjs'],
+    languageOptions: { sourceType: 'commonjs', globals: globals.node },
   },
 ];

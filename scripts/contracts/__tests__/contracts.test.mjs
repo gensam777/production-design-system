@@ -18,6 +18,7 @@ import {
   checkContract,
   checkFigma,
   checkPlatformApi,
+  checkReactNativeReference,
   checkReferences,
   checkSchema,
   checkTokens,
@@ -202,6 +203,56 @@ describe('each check fires', () => {
     f.status.web = 'planned';
     delete f.references;
     assert.deepEqual(checkWebReference(f, read, irs), []);
+  });
+
+  test('react-native-reference: enum union, default, token-set drift and missing files', () => {
+    const R = 'react-native-reference';
+    assert.deepEqual(checkReactNativeReference(button, read), []);
+
+    const a = clone(button);
+    a.properties.variant.values.ghost = 'x';
+    assert.ok(errors(checkReactNativeReference(a, read), R).length);
+
+    const b = clone(button);
+    b.properties.variant.default = 'secondary';
+    assert.ok(
+      errors(checkReactNativeReference(b, read), R).some((e) =>
+        e.message.includes('default variant'),
+      ),
+    );
+
+    const c = clone(button);
+    c.tokens.container.gap.md = 'space.inline.md'; // not in Button.tokens.ts
+    const cErr = errors(checkReactNativeReference(c, read), R).map((e) => e.message);
+    assert.ok(
+      cErr.some((m) => m.includes("'space.inline.md' is not used")),
+      cErr.join('\n'),
+    );
+
+    const d = clone(button);
+    delete d.tokens.focusIndicator; // Button.tokens.ts still binds the focus tokens
+    const dErr = errors(checkReactNativeReference(d, read), R).map((e) => e.message);
+    assert.ok(
+      dErr.some((m) => m.includes("uses 'color.focus.ring'")),
+      dErr.join('\n'),
+    );
+
+    const e = clone(button);
+    e.references['react-native'].stories = 'packages/react-native-example/src/Missing.tsx';
+    assert.ok(errors(checkReactNativeReference(e, read), R).length);
+
+    const f = clone(button);
+    delete f.references['react-native'];
+    assert.ok(
+      errors(checkReactNativeReference(f, read), R).some((x) =>
+        x.message.includes('references.react-native is missing'),
+      ),
+    );
+
+    const g = clone(button);
+    g.status['react-native'] = 'planned';
+    delete g.references['react-native'];
+    assert.deepEqual(checkReactNativeReference(g, read), []);
   });
 });
 

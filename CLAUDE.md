@@ -27,7 +27,8 @@ packages/               # npm workspaces
       icons/            # Icon + IconName catalog (ADR 0010)
       index.ts          # public entry point / barrel export
     .storybook/         # Storybook config
-  react-native/         # @pds/react-native — reserved (Phase 5); re-exports the RN token themes only
+  react-native/         # @pds/react-native — RN components (Button alpha), PDSThemeProvider; Jest + RNTL in __tests__/
+  react-native-example/ # @pds/react-native-example — Expo SDK 58 preview app (Brand A/B Button gallery); not a library
 platforms/
   ios/Sources/PDSTokens/    # generated Swift tokens (committed); PDSUI/ reserved
   android/              # Gradle build: tokens/ (com.pds.tokens, generated Kotlin, committed); compose/ reserved
@@ -110,14 +111,24 @@ Root scripts delegate to the workspaces (`npm run <script> -w @pds/<pkg>`); run 
 repo root.
 
 - `npm install` — installs and links the workspaces (`@pds/tokens`, `@pds/react`,
-  `@pds/react-native`) into `node_modules/@pds/`
+  `@pds/react-native`, `@pds/react-native-example`) into `node_modules/@pds/`. One React
+  (19.3.0, Expo SDK 58 / React Native 0.88) is shared by every workspace — `react-dom` must
+  stay the exact same version. The React Native workspaces need Node ≥ 22.13.
 - `npm run build` — builds `@pds/tokens`, then the React library (tsup) →
   `packages/react/dist/` (`@pds/react` exports `.` and `./index.css`; token CSS is bundled in)
 - `npm run typecheck` — `tsc --noEmit` in every workspace that has a `typecheck` script
-  (`@pds/react`, `@pds/react-native`; the latter needs `npm run tokens:build` first)
+  (`@pds/react`, `@pds/react-native`, `@pds/react-native-example`; the RN ones need
+  `npm run tokens:build` first)
+- `npm run test:react-native` — Jest + React Native Testing Library for `@pds/react-native`
+  (Button behavior and accessibility, contract token parity in both brands; needs
+  `npm run tokens:build` first). Runs in CI.
+- `npm run example:react-native` — `expo start` for the preview app;
+  `npm run example:react-native:export` bundles it for iOS + Android (`expo export`, no native
+  toolchain; builds tokens first) → `packages/react-native-example/dist/`. Runs in CI.
 - `npm run lint` — ESLint (includes `eslint-plugin-jsx-a11y`) + `scripts/check-token-usage.mjs`
-  (components/patterns/examples may not use Core primitives, `--brand-*`, or raw hex colors;
-  documented exceptions only via `scripts/token-usage-exceptions.json`)
+  (components/patterns/examples and `packages/react-native{,-example}/src` may not use Core
+  primitives, `--brand-*`, or raw hex colors; documented exceptions only via
+  `scripts/token-usage-exceptions.json`)
 - `npm run format` / `npm run format:check` — Prettier
 - `npm run tokens:build` — `packages/tokens/scripts/build.mjs`: resolves each brand over
   `design/tokens/{core,brands/<brand>,semantic}` + the platform tiers `design/tokens/platform/{web,native}/`
@@ -199,34 +210,37 @@ spinner + `motion.spinner`, `action.*.on-color`) and the icon catalog (ADR 0019)
 tokens, the catalog, the contract update, the web Button and the live Figma Button alignment
 (2026-10-12: 48-variant Button Content with On-primary / On-danger tones, label Text Styles,
 `icon/*`-bound icon and spinner sizes, minimum-height masters, 2px spinner ring, reference
-`spinner/*` motion variables). Pending: the React Native → SwiftUI → Compose Buttons, one PR
-each (plan in `docs/cross-platform/migration.md`).
+`spinner/*` motion variables), and the React Native Button (`@pds/react-native`, contract
+status `alpha`, 2026-10-19: `PDSThemeProvider`, Expo preview app). Pending: the SwiftUI →
+Compose Buttons, one PR each (plan in `docs/cross-platform/migration.md`).
 
-Web is the only platform with components so far. Phases 1 (portable token source + IR), 2 (native
+Web and React Native are the platforms with components so far (React Native: Button only). Phases 1 (portable token source + IR), 2 (native
 token outputs), 3 (component contracts) and 4 (npm workspaces + `design/` + native package
 scaffolding, ADR 0017) are done: the build emits React Native, Swift
 (`PDSTokens`) and Kotlin (`com.pds.tokens`) token outputs for both brands — semantic tokens
 only, pure data (ADR 0016; Android elevation provisional until Phase 5) — and
 `design/contracts/` holds the JSON Schema plus per-component YAML contracts (ADR 0015; Button
-only so far, web `alpha`, other platforms `planned`). Contracts carry shared semantic intent
+only so far, web + React Native `alpha`, iOS / Android `planned`). Contracts carry shared semantic intent
 only — no web DOM props and no native API names, enforced by `npm run contracts:validate`.
 A component with a contract must keep it in sync with its React implementation (the
-component-production skill does this). React Native (`@pds/react-native`), SwiftUI (`PDSUI`)
-and Compose (`com.pds.compose`) UI are planned per ADR 0013; see `docs/cross-platform/`.
+component-production skill does this) and with every implemented native one
+(`contracts:validate` checks the React Native reference too). SwiftUI (`PDSUI`) and Compose
+(`com.pds.compose`) UI are planned per ADR 0013; see `docs/cross-platform/`.
 Share semantic intent, contracts and tokens — never convert React components or DOM props to
-other platforms. No native UI code or font files exist yet: `@pds/react-native`,
+other platforms. No SwiftUI / Compose UI code and no font files exist yet:
 `platforms/ios/Sources/PDSUI/` and `platforms/android/compose/` are reserved placeholders until
 their Phase 5 PRs. Web CSS/JS output must stay
 byte-identical unless a change is intentional and reviewed (`npm run tokens:test` enforces it).
 
 ## Currently deferred (do not assume these exist)
 
-Vitest/Testing Library, Changesets automation, CI/CD, npm publishing (every workspace is
+Vitest/Testing Library for web (React Native has Jest + React Native Testing Library),
+Changesets automation, CI/CD, npm publishing (every workspace is
 `private`), monorepo tooling beyond plain npm workspaces (no Nx / Turborepo / pnpm), a Gradle
 wrapper,
 Figma Code Connect, dark mode (Light/Dark color scheme — multi-brand theming IS implemented,
-see ADR 0011), brand-specific neutrals, native (RN/SwiftUI/Compose) UI components and font
-file bundling (native token outputs DO exist — ADR 0016), automatic Figma ↔ code
+see ADR 0011), brand-specific neutrals, SwiftUI/Compose UI components and font
+file bundling (native token outputs and the React Native Button DO exist — ADR 0016, 0018), automatic Figma ↔ code
 sync (the design audit detects drift only; live-Figma reads still need a Claude/MCP session),
 design-audit surfaces beyond Login. See
 `governance/decisions/0001-single-package-structure.md` and

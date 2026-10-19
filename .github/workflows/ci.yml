@@ -16,17 +16,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Node 22: React Native 0.88 / Expo SDK 58 (the @pds/react-native toolchain, ADR 0018)
+      # require Node >= 22.13.
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      # npm workspaces (ADR 0017): @pds/tokens, @pds/react, @pds/react-native. Root scripts
-      # delegate to them.
+      # npm workspaces (ADR 0017): @pds/tokens, @pds/react, @pds/react-native and the Expo
+      # preview app @pds/react-native-example. Root scripts delegate to them.
       - name: Build tokens
         run: npm run tokens:build
 
@@ -55,6 +57,11 @@ jobs:
       # Lucide provider map and the installed lucide-react version.
       - name: Icon catalog tests
         run: npm run icons:test
+
+      # @pds/react-native (Jest + React Native Testing Library): Button behavior, accessibility
+      # and contract token parity in both brands.
+      - name: React Native tests
+        run: npm run test:react-native
 
       - name: Typecheck
         run: npm run typecheck
@@ -92,6 +99,11 @@ jobs:
 
       - name: Build Storybook
         run: npm run build-storybook
+
+      # Bundles the Expo preview app for iOS and Android (Metro + Hermes, no native toolchain),
+      # proving @pds/react-native resolves and compiles in a real React Native app.
+      - name: React Native preview (Expo export)
+        run: npm run example:react-native:export
 
   # Native packages (ADR 0016, 0017). Both build the COMMITTED generated sources —
   # `npm run tokens:test` and the "Native token sources" step (validate job) prove they equal

@@ -1,13 +1,15 @@
 # Cross-platform architecture
 
-Status: **Phase 4 — workspaces implemented.** Components exist only on web (React +
-TypeScript + CSS, `@pds/react`). The repo is a set of plain npm workspaces (`@pds/tokens`,
-`@pds/react`, `@pds/react-native`) with platform-neutral source in `design/` and native
+Status: **Phase 5 — reference implementations in progress.** Components exist on web (React +
+TypeScript + CSS, `@pds/react`) and, for Button, on React Native (`@pds/react-native`, with the
+Expo preview app `@pds/react-native-example`). The repo is a set of plain npm workspaces
+(`@pds/tokens`, `@pds/react`, `@pds/react-native`, `@pds/react-native-example`) with
+platform-neutral source in `design/` and native
 packages in `platforms/` (ADR [0017](../../governance/decisions/0017-workspace-structure.md)).
 The token build emits React Native, Swift (`PDSTokens`, a Swift package at the repo root) and
 Kotlin (`com.pds.tokens`, a Gradle module) token outputs for both brands, and Button has a
 validated cross-platform contract (`design/contracts/components/button.contract.yaml`);
-there's no React Native, SwiftUI or Compose UI code yet. Decisions: [ADR 0013](../../governance/decisions/0013-cross-platform-architecture.md)
+there's no SwiftUI or Compose UI code yet. Decisions: [ADR 0013](../../governance/decisions/0013-cross-platform-architecture.md)
 (architecture), [ADR 0014](../../governance/decisions/0014-token-source-portability.md)
 (token source), [ADR 0016](../../governance/decisions/0016-native-token-mappings.md) (native
 token mappings), [ADR 0015](../../governance/decisions/0015-component-contracts.md) (contracts).
@@ -18,7 +20,7 @@ token mappings), [ADR 0015](../../governance/decisions/0015-component-contracts.
 | ---------------------- | --------------------------------------------------------------------------------------- | ----------------------------------- |
 | Web / web app          | React + TypeScript + CSS (exists)                                                       | `@pds/react` (`packages/react`)     |
 | Mobile app, tablet app | Delivered by one of the three native stacks below — a form factor, not a separate stack | —                                   |
-| React Native           | React Native components (planned)                                                       | `@pds/react-native`                 |
+| React Native           | React Native components (Button alpha; preview: `@pds/react-native-example`)            | `@pds/react-native`                 |
 | iOS / iPadOS           | SwiftUI (planned)                                                                       | `PDSUI`, `PDSTokens`                |
 | Android                | Jetpack Compose (planned)                                                               | `com.pds.compose`, `com.pds.tokens` |
 
