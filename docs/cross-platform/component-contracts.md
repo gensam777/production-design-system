@@ -93,6 +93,7 @@ Both run in CI. `contracts:validate` (`scripts/contracts/validate.mjs`) runs, pe
 | `figma`         | Each axis maps 1:1 onto a property's enum values (or covers every shared state); `variant-count` = product of axis sizes; every instance of the set in the committed design-audit Figma snapshots uses known axes/values |
 | `web-reference` | While web is alpha/beta/stable: files exist; each enum has a matching `<Component><Prop>` union type; literal defaults match; the token set the styles reference equals the token set the contract binds (both directions) |
 | `react-native-reference` | The same while react-native is alpha/beta/stable, with the token set read from the component's token map (contract paths as string literals). `npm run test:react-native` compares the map cell by cell and resolves every path in every brand |
+| `android-reference` | The same while android is alpha/beta/stable, in Compose's idiom: `enum class Ds<Component><Prop>` entries (PascalCase of the values), `<prop>: Ds<Component><Prop> = Ds<Component><Prop>.<Value>`, `<prop>: Boolean = <default>`, `disabled` as `enabled: Boolean = <!default>`, and the Kotlin token map's path set. `./gradlew build` (unit tests) compares the map with the contract YAML cell by cell and checks every binding against the generated member its path names in every brand |
 | `ios-reference` | The same while ios is alpha/beta/stable, in SwiftUI's idiom: `DS<Component><Prop>` enum cases, `<prop>: DS<Component><Prop> = .<default>`, `is<Prop>: Bool = <default>`, disabled through SwiftUI's `isEnabled`, and the Swift token map's path set. `swift test` compares the map with the contract YAML cell by cell and resolves every binding in every brand |
 
 The validator compares token **sets**; `contracts:test` pins Button's token **cells**
@@ -102,7 +103,7 @@ design-audit snapshot — refresh that snapshot (design-audit skill) to check li
 ## Button — the reference contract
 
 [`design/contracts/components/button.contract.yaml`](../../design/contracts/components/button.contract.yaml)
-— web, React Native and iOS `alpha`, Android `planned`. Summary:
+— `alpha` on web, React Native, iOS and Android. Summary:
 
 - **Properties:** `variant` (primary / secondary / tertiary / danger, default primary),
   `size` (sm / md / lg, default md), `disabled`, `loading` (blocks activation, keeps the
@@ -144,13 +145,13 @@ The contract never contains these names; this table is the documented mapping.
 | Contract             | Web (React)               | React Native            | SwiftUI                    | Compose                           |
 | -------------------- | ------------------------- | ----------------------- | -------------------------- | --------------------------------- |
 | `component: Button`  | `Button`                  | `Button`                | `DSButton`                 | `DsButton`                        |
-| `variant: primary`   | `variant="primary"`       | `variant="primary"`     | `variant: .primary`        | `variant = ButtonVariant.Primary` |
+| `variant: primary`   | `variant="primary"`       | `variant="primary"`     | `variant: .primary`        | `variant = DsButtonVariant.Primary` |
 | `events.activate`    | `onClick`                 | `onPress`               | `action:`                  | `onClick`                         |
-| `slots.label` (text) | `children`                | `children: string`      | `_ title` (`LocalizedStringKey` / `String`) | `text` / content lambda |
+| `slots.label` (text) | `children`                | `children: string`      | `_ title` (`LocalizedStringKey` / `String`) | `text: String` |
 | `slots.leadingIcon`  | `leadingIcon` (ReactNode) | `leadingIcon: IconName` | `leadingIcon: DSIconName?` | `leadingIcon: DsIconName?`        |
 | `disabled`           | native `disabled`         | `disabled`              | `.disabled(_:)`            | `enabled = !disabled`             |
 | `loading`            | `loading`                 | `loading`               | `isLoading:`               | `loading`                         |
-| busy (loading)       | `aria-busy`               | `accessibilityState.busy` + `accessibilityValue` (`loadingAccessibilityValue`) | `.accessibilityValue("Loading")` (no busy trait) | `stateDescription` |
-| hit target           | ≥ 24 px (CSS)             | `hitSlop` from the measured size (44pt / 48dp) | expanded `contentShape` from the measured size (44pt) | `minimumInteractiveComponentSize` |
-| brand                | `data-brand`              | `PDSThemeProvider brand` | `.dsTheme(_:)`            | `PdsTheme`                        |
+| busy (loading)       | `aria-busy`               | `accessibilityState.busy` + `accessibilityValue` (`loadingAccessibilityValue`) | `.accessibilityValue("Loading")` (no busy trait) | `stateDescription` ("Loading", string resource) |
+| hit target           | ≥ 24 px (CSS)             | `hitSlop` from the measured size (44pt / 48dp) | expanded `contentShape` from the measured size (44pt) | built-in touch-target expansion (48dp, no layout change) |
+| brand                | `data-brand`              | `PDSThemeProvider brand` | `.dsTheme(_:)`            | `PdsTheme(theme) { … }`           |
 | layout placement     | `className` / CSS         | `style` (layout keys only) | modifiers                  | `Modifier`                        |

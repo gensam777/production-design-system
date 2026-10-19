@@ -7,7 +7,7 @@
 # idiom (see docs/cross-platform/component-contracts.md, "Platform naming").
 # Web (packages/react/src/components/Button/) is the implemented reference; React Native
 # (packages/react-native/src/components/Button/) and iOS (platforms/ios/Sources/PDSUI/Button/)
-# implement it too; Android is planned (Phase 5). Validate: npm run contracts:validate
+# and Android (platforms/android/compose/…/button/) implement it too (Phase 5). Validate: npm run contracts:validate
 
 schema-version: 1
 component: Button
@@ -19,7 +19,7 @@ status:
   web: alpha
   react-native: alpha
   ios: alpha
-  android: planned
+  android: alpha
 
 anatomy:
   container: The activatable surface — background, border, radius, height and inner spacing.
@@ -389,6 +389,12 @@ references:
     styles: platforms/ios/Sources/PDSUI/Button/DSButtonTokens.swift
     # Visual record: SwiftUI previews (Brand A, Brand B, Dynamic Type sizes).
     stories: platforms/ios/Sources/PDSUI/Previews/DSButtonPreviews.swift
+  android:
+    source: platforms/android/compose/src/main/kotlin/com/pds/compose/button/DsButton.kt
+    # The token map: this contract's token paths bound to the generated com.pds.tokens members.
+    styles: platforms/android/compose/src/main/kotlin/com/pds/compose/button/DsButtonTokens.kt
+    # Visual record: Compose previews (Brand A, Brand B, font scales).
+    stories: platforms/android/compose/src/main/kotlin/com/pds/compose/button/DsButtonPreviews.kt
   docs:
     - docs/design-to-code-mappings.md#button
     - governance/decisions/0010-icon-token-architecture.md
@@ -426,9 +432,19 @@ platform-notes:
       - Hover cells apply only with a pointer (iPad trackpad or mouse).
       - Label typography uses the brand face when the app has registered it, otherwise the system font at the same size and weight (fonts are not bundled).
   android:
-    base: A Compose button surface with design-system colors, named DsButton (planned, Phase 5).
+    base: >-
+      A clickable Compose surface with the button role and design-system colors, named
+      DsButton; the brand theme comes from composition and the icons are catalog artwork
+      generated as vector images. No Material dependency.
     notes:
-      - Label typography scales with the system font scale (sp).
+      - Label typography scales with the system font scale (sp, non-linear on recent Android); icons and the spinner scale with the font too. The label wraps; minimum heights never cap growth.
+      - Disabled is the platform's enabled flag inverted; TalkBack reports it as disabled.
+      - Busy is a localized state description ("Loading", an app-overridable string resource); the name stays the label and the button stays enabled and focusable.
+      - The touch target reaches 48dp through the platform's built-in touch-target expansion, outside the layout, so the visual size and the layout around the button never change.
+      - Keyboard, D-pad and TV focus draw the contract focus indicator (ring-offset band plus ring outside the border); touch never focuses the button.
+      - Pressed uses the pressed token cells instead of a ripple; hover cells apply only with a mouse or stylus pointer.
+      - The spinner is a drawn ring (contract geometry and timing), not the Material progress indicator; with system animations removed it stops turning, and the state color transition follows the system animation scale.
+      - Label typography uses the brand face when the app ships it as a font resource, otherwise the default family at the same weight (fonts are not bundled).
 
 intentional-differences:
   - id: touch-hit-target
@@ -448,7 +464,9 @@ intentional-differences:
       keeping the border); native platforms may use their system focus effect where it
       exists. React Native draws the web indicator on Android, where a custom pressable has
       no system focus effect, and keeps the system effect on iOS. SwiftUI on iOS uses the
-      system focus effect (Full Keyboard Access) and does not draw the focus tokens. Figma's Focus-visible masters are a static 2px outside stroke in
+      system focus effect (Full Keyboard Access) and does not draw the focus tokens. Compose
+      draws the web indicator itself on keyboard / D-pad focus (Android has no system focus
+      effect for a custom clickable surface). Figma's Focus-visible masters are a static 2px outside stroke in
       color.focus.ring that replaces the border, with no offset band.
     reason: Focus is a platform-owned interaction visual (ADR 0015 rule 4); Figma documents it.
   - id: figma-physical-padding

@@ -6,7 +6,7 @@
  *
  * On top of the schema it checks platform-API leakage, internal references, semantic token
  * paths against every brand's resolved IR (resolved in memory — no token build needed),
- * Figma axes + the committed design-audit Figma snapshots, and the web, React Native and iOS
+ * Figma axes + the committed design-audit Figma snapshots, and the web, React Native, iOS and Android
  * reference implementations. See scripts/contracts/lib/contracts.mjs. Exit 1 on any error.
  */
 import fs from 'node:fs';
@@ -79,6 +79,6 @@ for (const name of files) {
 }
 
 console.log(
-  `\n${files.length} contract(s), ${errors} error(s), ${warnings} warning(s) — schema, platform-api, references, tokens (${BRANDS.join(', ')}), figma (${snapshots.length} snapshot(s)), web-reference, react-native-reference, ios-reference.`,
+  `\n${files.length} contract(s), ${errors} error(s), ${warnings} warning(s) — schema, platform-api, references, tokens (${BRANDS.join(', ')}), figma (${snapshots.length} snapshot(s)), web-reference, react-native-reference, ios-reference, android-reference.`,
 );
 process.exit(errors ? 1 : 0);

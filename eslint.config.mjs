@@ -19,6 +19,8 @@ export default [
       'scripts/design-audit/figma/**',
       // Expo CLI state (expo start / expo export).
       '**/.expo/**',
+      // Gradle output (./gradlew build writes HTML/JS test and lint reports).
+      'platforms/android/**/build/**',
     ],
   },
   js.configs.recommended,

@@ -5,7 +5,7 @@ Decision record: [ADR 0013](../../governance/decisions/0013-cross-platform-archi
 [ADR 0017](../../governance/decisions/0017-workspace-structure.md)); Phase 5 in progress — decisions
 made ([ADR 0018](../../governance/decisions/0018-cross-platform-button.md),
 [ADR 0019](../../governance/decisions/0019-icon-catalog.md)), web Button updated, Figma aligned,
-React Native and SwiftUI Buttons implemented; Compose Button pending.**
+React Native, SwiftUI and Compose Buttons implemented.**
 
 ## Repo evolution
 
@@ -167,14 +167,19 @@ details in ADR 0018 "React Native implementation"):
   hit target, icons. `#Preview` gallery (both brands, Dynamic Type sizes). CI: Linux builds
   `PDSTokens`; a macOS job runs `swift test` and an iOS Simulator build.
 
+**Done (2026-10-19) — Compose Button** (`com.pds.compose`, contract `android: alpha`; details
+in ADR 0018 "Compose implementation"):
+
+- `DsButton` + `PdsTheme`, `clickable(role = Button, indication = null)`, `stateDescription`
+  while loading, built-in 48dp touch expansion, drawn focus ring on keyboard / D-pad focus,
+  drawn spinner static with animations removed.
+- `DsIconName` + Lucide `ImageVector`s generated from `lucide-static` (`npm run icons:kotlin`,
+  checked by `icons:test`).
+- JVM + Robolectric / compose-ui-test unit tests, `@Preview` gallery (both brands, font
+  scales); Gradle wrapper and version catalog; CI `android` job runs `./gradlew build`.
+
 **Pending:**
 
-- Button, one pull request per platform, in this order:
-  - **Compose** (`com.pds.compose`): `DsButton` + `PdsTheme`, `clickable(role = Button,
-indication = null)`, `stateDescription` while loading, built-in 48dp touch expansion, drawn
-    focus ring; Robolectric + compose-ui-test, `@Preview` grid; Gradle wrapper, Android SDK in CI.
-  - Compose `ImageVector` icon generator from `lucide-static` lands with Compose (the
-    SwiftUI generator is done).
 - Switch second.
 - **Exit:** contract checks pass on every platform; MobileLogin-equivalent screen renders
   natively in both brands.

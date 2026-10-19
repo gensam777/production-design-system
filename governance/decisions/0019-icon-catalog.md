@@ -1,7 +1,7 @@
 # 0019: Platform-neutral icon catalog
 
 - **Status**: Accepted — catalog and web checks implemented 2026-10-12; React Native and the
-  SwiftUI generator implemented 2026-10-19; Compose generator arrives with Compose (Phase 5).
+  SwiftUI generator implemented 2026-10-19; Compose generator implemented 2026-10-19.
 - **Date**: 2026-10-12
 - **Related**: [0010](./0010-icon-token-architecture.md) (provider-neutral catalog, px sizes),
   [0013](./0013-cross-platform-architecture.md), [0018](./0018-cross-platform-button.md)
@@ -44,6 +44,12 @@ committing icon files.
   SVG commands are normalized to move / line / cubic / close (arcs → cubic Béziers), so Swift
   needs no SVG parser. `icons:test` fails when the committed sources are stale. No third-party
   Lucide Swift package: it would pin artwork independently of the catalog version.
+- **Compose generator (2026-10-19):** `npm run icons:kotlin` (`scripts/icons/lib/kotlin.mjs`)
+  writes `platforms/android/compose/src/main/kotlin/com/pds/compose/icons/{DsIconName,LucideIcons}.kt`
+  — `enum class DsIconName(val id)` and an `ImageVector` per icon (stroke 2 in the 24 viewport,
+  round caps / joins, tinted at draw time, so the stroke scales with the size). Every element
+  (circles, rects, lines too) becomes path data and goes through the shared normalization in
+  `scripts/icons/lib/svg.mjs`. `icons:test` fails when the committed sources are stale.
 
 ## Consequences
 

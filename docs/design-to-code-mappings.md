@@ -300,9 +300,9 @@ requires touching Button's own definition.
 
 Formal, validated contract (ADR 0015):
 [`design/contracts/components/button.contract.yaml`](../design/contracts/components/button.contract.yaml)
-— web, React Native and iOS `alpha`, Android `planned` (React Native:
+— `alpha` on web, React Native, iOS and Android (React Native:
 `packages/react-native/src/components/Button/`, SwiftUI: `platforms/ios/Sources/PDSUI/Button/`,
-see their READMEs). `npm run contracts:validate` and
+Compose: `platforms/android/compose/src/main/kotlin/com/pds/compose/button/`, see their READMEs). `npm run contracts:validate` and
 `npm run contracts:test` check it against this implementation (enum unions, defaults, every
 token cell in `Button.css`, minimum heights, block padding, the spinner token, and the
 loading / disabled-precedence rules in `Button.tsx`) and against the Figma axes above.

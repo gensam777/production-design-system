@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- State description of a busy (loading) DsButton; the button's name stays its label. -->
+    <string name="pds_button_loading">Loading</string>
+</resources>

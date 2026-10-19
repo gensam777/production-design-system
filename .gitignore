@@ -10,7 +10,15 @@ packages/tokens/build/
 .build/
 .swiftpm/
 .gradle/
+.kotlin/
 platforms/android/**/build/
+platforms/android/build/
+# Android Studio / IntelliJ local state (machine-specific SDK path, IDE settings)
+local.properties
+.idea/
+*.iml
+# Written by Android Studio's Gradle sync (pins the daemon JDK); CI picks its JDK via setup-java.
+platforms/android/gradle/gradle-daemon-jvm.properties
 *.log
 .DS_Store
 .env
