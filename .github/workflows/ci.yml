@@ -53,8 +53,9 @@ jobs:
       - name: Component contract tests
         run: npm run contracts:test
 
-      # Platform-neutral icon catalog (design/icons/, ADR 0019) ↔ the web IconName union, the
-      # Lucide provider map and the installed lucide-react version.
+      # Platform-neutral icon catalog (design/icons/, ADR 0019) ↔ the web and React Native
+      # IconName unions and Lucide maps, the installed Lucide versions, and the committed
+      # SwiftUI icon sources (regenerated from lucide-static and compared).
       - name: Icon catalog tests
         run: npm run icons:test
 
@@ -115,10 +116,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Repo-root Package.swift (tools 6.0 → Swift 6 language mode). PDSTokens only until PDSUI
-      # lands in Phase 5.
+      # Repo-root Package.swift (tools 6.0 → Swift 6 language mode). PDSTokens is pure Swift
+      # and builds on Linux; PDSUI needs SwiftUI and is built and tested by the swiftui job.
       - name: Build Swift package (PDSTokens)
-        run: swift build
+        run: swift build --target PDSTokens
+
+  # PDSUI (SwiftUI components, ADR 0018): unit tests on the macOS host, then a build for the
+  # iOS Simulator (the product platform). Previews are reviewed in Xcode, not in CI.
+  swiftui:
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Swift tests (PDSUI, macOS host)
+        run: swift test
+
+      - name: Build PDSUI for iOS Simulator
+        run: xcodebuild -scheme PDSUI -destination 'generic/platform=iOS Simulator' build
 
   kotlin-tokens:
     runs-on: ubuntu-latest

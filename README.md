@@ -19,7 +19,7 @@ One repository, plain npm workspaces (ADR 0013, 0017):
 - `packages/react/` — `@pds/react`: React components, patterns, examples and Storybook
 - `packages/react-native/` — `@pds/react-native`: React Native components (Button) and `PDSThemeProvider`
 - `packages/react-native-example/` — Expo preview app for `@pds/react-native` (not a library)
-- `platforms/ios/` + `Package.swift` — Swift package (`PDSTokens`; `PDSUI` reserved)
+- `platforms/ios/` + `Package.swift` — Swift package (`PDSTokens`; `PDSUI`: SwiftUI components — `DSButton`)
 - `platforms/android/` — Gradle build (`com.pds.tokens`; `com.pds.compose` reserved)
 - `docs/` — `design-to-code-mappings.md`, foundations, patterns, cross-platform docs
 - `governance/` — accessibility, component lifecycle, and versioning rules, plus

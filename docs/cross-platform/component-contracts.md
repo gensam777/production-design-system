@@ -93,6 +93,7 @@ Both run in CI. `contracts:validate` (`scripts/contracts/validate.mjs`) runs, pe
 | `figma`         | Each axis maps 1:1 onto a property's enum values (or covers every shared state); `variant-count` = product of axis sizes; every instance of the set in the committed design-audit Figma snapshots uses known axes/values |
 | `web-reference` | While web is alpha/beta/stable: files exist; each enum has a matching `<Component><Prop>` union type; literal defaults match; the token set the styles reference equals the token set the contract binds (both directions) |
 | `react-native-reference` | The same while react-native is alpha/beta/stable, with the token set read from the component's token map (contract paths as string literals). `npm run test:react-native` compares the map cell by cell and resolves every path in every brand |
+| `ios-reference` | The same while ios is alpha/beta/stable, in SwiftUI's idiom: `DS<Component><Prop>` enum cases, `<prop>: DS<Component><Prop> = .<default>`, `is<Prop>: Bool = <default>`, disabled through SwiftUI's `isEnabled`, and the Swift token map's path set. `swift test` compares the map with the contract YAML cell by cell and resolves every binding in every brand |
 
 The validator compares token **sets**; `contracts:test` pins Button's token **cells**
 (variant × state, size) against `Button.css`. It reads Figma only through the committed
@@ -101,7 +102,7 @@ design-audit snapshot — refresh that snapshot (design-audit skill) to check li
 ## Button — the reference contract
 
 [`design/contracts/components/button.contract.yaml`](../../design/contracts/components/button.contract.yaml)
-— web and React Native `alpha`, iOS / Android `planned`. Summary:
+— web, React Native and iOS `alpha`, Android `planned`. Summary:
 
 - **Properties:** `variant` (primary / secondary / tertiary / danger, default primary),
   `size` (sm / md / lg, default md), `disabled`, `loading` (blocks activation, keeps the
@@ -145,9 +146,11 @@ The contract never contains these names; this table is the documented mapping.
 | `component: Button`  | `Button`                  | `Button`                | `DSButton`                 | `DsButton`                        |
 | `variant: primary`   | `variant="primary"`       | `variant="primary"`     | `variant: .primary`        | `variant = ButtonVariant.Primary` |
 | `events.activate`    | `onClick`                 | `onPress`               | `action:`                  | `onClick`                         |
-| `slots.label` (text) | `children`                | `children: string`      | `title` / label view       | `text` / content lambda           |
+| `slots.label` (text) | `children`                | `children: string`      | `_ title` (`LocalizedStringKey` / `String`) | `text` / content lambda |
 | `slots.leadingIcon`  | `leadingIcon` (ReactNode) | `leadingIcon: IconName` | `leadingIcon: DSIconName?` | `leadingIcon: DsIconName?`        |
 | `disabled`           | native `disabled`         | `disabled`              | `.disabled(_:)`            | `enabled = !disabled`             |
-| busy (loading)       | `aria-busy`               | `accessibilityState.busy` + `accessibilityValue` (`loadingAccessibilityValue`) | accessibility value | `stateDescription` |
-| hit target           | ≥ 24 px (CSS)             | `hitSlop` from the measured size (44pt / 48dp) | `contentShape` | `minimumInteractiveComponentSize` |
+| `loading`            | `loading`                 | `loading`               | `isLoading:`               | `loading`                         |
+| busy (loading)       | `aria-busy`               | `accessibilityState.busy` + `accessibilityValue` (`loadingAccessibilityValue`) | `.accessibilityValue("Loading")` (no busy trait) | `stateDescription` |
+| hit target           | ≥ 24 px (CSS)             | `hitSlop` from the measured size (44pt / 48dp) | expanded `contentShape` from the measured size (44pt) | `minimumInteractiveComponentSize` |
+| brand                | `data-brand`              | `PDSThemeProvider brand` | `.dsTheme(_:)`            | `PdsTheme`                        |
 | layout placement     | `className` / CSS         | `style` (layout keys only) | modifiers                  | `Modifier`                        |
