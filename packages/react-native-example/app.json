@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "PDS React Native Preview",
+    "slug": "pds-react-native-preview",
+    "version": "0.0.0",
+    "orientation": "default",
+    "userInterfaceStyle": "light",
+    "platforms": ["ios", "android"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pds.reactnativepreview"
+    },
+    "android": {
+      "package": "com.pds.reactnativepreview"
+    }
+  }
+}

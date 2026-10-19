@@ -11,6 +11,9 @@
  *                        committed design-audit Figma snapshot instance of the component set.
  *   6. web-reference   — while web status is alpha/beta/stable: enum unions, defaults and the
  *                        set of tokens the web styles use ↔ the contract.
+ *   7. react-native-reference — the same while react-native is alpha/beta/stable; the token
+ *                        set comes from the component's token map (contract token paths kept
+ *                        as string literals). The RN Jest suite compares that map cell by cell.
  *
  * Each check returns findings `{ level: 'error' | 'warning', check, message }`.
  */
@@ -344,32 +347,7 @@ export function checkWebReference(c, read, irs) {
   if (source == null) return [err(W, `${ref.source} not found`)];
   for (const k of ['styles', 'stories'])
     if (ref[k] && read(ref[k]) == null) out.push(err(W, `${ref[k]} not found`));
-
-  // Enum properties: `export type <Component><Prop> = 'a' | 'b'` must equal the values.
-  for (const [name, p] of enumProps(c)) {
-    const typeName = `${c.component}${pascal(name)}`;
-    const m = source.match(new RegExp(`type\\s+${typeName}\\s*=([^;]+);`));
-    if (!m) {
-      out.push(err(W, `${ref.source}: no union type ${typeName} for property '${name}'`));
-      continue;
-    }
-    const got = [...m[1].matchAll(/'([^']+)'/g)].map((x) => x[1]).sort();
-    const want = Object.keys(p.values).sort();
-    if (got.join() !== want.join())
-      out.push(err(W, `${typeName} [${got.join(', ')}] ≠ contract ${name} [${want.join(', ')}]`));
-  }
-
-  // Every property is accepted; literal defaults in the destructuring must match.
-  for (const [name, p] of Object.entries(c.properties ?? {})) {
-    if (!new RegExp(`\\b${name}\\b`).test(source))
-      out.push(err(W, `${ref.source}: property '${name}' not found`));
-    const d = source.match(new RegExp(`\\b${name}\\s*=\\s*('([^']*)'|true|false)`));
-    if (d) {
-      const got = d[2] ?? d[1];
-      if (String(p.default) !== got)
-        out.push(err(W, `default ${name}: web '${got}' ≠ contract '${p.default}'`));
-    }
-  }
+  out.push(...checkSourceApi(c, source, ref.source, W, 'web'));
 
   // Token set: what the styles reference ↔ what the contract binds.
   if (ref.styles && read(ref.styles) != null) {
@@ -378,11 +356,7 @@ export function checkWebReference(c, read, irs) {
       parseCss(read(ref.styles)).flatMap((r) => r.decls.flatMap(([, v]) => varRefs(v))),
     );
     const covered = new Set();
-    for (const path of new Set(
-      tokenLeaves(c)
-        .map((l) => l.value)
-        .filter((v) => v !== 'none'),
-    )) {
+    for (const path of contractTokenSet(c)) {
       const css = `--${path.replace(/\./g, '-')}`;
       const hits =
         types.get(path) === 'typography'
@@ -396,6 +370,80 @@ export function checkWebReference(c, read, irs) {
     for (const v of used)
       if (!covered.has(v))
         out.push(err(W, `${ref.styles} uses ${v}, which the contract does not bind`));
+  }
+  return out;
+}
+
+const contractTokenSet = (c) =>
+  new Set(
+    tokenLeaves(c)
+      .map((l) => l.value)
+      .filter((v) => v !== 'none'),
+  );
+
+/** Enum unions `<Component><Prop>`, accepted properties and literal defaults in a source file. */
+function checkSourceApi(c, source, file, check, label) {
+  const out = [];
+  for (const [name, p] of enumProps(c)) {
+    const typeName = `${c.component}${pascal(name)}`;
+    const m = source.match(new RegExp(`type\\s+${typeName}\\s*=([^;]+);`));
+    if (!m) {
+      out.push(err(check, `${file}: no union type ${typeName} for property '${name}'`));
+      continue;
+    }
+    const got = [...m[1].matchAll(/'([^']+)'/g)].map((x) => x[1]).sort();
+    const want = Object.keys(p.values).sort();
+    if (got.join() !== want.join())
+      out.push(
+        err(check, `${typeName} [${got.join(', ')}] ≠ contract ${name} [${want.join(', ')}]`),
+      );
+  }
+  for (const [name, p] of Object.entries(c.properties ?? {})) {
+    if (!new RegExp(`\\b${name}\\b`).test(source))
+      out.push(err(check, `${file}: property '${name}' not found`));
+    const d = source.match(new RegExp(`\\b${name}\\s*=\\s*('([^']*)'|true|false)`));
+    if (d) {
+      const got = d[2] ?? d[1];
+      if (String(p.default) !== got)
+        out.push(err(check, `default ${name}: ${label} '${got}' ≠ contract '${p.default}'`));
+    }
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- 7. react-native-reference
+
+/** Quoted contract token paths (`'color.action.primary.default'`, `'none'` excluded). */
+const TOKEN_LITERAL = /'((?:color|space|radius|text|icon|motion|elevation|layout)\.[a-z0-9.-]+)'/g;
+
+/**
+ * @param read (repoPath) → file text, or null when missing
+ */
+export function checkReactNativeReference(c, read) {
+  const out = [];
+  const R = 'react-native-reference';
+  const status = c.status?.['react-native'];
+  if (!IMPLEMENTED.has(status)) return out;
+  const ref = c.references?.['react-native'];
+  if (!ref) return [err(R, `react-native is ${status} but references.react-native is missing`)];
+
+  const source = read(ref.source);
+  if (source == null) return [err(R, `${ref.source} not found`)];
+  for (const k of ['styles', 'stories'])
+    if (ref[k] && read(ref[k]) == null) out.push(err(R, `${ref[k]} not found`));
+  out.push(...checkSourceApi(c, source, ref.source, R, 'react-native'));
+
+  // Token set: the token map's path literals ↔ what the contract binds.
+  const map = ref.styles && read(ref.styles);
+  if (map) {
+    const used = new Set([...map.matchAll(TOKEN_LITERAL)].map((m) => m[1]));
+    const bound = contractTokenSet(c);
+    for (const path of bound)
+      if (!used.has(path))
+        out.push(err(R, `contract token '${path}' is not used by ${ref.styles}`));
+    for (const path of used)
+      if (!bound.has(path))
+        out.push(err(R, `${ref.styles} uses '${path}', which the contract does not bind`));
   }
   return out;
 }
@@ -415,5 +463,6 @@ export function checkContract({ text, contract, validate, irs, snapshots, read, 
     ...checkTokens(contract, irs),
     ...checkFigma(contract, snapshots),
     ...checkWebReference(contract, read, irs),
+    ...checkReactNativeReference(contract, read),
   ];
 }

@@ -5,7 +5,8 @@
 # Shared semantic intent only: what Button means, how it behaves and which semantic tokens it
 # paints with. It is not a web API and not a native API — each platform maps it to its own
 # idiom (see docs/cross-platform/component-contracts.md, "Platform naming").
-# Web (packages/react/src/components/Button/) is the implemented reference; the other platforms are planned
+# Web (packages/react/src/components/Button/) is the implemented reference; React Native
+# (packages/react-native/src/components/Button/) implements it too; iOS and Android are planned
 # (Phase 5). Validate: npm run contracts:validate
 
 schema-version: 1
@@ -16,7 +17,7 @@ summary: >-
 
 status:
   web: alpha
-  react-native: planned
+  react-native: alpha
   ios: planned
   android: planned
 
@@ -376,6 +377,12 @@ references:
     source: packages/react/src/components/Button/Button.tsx
     styles: packages/react/src/components/Button/Button.css
     stories: packages/react/src/components/Button/Button.stories.tsx
+  react-native:
+    source: packages/react-native/src/components/Button/Button.tsx
+    # The token map: this contract's token paths, resolved per brand theme at runtime.
+    styles: packages/react-native/src/components/Button/Button.tokens.ts
+    # Visual record: the Expo preview app (Brand A + Brand B).
+    stories: packages/react-native-example/src/ButtonGallery.tsx
   docs:
     - docs/design-to-code-mappings.md#button
     - governance/decisions/0010-icon-token-architecture.md
@@ -389,9 +396,16 @@ platform-notes:
       - The web label and icon slots accept composed content for React ergonomics (ADR 0010); the contract still types them as text and icon.
       - Hover, pressed and focus come from the browser's own interaction states; focus is drawn only for keyboard-initiated focus.
   react-native:
-    base: A pressable view styled from the theme (planned, Phase 5).
+    base: >-
+      A pressable view styled from the nearest theme provider's brand theme; the label is
+      platform text and the icons come from the shared catalog's artwork provider.
     notes:
       - Pressed uses the pressed token cells; hover applies only on platforms with a hover pointer.
+      - The container colors follow tokens.container.state-transition and snap when the platform's reduce-motion setting is on, as on web.
+      - Busy is exposed as the platform busy state and, because not every screen reader announces it, also as a localized state value ("Loading" by default) — the accessible name stays the label.
+      - The touch target is expanded to the host minimum from the button's measured size, outside its layout, so a button grown by text scaling needs less expansion.
+      - Width follows the parent's cross-axis alignment; React Native layouts stretch children by default, so the consumer places the button with the layout-only placement options (alignment, flex, width, margins). No visual property can be overridden.
+      - Label typography uses the brand font faces when the app has loaded them, otherwise the platform system family at the same weight (fonts are not bundled).
   ios:
     base: A SwiftUI button with a design-system button style, named DSButton (planned, Phase 5).
     notes:
@@ -417,7 +431,8 @@ intentional-differences:
     difference: >-
       Web draws the focus indicator itself (ring-offset band + ring around the container,
       keeping the border); native platforms may use their system focus effect where it
-      exists. Figma's Focus-visible masters are a static 2px outside stroke in
+      exists. React Native draws the web indicator on Android, where a custom pressable has
+      no system focus effect, and keeps the system effect on iOS. Figma's Focus-visible masters are a static 2px outside stroke in
       color.focus.ring that replaces the border, with no offset band.
     reason: Focus is a platform-owned interaction visual (ADR 0015 rule 4); Figma documents it.
   - id: figma-physical-padding

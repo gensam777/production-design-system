@@ -1,8 +1,8 @@
 # 0018: Cross-platform Button — platform versions and contract decisions
 
 - **Status**: Accepted — decisions approved 2026-10-12 (Phase 5 of
-  [0013](./0013-cross-platform-architecture.md)). Web implemented; Figma alignment, React
-  Native, SwiftUI and Compose pending.
+  [0013](./0013-cross-platform-architecture.md)). Web, Figma alignment and React Native
+  implemented (React Native 2026-10-19); SwiftUI and Compose pending.
 - **Date**: 2026-10-12
 - **Related**: [0010](./0010-icon-token-architecture.md), [0015](./0015-component-contracts.md),
   [0016](./0016-native-token-mappings.md), [0017](./0017-workspace-structure.md),
@@ -73,6 +73,26 @@ disabled rule above, `min-height` + `padding-block`, hover/pressed excluded whil
 `animation: ds-button-spin var(--motion-spinner) infinite`. Public props unchanged; the
 behavior change is an alpha change (see `governance/versioning.md`).
 
+### React Native implementation (done, 2026-10-19)
+
+`@pds/react-native` `Button` + `PDSThemeProvider` / `usePDSTheme`. Development is pinned to
+Expo SDK 58 (React Native 0.88.0, React 19.3.0 — the whole workspace now shares React 19.3.0,
+`react-dom` included, within `@pds/react`'s existing range; Node ≥ 22.13). `Pressable` with
+`accessibilityState { disabled, busy }`; `isLoading = loading && !disabled` blocks `onPress`
+without disabling, and adds a localized `accessibilityValue` (`loadingAccessibilityValue`,
+default "Loading") because busy alone isn't announced everywhere — this replaces the planned
+`loadingAccessibilityLabel` name, which would have suggested renaming the button. Hit-slop to
+44pt / 48dp from the measured size (6/2/0 · 8/4/0 at the default text size). Label
+`allowFontScaling` + iOS `dynamicTypeRamp`, no line limit; icons and spinner × font scale.
+Spinner: `react-native-svg` 270° arc, 2 stroke, `motion.spinner` loop, static under Reduce
+Motion; container colors animate on `motion.micro` and snap under Reduce Motion. Android draws
+the contract focus indicator (no system effect on a custom pressable); iOS keeps its own.
+`style` is layout-only. The token bindings are kept as contract paths
+(`Button.tokens.ts`); Jest compares them to the contract cell by cell and resolves each in
+both brands, and `contracts:validate` gained a `react-native-reference` check. Fonts stay
+unbundled: `fontsLoaded` selects the brand faces, otherwise the system family at the same
+weight. Preview: `packages/react-native-example` (Expo).
+
 ## Consequences
 
 - Both Phase 3 implementation gaps are closed; the contract tests now guard the behavior
@@ -86,5 +106,6 @@ behavior change is an alpha change (see `governance/versioning.md`).
   variables (`motion/duration/loop`, `motion/easing/linear`, `spinner/duration`,
   `spinner/easing` — Figma cannot bind motion variables to a node). The contract has no open
   questions; the Focus-visible rendering difference stays intentional.
-- React Native, SwiftUI and Compose Buttons follow the plan in
-  `docs/cross-platform/migration.md` (Phase 5), one pull request per platform.
+- The React Native Button is implemented (contract status `alpha`); SwiftUI and Compose
+  Buttons follow the plan in `docs/cross-platform/migration.md` (Phase 5), one pull request
+  per platform.

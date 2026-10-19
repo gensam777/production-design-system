@@ -7,7 +7,8 @@
   "workspaces": [
     "packages/tokens",
     "packages/react",
-    "packages/react-native"
+    "packages/react-native",
+    "packages/react-native-example"
   ],
   "scripts": {
     "build": "npm run build -w @pds/react",
@@ -21,12 +22,15 @@
     "contracts:validate": "node scripts/contracts/validate.mjs",
     "contracts:test": "node --test scripts/contracts/__tests__/contracts.test.mjs",
     "icons:test": "node --test scripts/icons/__tests__/icons.test.mjs",
+    "test:react-native": "npm run test -w @pds/react-native",
     "design:audit": "node scripts/design-audit/audit.mjs",
     "design:audit:test": "node --test scripts/design-audit/__tests__/audit.test.mjs",
     "design:audit:snapshot": "node scripts/design-audit/snapshot.mjs",
     "design:audit:refresh": "node scripts/design-audit/refresh.mjs",
     "storybook": "npm run storybook -w @pds/react",
-    "build-storybook": "npm run build-storybook -w @pds/react"
+    "build-storybook": "npm run build-storybook -w @pds/react",
+    "example:react-native": "npm run start -w @pds/react-native-example",
+    "example:react-native:export": "npm run export -w @pds/react-native-example"
   },
   "engines": {
     "node": ">=18"

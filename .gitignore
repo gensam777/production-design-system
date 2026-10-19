@@ -4,6 +4,8 @@ storybook-static/
 # Generated token outputs (IR, web CSS/JS, React Native TS). The Swift and Kotlin outputs are
 # NOT ignored: they are the committed sources in platforms/ (ADR 0017).
 packages/tokens/build/
+# Expo CLI state (packages/react-native-example; its export output goes to dist/)
+.expo/
 # SwiftPM / Gradle local state
 .build/
 .swiftpm/

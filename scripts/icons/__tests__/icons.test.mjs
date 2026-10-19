@@ -1,8 +1,8 @@
 /**
  * Icon catalog tests (ADR 0019) — run: npm run icons:test
  *
- *   1. The committed catalog passes every check against the web implementation and the
- *      installed lucide-react.
+ *   1. The committed catalog passes every check against the web and React Native
+ *      implementations and their installed Lucide packages (lucide-react, lucide-react-native).
  *   2. Every check fires on a broken input.
  */
 import assert from 'node:assert/strict';
@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   MANIFEST,
+  PLATFORMS,
   SCHEMA,
   WEB_LUCIDE,
   WEB_TYPES,
@@ -37,12 +38,23 @@ const clone = () => structuredClone(manifest);
 
 describe('committed catalog', () => {
   test('matches the schema', () => assert.deepEqual(checkSchema(schema, manifest), []));
-  test('web IconName union has exactly the catalog names', () =>
-    assert.deepEqual(checkWebNames(manifest, typesSource), []));
-  test('web Lucide map matches the catalog', () =>
-    assert.deepEqual(checkWebMap(manifest, lucideSource), []));
-  test('artwork exists at the pinned provider version', () =>
-    assert.deepEqual(checkArtwork(manifest, hasIcon, installedVersion), []));
+
+  for (const platform of Object.values(PLATFORMS)) {
+    const pkgDir = `node_modules/${platform.pkg}`;
+    const has = (name) => fs.existsSync(`${pkgDir}/dist/esm/icons/${name}.mjs`);
+    test(`${platform.label} IconName union has exactly the catalog names`, () =>
+      assert.deepEqual(
+        checkWebNames(manifest, fs.readFileSync(platform.types, 'utf8'), platform),
+        [],
+      ));
+    test(`${platform.label} Lucide map matches the catalog`, () =>
+      assert.deepEqual(checkWebMap(manifest, fs.readFileSync(platform.map, 'utf8'), platform), []));
+    test(`${platform.label} artwork exists at the pinned provider version (${platform.pkg})`, () =>
+      assert.deepEqual(
+        checkArtwork(manifest, has, json(`${pkgDir}/package.json`).version, platform),
+        [],
+      ));
+  }
 });
 
 describe('checks fire on broken input', () => {
@@ -91,6 +103,31 @@ describe('checks fire on broken input', () => {
     const errors = checkArtwork(m, hasIcon, installedVersion);
     assert.ok(errors.some((e) => e.includes('provider.version is 0.0.1')));
     assert.ok(errors.some((e) => e.includes("'not-an-icon' does not exist")));
+  });
+
+  test('react-native map: per-icon import from the wrong subpath, labelled by platform', () => {
+    const rn = PLATFORMS['react-native'];
+    const source = fs
+      .readFileSync(rn.map, 'utf8')
+      .replace("'lucide-react-native/icons/pencil'", "'lucide-react-native/icons/pen'");
+    const errors = checkWebMap(manifest, source, rn);
+    assert.ok(
+      errors.some((e) =>
+        e.includes("Pencil must be imported from 'lucide-react-native/icons/pencil'"),
+      ),
+      errors.join('\n'),
+    );
+    const names = checkWebNames(
+      { ...manifest, icons: { ...manifest.icons, bell: { lucide: 'bell', description: 'x' } } },
+      fs.readFileSync(rn.types, 'utf8'),
+      rn,
+    );
+    assert.ok(names.some((e) => e.startsWith("react-native-names: catalog icon 'bell'")));
+  });
+
+  test('react-native artwork: version drift names lucide-react-native', () => {
+    const errors = checkArtwork(manifest, () => true, '0.0.1', PLATFORMS['react-native']);
+    assert.ok(errors.some((e) => e.includes('installed lucide-react-native is 0.0.1')));
   });
 
   test('lucideComponent PascalCases kebab names', () => {

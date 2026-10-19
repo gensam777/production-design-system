@@ -15,7 +15,9 @@
  * was removed and the exception is stale — also fails, so exceptions can't silently grow.
  *
  * Usage: node scripts/check-token-usage.mjs [root ...]
- *        (default: packages/react/src/components packages/react/src/patterns packages/react/src/examples)
+ *        (default: packages/react/src/{components,patterns,examples},
+ *        packages/react-native/src and packages/react-native-example/src — React Native reads
+ *        tokens from the generated theme, so there the raw-hex check is the one that bites)
  * Runs as part of `npm run lint`, and therefore in CI.
  */
 import fs from 'node:fs';
@@ -25,6 +27,8 @@ const DEFAULT_ROOTS = [
   'packages/react/src/components',
   'packages/react/src/patterns',
   'packages/react/src/examples',
+  'packages/react-native/src',
+  'packages/react-native-example/src',
 ];
 const roots = process.argv.slice(2).length ? process.argv.slice(2) : DEFAULT_ROOTS;
 

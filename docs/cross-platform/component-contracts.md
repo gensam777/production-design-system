@@ -16,8 +16,9 @@ accessibility outcomes and token bindings. Every platform implements it natively
 - Format: YAML, validated by JSON Schema (draft 2020-12).
 - Location: `design/contracts/components/<kebab-name>.contract.yaml` (e.g.
   `password-input.contract.yaml`); `component:` inside is PascalCase (`PasswordInput`).
-- Web (`packages/react/src/components/`) is the implemented reference. React Native, iOS and Android stay
-  `planned` until Phase 5.
+- Web (`packages/react/src/components/`) is the implemented reference. React Native
+  (`packages/react-native/src/components/`) implements Button (`alpha`); iOS and Android stay
+  `planned` until their Phase 5 PRs.
 
 ## Rules
 
@@ -63,7 +64,7 @@ accessibility outcomes and token bindings. Every platform implements it natively
 | `component-constants`     | no       | Values that are deliberately not tokens (`px` / `ms`), `token-gap: true` where a token should exist                          |
 | `sizing`                  | no       | `property` + `visual-height` per value; `height` (`fixed` / `minimum` — grows with text scaling); `width`; `hit-target` (`policy: platform-owned`, per-platform `minimum`) |
 | `figma`                   | no       | `file-key`, `component-set`, `node-id`, `verified`, `variant-count`, `axes` (→ property or states), `component-properties` (→ slots), `figma-only` |
-| `references`              | no       | Repo paths per platform (`source`, `styles`, `stories`) + `docs`. `web` is checked while web is alpha/beta/stable            |
+| `references`              | no       | Repo paths per platform (`source`, `styles`, `stories`) + `docs`. `web` and `react-native` are checked while alpha/beta/stable (React Native: `styles` = the token map, `stories` = the Expo preview) |
 | `platform-notes`          | no       | Per platform: `base` (what it is built on, in words) + `notes`                                                                |
 | `intentional-differences` | no       | `{ id, platforms, difference, reason }` — platforms may include `figma`                                                       |
 | `implementation-gaps`     | no       | `{ id, platform, contract, current, raised }` — decided behavior an implemented platform doesn't do yet; tests expect the gap while listed and fail once it's closed but still listed |
@@ -91,6 +92,7 @@ Both run in CI. `contracts:validate` (`scripts/contracts/validate.mjs`) runs, pe
 | `tokens`        | Every token path exists in **every** brand's resolved IR and is `semantic` + `shared` (resolved in memory — no token build needed)                                              |
 | `figma`         | Each axis maps 1:1 onto a property's enum values (or covers every shared state); `variant-count` = product of axis sizes; every instance of the set in the committed design-audit Figma snapshots uses known axes/values |
 | `web-reference` | While web is alpha/beta/stable: files exist; each enum has a matching `<Component><Prop>` union type; literal defaults match; the token set the styles reference equals the token set the contract binds (both directions) |
+| `react-native-reference` | The same while react-native is alpha/beta/stable, with the token set read from the component's token map (contract paths as string literals). `npm run test:react-native` compares the map cell by cell and resolves every path in every brand |
 
 The validator compares token **sets**; `contracts:test` pins Button's token **cells**
 (variant × state, size) against `Button.css`. It reads Figma only through the committed
@@ -99,7 +101,7 @@ design-audit snapshot — refresh that snapshot (design-audit skill) to check li
 ## Button — the reference contract
 
 [`design/contracts/components/button.contract.yaml`](../../design/contracts/components/button.contract.yaml)
-— web `alpha`, other platforms `planned`. Summary:
+— web and React Native `alpha`, iOS / Android `planned`. Summary:
 
 - **Properties:** `variant` (primary / secondary / tertiary / danger, default primary),
   `size` (sm / md / lg, default md), `disabled`, `loading` (blocks activation, keeps the
@@ -143,7 +145,9 @@ The contract never contains these names; this table is the documented mapping.
 | `component: Button`  | `Button`                  | `Button`                | `DSButton`                 | `DsButton`                        |
 | `variant: primary`   | `variant="primary"`       | `variant="primary"`     | `variant: .primary`        | `variant = ButtonVariant.Primary` |
 | `events.activate`    | `onClick`                 | `onPress`               | `action:`                  | `onClick`                         |
-| `slots.label` (text) | `children`                | `children` / `label`    | `title` / label view       | `text` / content lambda           |
+| `slots.label` (text) | `children`                | `children: string`      | `title` / label view       | `text` / content lambda           |
 | `slots.leadingIcon`  | `leadingIcon` (ReactNode) | `leadingIcon: IconName` | `leadingIcon: DSIconName?` | `leadingIcon: DsIconName?`        |
 | `disabled`           | native `disabled`         | `disabled`              | `.disabled(_:)`            | `enabled = !disabled`             |
-| busy (loading)       | `aria-busy`               | `accessibilityState`    | accessibility value        | `stateDescription`                |
+| busy (loading)       | `aria-busy`               | `accessibilityState.busy` + `accessibilityValue` (`loadingAccessibilityValue`) | accessibility value | `stateDescription` |
+| hit target           | ≥ 24 px (CSS)             | `hitSlop` from the measured size (44pt / 48dp) | `contentShape` | `minimumInteractiveComponentSize` |
+| layout placement     | `className` / CSS         | `style` (layout keys only) | modifiers                  | `Modifier`                        |
