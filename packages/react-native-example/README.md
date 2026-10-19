@@ -23,3 +23,15 @@ the busy and disabled announcements.
 `expo install --check` is told to skip `typescript` and `@types/react`
 (`expo.install.exclude`): the repo pins TypeScript 5.9 / `@types/react` 19.2 for every
 workspace, and they are type-only.
+
+## Troubleshooting
+
+**"Tried to register two views with the same name RNSVG…"** (`RNSVGFilter`, `RNSVGFeMerge`, …)
+is a Fast Refresh artifact, not a duplicate `react-native-svg` (there is one copy:
+`npm ls react-native-svg`). The stack goes through `EventTarget.dispatchEvent` — a hot update
+from Metro. Native components register once per JS runtime, so any hot update that re-runs
+one of react-native-svg's component modules throws. That happens when the dev server's view
+of `node_modules` changes under a running app: `npm install` / switching branches while Metro
+runs, or restarting Metro (`expo start -c`) while the app stays open. Fix: reload the app's
+JS runtime — press `r` in the Expo terminal, or close and reopen the project in Expo Go.
+A cold launch never shows it.
