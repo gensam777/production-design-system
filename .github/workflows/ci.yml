@@ -135,7 +135,11 @@ jobs:
       - name: Build PDSUI for iOS Simulator
         run: xcodebuild -scheme PDSUI -destination 'generic/platform=iOS Simulator' build
 
-  kotlin-tokens:
+  # platforms/android (ADR 0016, 0017, 0018): :tokens (com.pds.tokens, generated + committed)
+  # and :compose (com.pds.compose). `build` compiles both, runs Android lint and the unit tests
+  # (JVM + Robolectric Compose UI tests). The Android SDK is preinstalled on ubuntu runners.
+  # JDK 21: Robolectric's Android SDK 36 runtime requires it; bytecode still targets JVM 17.
+  android:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -145,13 +149,11 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
 
-      # No Gradle wrapper is committed yet (added with the Compose module in Phase 5).
-      - name: Setup Gradle
+      - name: Setup Gradle (wrapper, caching)
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.10.2'
 
-      - name: Build Gradle project (:tokens — com.pds.tokens)
-        run: gradle -p platforms/android build
+      - name: Build and test Gradle project (:tokens, :compose)
+        working-directory: platforms/android
+        run: ./gradlew build

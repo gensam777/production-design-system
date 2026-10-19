@@ -16,6 +16,7 @@ import { loadFontCatalog } from '../../../packages/tokens/scripts/fonts.mjs';
 import { BRANDS, resolveBrand } from '../../../packages/tokens/scripts/ir.mjs';
 import {
   checkContract,
+  checkAndroidReference,
   checkFigma,
   checkIosReference,
   checkPlatformApi,
@@ -255,6 +256,56 @@ describe('each check fires', () => {
     delete g.references['react-native'];
     assert.deepEqual(checkReactNativeReference(g, read), []);
   });
+  test('android-reference: enum entries, defaults, enabled, token-set drift and missing files', () => {
+    const A = 'android-reference';
+    const msgs = (c, r = read) => errors(checkAndroidReference(c, r), A).map((e) => e.message);
+    assert.deepEqual(checkAndroidReference(button, read), []);
+
+    const a = clone(button);
+    a.properties.variant.values.ghost = 'x';
+    assert.ok(
+      msgs(a).some((m) => m.includes('DsButtonVariant')),
+      msgs(a).join('\n'),
+    );
+
+    const b = clone(button);
+    b.properties.size.default = 'lg';
+    assert.ok(
+      msgs(b).some((m) => m.includes("default size: android 'Md'")),
+      msgs(b).join('\n'),
+    );
+
+    const c = clone(button);
+    c.tokens.container.gap.md = 'space.inline.md'; // not in DsButtonTokens.kt
+    assert.ok(
+      msgs(c).some((m) => m.includes("'space.inline.md' is not used")),
+      msgs(c).join('\n'),
+    );
+
+    const d = clone(button);
+    delete d.tokens.focusIndicator; // DsButtonTokens.kt still binds the focus tokens
+    assert.ok(
+      msgs(d).some((m) => m.includes("uses 'color.focus.ring'")),
+      msgs(d).join('\n'),
+    );
+
+    const e = clone(button);
+    e.properties.disabled.default = true; // enabled must then default to false
+    assert.ok(
+      msgs(e).some((m) => m.includes("default enabled: android 'true'")),
+      msgs(e).join('\n'),
+    );
+
+    const f = clone(button);
+    f.references.android.stories = 'platforms/android/compose/Missing.kt';
+    assert.ok(msgs(f).length);
+
+    const g = clone(button);
+    g.status.android = 'planned';
+    delete g.references.android;
+    assert.deepEqual(checkAndroidReference(g, read), []);
+  });
+
   test('ios-reference: enum cases, defaults, booleans, token-set drift and missing files', () => {
     const I = 'ios-reference';
     const msgs = (c, r = read) => errors(checkIosReference(c, r), I).map((e) => e.message);

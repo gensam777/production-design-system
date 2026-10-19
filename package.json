@@ -23,6 +23,7 @@
     "contracts:test": "node --test scripts/contracts/__tests__/contracts.test.mjs",
     "icons:test": "node --test scripts/icons/__tests__/icons.test.mjs",
     "icons:swift": "node scripts/icons/generate-swift.mjs",
+    "icons:kotlin": "node scripts/icons/generate-kotlin.mjs",
     "test:react-native": "npm run test -w @pds/react-native",
     "design:audit": "node scripts/design-audit/audit.mjs",
     "design:audit:test": "node --test scripts/design-audit/__tests__/audit.test.mjs",

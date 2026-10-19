@@ -1,6 +1,88 @@
-# compose (reserved) — `com.pds.compose`
+# compose — `com.pds.compose`
 
-Jetpack Compose components (`DsButton`, …) implementing the shared contracts in
-[`design/contracts/`](../../../design/contracts/). Added in Phase 5 with Button as the first
-reference component, as an Android library module depending on `:tokens`. Not part of the
-Gradle build until then.
+Jetpack Compose components implementing the shared contracts in
+[`design/contracts/`](../../../design/contracts/) (Phase 5, ADR
+[0018](../../../governance/decisions/0018-cross-platform-button.md)). Android library: minSdk
+23, compileSdk 36, Compose foundation / UI / animation only — **no Material**, so components
+never inherit Material theming. Depends on `:tokens` (`com.pds.tokens`).
+
+| Status | Component                                                                          |
+| ------ | ---------------------------------------------------------------------------------- |
+| alpha  | `DsButton` — [contract](../../../design/contracts/components/button.contract.yaml) |
+
+## Usage
+
+```kotlin
+PdsTheme(BrandB) {                       // usually once near the root
+    DsButton(
+        text = "Place order",
+        onClick = { placeOrder() },
+        leadingIcon = DsIconName.Check,
+        loading = placingOrder,
+        enabled = cart.isNotEmpty(),
+    )
+}
+```
+
+### Theme
+
+- `PdsTheme(theme) { … }` provides a brand (`BrandA`, `BrandB` from `com.pds.tokens`); nests.
+  Without it components use the default brand (Brand A). `PdsTheme.tokens` reads it.
+- Adapters: `DsColorValue.toColor()`, `DsTransition.toTween()`, `DsCubicBezier.toEasing()`,
+  `DsTextStyle.toTextStyle()` (sp size, em line height / letter spacing — scales with the font).
+- **Fonts are not bundled.** Ship the brand faces in the app as font resources named by
+  `fontResourceName` (`res/font/inter_medium.ttf`, `figtree_medium.ttf`, …); they're found at
+  runtime. Missing → the default family at the same weight.
+
+### DsButton
+
+`DsButton(text, onClick, modifier, variant, size, enabled, loading, leadingIcon, trailingIcon,
+interactionSource)` — `variant` `Primary | Secondary | Tertiary | Danger`, `size`
+`Sm | Md | Lg`, icons are `DsIconName` (the shared catalog). `modifier` is for layout placement
+(e.g. `fillMaxWidth()`); visuals come from tokens.
+
+| Contract          | Compose                                                                                                                                                                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `disabled`        | `enabled = false` — `onClick` never runs; TalkBack "disabled"                                                                                                                                                                         |
+| `loading`         | `loading = true` — spinner only, size unchanged, variant colors, `onClick` blocked, stays enabled and focusable; state description "Loading" (`R.string.pds_button_loading`, override in the app to localize). Ignored while disabled |
+| `events.activate` | `onClick` — touch, mouse, keyboard / D-pad, Switch Access, TalkBack                                                                                                                                                                   |
+| text scaling      | sp text (non-linear font scaling on Android 14+); label wraps; 32 / 40 / 48dp are minimum heights; icons + spinner in sp too                                                                                                          |
+| hit target        | ≥ 48dp via Compose's built-in touch-target expansion — layout and visual size unchanged                                                                                                                                               |
+| focus             | keyboard / D-pad / TV focus draws the contract indicator (2dp ring-offset band + 2dp ring outside the border)                                                                                                                         |
+| pressed / hover   | contract pressed cells (no ripple); hover with a mouse / stylus pointer                                                                                                                                                               |
+| reduced motion    | "Remove animations" (animator scale 0) stops the spinner; the color transition follows the system animation scale                                                                                                                     |
+
+Test tags for UI tests: `DsButtonTestTags.SPINNER`, `LEADING_ICON`, `TRAILING_ICON`.
+
+## Structure
+
+```
+button/     DsButton · DsButtonTokens (contract paths → token lambdas) · DsButtonAppearance (pure state / token resolution) · DsButtonPreviews
+icons/      DsIconName + LucideIcons — GENERATED by `npm run icons:kotlin` (do not edit)
+theme/      PdsTheme · token adapters · typography
+internal/   DsIcon · DsSpinner · reduced-motion setting
+res/values  strings ("Loading")
+```
+
+## Review in Android Studio
+
+1. File ▸ Open… → `platforms/android` (the Gradle root, not the repo root). Let Gradle sync.
+2. Open `compose/src/main/kotlin/com/pds/compose/button/DsButtonPreviews.kt`.
+3. Switch the editor to **Split** or **Design**. Previews: **Brand A**, **Brand B**,
+   **Font scale 1.5**, **Font scale 2.0**, **Font scale 0.85**.
+4. Use **Interactive mode** on a preview to press buttons and try the two "Submit" pending
+   demos; press Tab / arrow keys in interactive mode to see the focus indicator.
+
+## Checks
+
+```
+cd platforms/android && ./gradlew build     # compile, lint, JVM + Robolectric unit tests
+npm run icons:test                          # generated icon sources are current
+npm run contracts:validate                  # android-reference: enums, defaults, token set
+```
+
+The unit tests compare `DsButtonTokens` with the contract's `tokens` section cell by cell (read
+from the YAML), check every binding against the generated member its contract path names (by
+reflection) in Brand A and Brand B, and cover state precedence; the Robolectric tests cover
+semantics, activation, loading, disabled + loading, minimum heights, font-scale growth,
+wrapping, the 48dp touch target and keyboard focus.

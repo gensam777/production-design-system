@@ -17,6 +17,10 @@
  *   8. ios-reference   — the same while ios is alpha/beta/stable: Swift `DS<Component><Prop>`
  *                        enums and defaults, the native disabled modifier, and the token set of
  *                        the Swift token map. The Swift tests compare that map cell by cell.
+ *   9. android-reference — the same while android is alpha/beta/stable: Kotlin
+ *                        `Ds<Component><Prop>` enums and defaults, `enabled` as the inverse of
+ *                        disabled, and the token set of the Kotlin token map. The Gradle unit
+ *                        tests compare that map cell by cell.
  *
  * Each check returns findings `{ level: 'error' | 'warning', check, message }`.
  */
@@ -456,7 +460,8 @@ function checkTokenLiterals(c, map, file, check, literal) {
 
 // ---------------------------------------------------------------- 8. ios-reference
 
-const SWIFT_TOKEN_LITERAL =
+/** Double-quoted contract token paths (Swift and Kotlin token maps). */
+const QUOTED_TOKEN_LITERAL =
   /"((?:color|space|radius|text|icon|motion|elevation|layout)\.[a-z0-9.-]+)"/g;
 
 /**
@@ -518,7 +523,80 @@ export function checkIosReference(c, read) {
         out.push(err(I, `default ${name}: ios '${x[1]}' ≠ contract '${p.default}'`));
   }
 
-  if (map) out.push(...checkTokenLiterals(c, map, ref.styles, I, SWIFT_TOKEN_LITERAL));
+  if (map) out.push(...checkTokenLiterals(c, map, ref.styles, I, QUOTED_TOKEN_LITERAL));
+  return out;
+}
+
+// ---------------------------------------------------------------- 9. android-reference
+
+/**
+ * Compose maps the contract to its idioms (docs/cross-platform/component-contracts.md,
+ * "Platform naming"): `enum class Ds<Component><Prop>` whose entries are the contract values in
+ * PascalCase, enum defaults as `<prop>: Ds<Component><Prop> = Ds<Component><Prop>.<Value>`,
+ * booleans as `<prop>: Boolean = <default>`, and `disabled` as Compose's `enabled` parameter
+ * (`enabled: Boolean = <!default>`).
+ *
+ * @param read (repoPath) → file text, or null when missing
+ */
+export function checkAndroidReference(c, read) {
+  const out = [];
+  const A = 'android-reference';
+  const status = c.status?.android;
+  if (!IMPLEMENTED.has(status)) return out;
+  const ref = c.references?.android;
+  if (!ref) return [err(A, `android is ${status} but references.android is missing`)];
+
+  const source = read(ref.source);
+  if (source == null) return [err(A, `${ref.source} not found`)];
+  for (const k of ['styles', 'stories'])
+    if (ref[k] && read(ref[k]) == null) out.push(err(A, `${ref[k]} not found`));
+  const map = (ref.styles && read(ref.styles)) || '';
+  const kotlin = `${source}\n${map}`;
+  const type = `Ds${c.component}`;
+
+  for (const [name, p] of enumProps(c)) {
+    const enumName = `${type}${pascal(name)}`;
+    const m = kotlin.match(new RegExp(`enum\\s+class\\s+${enumName}\\b[^{]*\\{([\\s\\S]*?)\\n\\}`));
+    if (!m) {
+      out.push(err(A, `no enum class ${enumName} for property '${name}'`));
+      continue;
+    }
+    const body = m[1].replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+    const got = [...body.matchAll(/^\s*([A-Z][A-Za-z0-9]*)\s*[,;(]?\s*$/gm)]
+      .map((x) => x[1].toLowerCase())
+      .sort();
+    const want = Object.keys(p.values).sort();
+    if (got.join() !== want.join())
+      out.push(err(A, `${enumName} [${got.join(', ')}] ≠ contract ${name} [${want.join(', ')}]`));
+    const defaults = [
+      ...source.matchAll(
+        new RegExp(`\\b${name}:\\s*${enumName}\\s*=\\s*${enumName}\\.(\\w+)`, 'g'),
+      ),
+    ];
+    if (!defaults.length)
+      out.push(err(A, `${ref.source}: no '${name}: ${enumName} = ${enumName}.…' default`));
+    for (const d of defaults)
+      if (d[1].toLowerCase() !== String(p.default))
+        out.push(err(A, `default ${name}: android '${d[1]}' ≠ contract '${p.default}'`));
+  }
+  for (const [name, p] of Object.entries(c.properties ?? {})) {
+    if (p.type !== 'boolean') continue;
+    const [param, want] =
+      name === 'disabled' ? ['enabled', String(!p.default)] : [name, String(p.default)];
+    const d = [...source.matchAll(new RegExp(`\\b${param}:\\s*Boolean\\s*=\\s*(true|false)`, 'g'))];
+    if (!d.length)
+      out.push(err(A, `${ref.source}: no '${param}: Boolean = …' parameter for '${name}'`));
+    for (const x of d)
+      if (x[1] !== want)
+        out.push(
+          err(
+            A,
+            `default ${param}: android '${x[1]}' ≠ '${want}' (contract ${name} = ${p.default})`,
+          ),
+        );
+  }
+
+  if (map) out.push(...checkTokenLiterals(c, map, ref.styles, A, QUOTED_TOKEN_LITERAL));
   return out;
 }
 
@@ -539,5 +617,6 @@ export function checkContract({ text, contract, validate, irs, snapshots, read, 
     ...checkWebReference(contract, read, irs),
     ...checkReactNativeReference(contract, read),
     ...checkIosReference(contract, read),
+    ...checkAndroidReference(contract, read),
   ];
 }

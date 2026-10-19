@@ -2,7 +2,7 @@
 
 - **Status**: Accepted — decisions approved 2026-10-12 (Phase 5 of
   [0013](./0013-cross-platform-architecture.md)). Web, Figma alignment, React Native
-  (2026-10-19) and SwiftUI (2026-10-19) implemented; Compose pending.
+  (2026-10-19), SwiftUI (2026-10-19) and Compose (2026-10-19) implemented.
 - **Date**: 2026-10-12
 - **Related**: [0010](./0010-icon-token-architecture.md), [0015](./0015-component-contracts.md),
   [0016](./0016-native-token-mappings.md), [0017](./0017-workspace-structure.md),
@@ -121,6 +121,45 @@ action:)`; disabled is SwiftUI's `.disabled(_:)` (read through `isEnabled`, so a
 - **Tests:** Swift Testing; the token map is compared with the contract YAML cell by cell and
   every key path with its contract path; `contracts:validate` gained `ios-reference`.
 
+### Compose implementation (done, 2026-10-19)
+
+`com.pds.compose` `DsButton` — an Android library module (`:compose`) in the existing Gradle
+build. Pinned (`platforms/android/gradle/libs.versions.toml`): AGP 9.1.1, Kotlin 2.2.21 for
+`:tokens` and `:compose` (Compose compiler plugin at the same version), Compose BOM 2026.06.01
+(Compose 1.11 — the newest that compiles against compileSdk 36; 2026.08.00+ is Compose 1.12,
+which requires compileSdk 37 — AGP's AAR-metadata check is the gate), JVM 17 bytecode, minSdk
+23, compileSdk 36; foundation / ui / animation / ui-tooling-preview, no Material. Gradle 9.3.1
+wrapper committed. The build runs on JDK 21+ (Robolectric's SDK 36 runtime requires Java 21;
+Android Studio's bundled JDK qualifies). Decisions:
+
+- **API:** `DsButton(text, onClick, modifier, variant, size, enabled, loading, leadingIcon,
+trailingIcon, interactionSource)`; `enabled` is the contract's `disabled` inverted (Compose
+  idiom); brand via `PdsTheme(theme) { … }` (a `CompositionLocal`), read as `PdsTheme.tokens`.
+- **Surface:** `clickable(role = Button, indication = null)` — the contract's pressed cells
+  are the press feedback, no ripple; `hoverable` for pointer hover. Loading blocks `onClick`
+  without disabling and sets `stateDescription` from `R.string.pds_button_loading` (apps
+  override the resource to localize).
+- **Sizing:** `heightIn(min = 32 / 40 / 48dp)` only; sp text with em line height (non-linear
+  font scaling on Android 14+); label `weight(fill = false)` so it wraps inside a constrained
+  width; icons and spinner sized in sp. Inner spacing sits inside the reserved 1dp border.
+- **Hit target:** Compose's built-in touch-target expansion (pointer input smaller than the
+  48dp `ViewConfiguration.minimumTouchTargetSize` is hit-tested as 48dp) — no layout change,
+  unlike Material's `minimumInteractiveComponentSize`, which grows the layout.
+- **Focus:** keyboard / D-pad / TV focus draws the contract indicator outside the border
+  (touch mode never focuses a clickable); Android has no system focus effect for a custom
+  surface.
+- **Spinner:** drawn 270° ring, 2dp butt stroke, `rememberInfiniteTransition` at
+  `motion.spinner`; static when the animator duration scale is 0 ("Remove animations", read
+  live via a settings observer). Not Material's `CircularProgressIndicator`.
+- **Fonts:** the brand face when the app ships `res/font/<fontResourceName>`, looked up by name
+  at runtime; else `FontFamily.Default` at the face's weight.
+- **Icons:** ADR 0019's generator — Compose `ImageVector`s.
+- **Tests:** JVM tests compare the token map with the contract YAML cell by cell and each
+  binding with the generated member its path names (reflection), in both brands; Robolectric
+  - compose-ui-test cover semantics, activation, loading, disabled + loading, minimum heights,
+    font scaling, wrapping, the 48dp target and focus. `contracts:validate` gained
+    `android-reference`.
+
 ## Consequences
 
 - Both Phase 3 implementation gaps are closed; the contract tests now guard the behavior
@@ -134,5 +173,5 @@ action:)`; disabled is SwiftUI's `.disabled(_:)` (read through `isEnabled`, so a
   variables (`motion/duration/loop`, `motion/easing/linear`, `spinner/duration`,
   `spinner/easing` — Figma cannot bind motion variables to a node). The contract has no open
   questions; the Focus-visible rendering difference stays intentional.
-- The React Native and SwiftUI Buttons are implemented (contract status `alpha`); the
-  Compose Button follows the plan in `docs/cross-platform/migration.md` (Phase 5).
+- Button is implemented on every platform (web, React Native, SwiftUI, Compose — contract
+  status `alpha` everywhere).

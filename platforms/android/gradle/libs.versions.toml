@@ -1,0 +1,29 @@
+# Versions for the Android build (ADR 0018 "Platform versions"). Bump together and re-check the
+# compatibility tables: AGP ↔ Gradle (wrapper), Kotlin ↔ Compose compiler plugin (same version),
+# Compose BOM ↔ compileSdk.
+[versions]
+agp = "9.1.1"
+kotlin = "2.2.21"
+# Newest BOM whose artifacts still compile against compileSdk 36 (ADR 0018) — AGP's AAR
+# metadata check fails the build if a BOM requires a newer compileSdk. 2026.06.01 = Compose 1.11.4
+# (minCompileSdk 35); 2026.08.00+ = Compose 1.12 (minCompileSdk 37).
+compose-bom = "2026.06.01"
+junit = "4.13.2"
+robolectric = "4.17"
+
+[libraries]
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+compose-foundation = { module = "androidx.compose.foundation:foundation" }
+compose-ui = { module = "androidx.compose.ui:ui" }
+compose-animation = { module = "androidx.compose.animation:animation" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+junit = { module = "junit:junit", version.ref = "junit" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+
+[plugins]
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

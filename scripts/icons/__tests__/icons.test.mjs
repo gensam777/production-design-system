@@ -3,7 +3,7 @@
  *
  *   1. The committed catalog passes every check against the web and React Native
  *      implementations and their installed Lucide packages (lucide-react, lucide-react-native),
- *      and the committed SwiftUI sources equal a fresh generation from lucide-static.
+ *      and the committed SwiftUI and Compose sources equal a fresh generation from lucide-static.
  *   2. Every check fires on a broken input.
  */
 import assert from 'node:assert/strict';
@@ -31,6 +31,13 @@ import {
   normalizePath,
   parseSwiftIconNames,
 } from '../lib/swift.mjs';
+import {
+  KOTLIN_ENUM,
+  elementPathData,
+  generateKotlin,
+  kotlinEntry,
+  parseKotlinIconNames,
+} from '../lib/kotlin.mjs';
 
 process.chdir(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..'));
 
@@ -133,6 +140,47 @@ describe('SwiftUI icon sources (npm run icons:swift)', () => {
     );
     assert.notEqual(files.get(SWIFT_ENUM), fs.readFileSync(SWIFT_ENUM, 'utf8'));
     assert.ok(parseSwiftIconNames(files.get(SWIFT_ENUM)).includes('bell'));
+  });
+});
+
+describe('Compose icon sources (npm run icons:kotlin)', () => {
+  const STATIC = 'node_modules/lucide-static';
+  const generate = (m = manifest) =>
+    generateKotlin(
+      m,
+      json(`${STATIC}/icon-nodes.json`),
+      fs.readFileSync(`${STATIC}/LICENSE`, 'utf8'),
+    );
+
+  test('committed sources are current (regenerate with npm run icons:kotlin)', () => {
+    for (const [file, content] of generate())
+      assert.equal(fs.readFileSync(file, 'utf8'), content, `${file} is stale`);
+  });
+
+  test('DsIconName has exactly the catalog ids', () =>
+    assert.deepEqual(
+      parseKotlinIconNames(fs.readFileSync(KOTLIN_ENUM, 'utf8')),
+      Object.keys(manifest.icons),
+    ));
+
+  test('entry names and element conversion', () => {
+    assert.equal(kotlinEntry('arrow-left'), 'ArrowLeft');
+    assert.equal(kotlinEntry('eye-off'), 'EyeOff');
+    assert.equal(elementPathData(['line', { x1: 1, y1: 2, x2: 3, y2: 4 }]), 'M1 2L3 4');
+    assert.equal(elementPathData(['polygon', { points: '1,1 5,1 3,4' }]), 'M1 1L5 1L3 4Z');
+    // A circle becomes two half arcs: four cubic segments that close back on the start.
+    const circle = normalizePath(elementPathData(['circle', { cx: 12, cy: 12, r: 3 }]));
+    assert.equal(circle.filter((c) => c.op === 'C').length, 4);
+    assert.deepEqual([circle[0].x, circle[0].y], [9, 12]);
+    assert.throws(() => elementPathData(['text', {}]), /unsupported/);
+  });
+
+  test('stale sources are detected', () => {
+    const m = clone();
+    m.icons.bell = { lucide: 'bell', description: 'Notifications.' };
+    const enumFile = generate(m).get(KOTLIN_ENUM);
+    assert.notEqual(enumFile, fs.readFileSync(KOTLIN_ENUM, 'utf8'));
+    assert.ok(parseKotlinIconNames(enumFile).includes('bell'));
   });
 });
 

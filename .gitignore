@@ -10,7 +10,13 @@ packages/tokens/build/
 .build/
 .swiftpm/
 .gradle/
+.kotlin/
 platforms/android/**/build/
+platforms/android/build/
+# Android Studio / IntelliJ local state (machine-specific SDK path, IDE settings)
+local.properties
+.idea/
+*.iml
 *.log
 .DS_Store
 .env
