@@ -5,7 +5,7 @@ Decision record: [ADR 0013](../../governance/decisions/0013-cross-platform-archi
 [ADR 0017](../../governance/decisions/0017-workspace-structure.md)); Phase 5 in progress — decisions
 made ([ADR 0018](../../governance/decisions/0018-cross-platform-button.md),
 [ADR 0019](../../governance/decisions/0019-icon-catalog.md)), web Button updated, Figma aligned,
-React Native Button implemented; SwiftUI and Compose Buttons pending.**
+React Native and SwiftUI Buttons implemented; Compose Button pending.**
 
 ## Repo evolution
 
@@ -155,17 +155,26 @@ details in ADR 0018 "React Native implementation"):
   state); `expo export` runs in CI. Toolchain: React Native 0.88.0 / React 19.3.0 shared by the
   whole workspace; CI on Node 22.
 
+**Done (2026-10-19) — SwiftUI Button** (`PDSUI`, contract `ios: alpha`; details in ADR 0018
+"SwiftUI implementation"):
+
+- `DSButton` (internal `ButtonStyle`), `.dsTheme(_:)`, disabled via `.disabled`, localized
+  "Loading" value, hit area expanded to 44pt without layout change, Dynamic Type growth,
+  drawn spinner paused under Reduce Motion, system focus.
+- `DSIconName` + Lucide SwiftUI paths generated from `lucide-static` (`npm run icons:swift`,
+  checked by `icons:test`).
+- Swift Testing (`swift test`): contract parity cell by cell, brand resolution, precedence,
+  hit target, icons. `#Preview` gallery (both brands, Dynamic Type sizes). CI: Linux builds
+  `PDSTokens`; a macOS job runs `swift test` and an iOS Simulator build.
+
 **Pending:**
 
 - Button, one pull request per platform, in this order:
-  - **SwiftUI** (`PDSUI`): `DSButton` + `DSButtonStyle`, `.dsTheme(_:)`, disabled via
-    `.disabled`, localized "Loading" value, hit area expanded without layout change; Swift
-    Testing on a color resolver, `#Preview` grid; macOS CI job.
   - **Compose** (`com.pds.compose`): `DsButton` + `PdsTheme`, `clickable(role = Button,
 indication = null)`, `stateDescription` while loading, built-in 48dp touch expansion, drawn
     focus ring; Robolectric + compose-ui-test, `@Preview` grid; Gradle wrapper, Android SDK in CI.
-  - Native icon generators (SwiftUI shapes, Compose `ImageVector`s from `lucide-static`)
-    land with their platform.
+  - Compose `ImageVector` icon generator from `lucide-static` lands with Compose (the
+    SwiftUI generator is done).
 - Switch second.
 - **Exit:** contract checks pass on every platform; MobileLogin-equivalent screen renders
   natively in both brands.

@@ -1,0 +1,2 @@
+/* Accessibility value of a busy (loading) DSButton; the button's name stays its label. */
+"Loading" = "Loading";

@@ -17,6 +17,7 @@ import { BRANDS, resolveBrand } from '../../../packages/tokens/scripts/ir.mjs';
 import {
   checkContract,
   checkFigma,
+  checkIosReference,
   checkPlatformApi,
   checkReactNativeReference,
   checkReferences,
@@ -253,6 +254,60 @@ describe('each check fires', () => {
     g.status['react-native'] = 'planned';
     delete g.references['react-native'];
     assert.deepEqual(checkReactNativeReference(g, read), []);
+  });
+  test('ios-reference: enum cases, defaults, booleans, token-set drift and missing files', () => {
+    const I = 'ios-reference';
+    const msgs = (c, r = read) => errors(checkIosReference(c, r), I).map((e) => e.message);
+    assert.deepEqual(checkIosReference(button, read), []);
+
+    const a = clone(button);
+    a.properties.variant.values.ghost = 'x';
+    assert.ok(
+      msgs(a).some((m) => m.includes('DSButtonVariant')),
+      msgs(a).join('\n'),
+    );
+
+    const b = clone(button);
+    b.properties.size.default = 'lg';
+    assert.ok(
+      msgs(b).some((m) => m.includes("default size: ios '.md'")),
+      msgs(b).join('\n'),
+    );
+
+    const c = clone(button);
+    c.tokens.container.gap.md = 'space.inline.md'; // not in DSButtonTokens.swift
+    assert.ok(
+      msgs(c).some((m) => m.includes("'space.inline.md' is not used")),
+      msgs(c).join('\n'),
+    );
+
+    const d = clone(button);
+    delete d.tokens.focusIndicator; // DSButtonTokens.swift still binds the focus tokens
+    assert.ok(
+      msgs(d).some((m) => m.includes("uses 'color.focus.ring'")),
+      msgs(d).join('\n'),
+    );
+
+    const e = clone(button);
+    e.properties.loading.default = true;
+    assert.ok(
+      msgs(e).some((m) => m.includes("default loading: ios 'false'")),
+      msgs(e).join('\n'),
+    );
+
+    // A source that ignores SwiftUI's disabled environment is caught.
+    const noEnabled = (p) =>
+      p.endsWith('DSButton.swift') ? read(p).replaceAll('.isEnabled', '.isFocused') : read(p);
+    assert.ok(msgs(button, noEnabled).some((m) => m.includes('isEnabled')));
+
+    const f = clone(button);
+    f.references.ios.stories = 'platforms/ios/Sources/PDSUI/Previews/Missing.swift';
+    assert.ok(msgs(f).length);
+
+    const g = clone(button);
+    g.status.ios = 'planned';
+    delete g.references.ios;
+    assert.deepEqual(checkIosReference(g, read), []);
   });
 });
 

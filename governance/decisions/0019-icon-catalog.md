@@ -1,7 +1,7 @@
 # 0019: Platform-neutral icon catalog
 
-- **Status**: Accepted — catalog and web checks implemented 2026-10-12; native artwork
-  generators arrive with the first native components (Phase 5).
+- **Status**: Accepted — catalog and web checks implemented 2026-10-12; React Native and the
+  SwiftUI generator implemented 2026-10-19; Compose generator arrives with Compose (Phase 5).
 - **Date**: 2026-10-12
 - **Related**: [0010](./0010-icon-token-architecture.md) (provider-neutral catalog, px sizes),
   [0013](./0013-cross-platform-architecture.md), [0018](./0018-cross-platform-button.md)
@@ -33,6 +33,17 @@ committing icon files.
    map uses each name's Lucide component; every Lucide name exists in the installed
    `lucide-react`, whose version must equal `provider.version`. Native generators add
    "generated sources are current" checks when they land.
+
+## Implementation notes (2026-10-19)
+
+- **Swift name is `DSIconName`**, not `DSIcon` (rule 3): `PDSTokens` already generates a
+  `DSIcon` struct for the `icon.*` size tokens. Kotlin follows as `DsIconName`.
+- **SwiftUI generator:** `npm run icons:swift` (`scripts/icons/lib/swift.mjs`) reads
+  `lucide-static/icon-nodes.json` at the pinned version (root devDependency, exact) and writes
+  `platforms/ios/Sources/PDSUI/Icons/{DSIconName,LucidePaths}.swift` with the ISC notice. All
+  SVG commands are normalized to move / line / cubic / close (arcs → cubic Béziers), so Swift
+  needs no SVG parser. `icons:test` fails when the committed sources are stale. No third-party
+  Lucide Swift package: it would pin artwork independently of the catalog version.
 
 ## Consequences
 

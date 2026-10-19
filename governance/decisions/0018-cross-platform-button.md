@@ -1,8 +1,8 @@
 # 0018: Cross-platform Button — platform versions and contract decisions
 
 - **Status**: Accepted — decisions approved 2026-10-12 (Phase 5 of
-  [0013](./0013-cross-platform-architecture.md)). Web, Figma alignment and React Native
-  implemented (React Native 2026-10-19); SwiftUI and Compose pending.
+  [0013](./0013-cross-platform-architecture.md)). Web, Figma alignment, React Native
+  (2026-10-19) and SwiftUI (2026-10-19) implemented; Compose pending.
 - **Date**: 2026-10-12
 - **Related**: [0010](./0010-icon-token-architecture.md), [0015](./0015-component-contracts.md),
   [0016](./0016-native-token-mappings.md), [0017](./0017-workspace-structure.md),
@@ -93,6 +93,34 @@ both brands, and `contracts:validate` gained a `react-native-reference` check. F
 unbundled: `fontsLoaded` selects the brand faces, otherwise the system family at the same
 weight. Preview: `packages/react-native-example` (Expo).
 
+### SwiftUI implementation (done, 2026-10-19)
+
+`PDSUI` `DSButton` — a SwiftUI `Button` with an internal `ButtonStyle`, so pressed, focus and
+accessibility actions stay native. Package platforms iOS 17 / macOS 14 (host). Decisions:
+
+- **API:** `DSButton(_ title, variant:, size:, leadingIcon:, trailingIcon:, isLoading:,
+action:)`; disabled is SwiftUI's `.disabled(_:)` (read through `isEnabled`, so an ancestor's
+  disabled applies too); brand via `.dsTheme(_:)` in the environment. The `ButtonStyle` stays
+  internal so the label is always contract text.
+- **Busy:** iOS has no busy trait — a localized accessibility value "Loading" while
+  `isLoading` and enabled (the name stays the label); the action is ignored, the button is not
+  disabled.
+- **Sizing:** `.frame(minHeight:)` 32 / 40 / 48 only; the label wraps with
+  `fixedSize(vertical)` and the button grows. Icons and spinner × `@ScaledMetric` on the label
+  role's Dynamic Type anchor; inner spacing sits inside the reserved 1pt border.
+- **Hit target:** ≥ 44pt from the measured size via an expanded content shape (pad → shape →
+  negative pad), so layout never changes.
+- **Spinner:** a drawn 2pt 270° ring on a `TimelineView`, one turn per `motion.spinner`
+  through its easing curve; paused (static ring) with Reduce Motion. `ProgressView` can't take
+  the contract geometry. `motion.micro` animates the container colors, none with Reduce Motion.
+- **Focus:** system focus effect; the focus tokens are bound (contract parity) but not drawn.
+- **Fonts:** brand face when registered (checked at runtime), else
+  `.system(size: size × Dynamic Type scale, weight:)` — `.custom(…).weight(_)` can't weight a
+  missing face.
+- **Icons:** ADR 0019's generator — see that ADR.
+- **Tests:** Swift Testing; the token map is compared with the contract YAML cell by cell and
+  every key path with its contract path; `contracts:validate` gained `ios-reference`.
+
 ## Consequences
 
 - Both Phase 3 implementation gaps are closed; the contract tests now guard the behavior
@@ -106,6 +134,5 @@ weight. Preview: `packages/react-native-example` (Expo).
   variables (`motion/duration/loop`, `motion/easing/linear`, `spinner/duration`,
   `spinner/easing` — Figma cannot bind motion variables to a node). The contract has no open
   questions; the Focus-visible rendering difference stays intentional.
-- The React Native Button is implemented (contract status `alpha`); SwiftUI and Compose
-  Buttons follow the plan in `docs/cross-platform/migration.md` (Phase 5), one pull request
-  per platform.
+- The React Native and SwiftUI Buttons are implemented (contract status `alpha`); the
+  Compose Button follows the plan in `docs/cross-platform/migration.md` (Phase 5).

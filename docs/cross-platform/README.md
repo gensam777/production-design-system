@@ -9,7 +9,7 @@ packages in `platforms/` (ADR [0017](../../governance/decisions/0017-workspace-s
 The token build emits React Native, Swift (`PDSTokens`, a Swift package at the repo root) and
 Kotlin (`com.pds.tokens`, a Gradle module) token outputs for both brands, and Button has a
 validated cross-platform contract (`design/contracts/components/button.contract.yaml`);
-there's no SwiftUI or Compose UI code yet. Decisions: [ADR 0013](../../governance/decisions/0013-cross-platform-architecture.md)
+SwiftUI has Button (`PDSUI` `DSButton`); there's no Compose UI code yet. Decisions: [ADR 0013](../../governance/decisions/0013-cross-platform-architecture.md)
 (architecture), [ADR 0014](../../governance/decisions/0014-token-source-portability.md)
 (token source), [ADR 0016](../../governance/decisions/0016-native-token-mappings.md) (native
 token mappings), [ADR 0015](../../governance/decisions/0015-component-contracts.md) (contracts).
@@ -21,7 +21,7 @@ token mappings), [ADR 0015](../../governance/decisions/0015-component-contracts.
 | Web / web app          | React + TypeScript + CSS (exists)                                                       | `@pds/react` (`packages/react`)     |
 | Mobile app, tablet app | Delivered by one of the three native stacks below — a form factor, not a separate stack | —                                   |
 | React Native           | React Native components (Button alpha; preview: `@pds/react-native-example`)            | `@pds/react-native`                 |
-| iOS / iPadOS           | SwiftUI (planned)                                                                       | `PDSUI`, `PDSTokens`                |
+| iOS / iPadOS           | SwiftUI (Button alpha; previews in `PDSUI/Previews/`)                                   | `PDSUI`, `PDSTokens`                |
 | Android                | Jetpack Compose (planned)                                                               | `com.pds.compose`, `com.pds.tokens` |
 
 Tokens for every platform come from one source (`design/tokens/`), built by `@pds/tokens`:

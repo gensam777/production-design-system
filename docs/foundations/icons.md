@@ -66,18 +66,18 @@ Since Phase 5 (ADR 0019) the list above is defined once, outside any platform, i
 short description, and the provider block (`lucide`, exact version, ISC licence, 24 viewBox,
 stroke 2, round caps/joins). No icon files are committed.
 
-| Platform          | Name type                                                                | Artwork                                                                     |
-| ----------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
-| Web               | `IconName` union (`packages/react/src/icons/types.ts`, hand-written)     | `lucide-react` via `providers/lucide.ts`                                    |
-| React Native      | the same `IconName` strings (`packages/react-native/src/icons/types.ts`) | `lucide-react-native` (per-icon imports) + `react-native-svg`, same version |
-| iOS (planned)     | `DSIcon` enum, raw value = catalog name (`.arrowLeft = "arrow-left"`)    | SwiftUI shapes generated from `lucide-static` SVGs at the same version      |
-| Android (planned) | `DsIcon` enum, id = catalog name                                         | Compose `ImageVector`s generated from the same SVGs                         |
+| Platform          | Name type                                                                 | Artwork                                                                                  |
+| ----------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Web               | `IconName` union (`packages/react/src/icons/types.ts`, hand-written)      | `lucide-react` via `providers/lucide.ts`                                                 |
+| React Native      | the same `IconName` strings (`packages/react-native/src/icons/types.ts`)  | `lucide-react-native` (per-icon imports) + `react-native-svg`, same version              |
+| iOS               | `DSIconName` enum, raw value = catalog name (`.arrowLeft = "arrow-left"`) | SwiftUI paths generated from `lucide-static` at the same version (`npm run icons:swift`) |
+| Android (planned) | `DsIconName` enum, id = catalog name                                      | Compose `ImageVector`s generated from the same SVGs                                      |
 
 `npm run icons:test` (CI) fails when the web or React Native union, either Lucide map or the
 installed `lucide-react` / `lucide-react-native` version drifts from the catalog. To add an
 icon: add it to `icons.json`, then to both `IconName` unions and both `lucideIconMap`s — React
-Native imports each icon from `lucide-react-native/icons/<lucide name>` (the test names what's
-missing). To move to a new Lucide
+Native imports each icon from `lucide-react-native/icons/<lucide name>`) and run
+`npm run icons:swift` for SwiftUI (the test names what's missing). To move to a new Lucide
 version: bump `provider.version` and every platform's Lucide package together. The native
 generators arrive with the first native components.
 

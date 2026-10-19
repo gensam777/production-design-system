@@ -14,6 +14,9 @@
  *   7. react-native-reference — the same while react-native is alpha/beta/stable; the token
  *                        set comes from the component's token map (contract token paths kept
  *                        as string literals). The RN Jest suite compares that map cell by cell.
+ *   8. ios-reference   — the same while ios is alpha/beta/stable: Swift `DS<Component><Prop>`
+ *                        enums and defaults, the native disabled modifier, and the token set of
+ *                        the Swift token map. The Swift tests compare that map cell by cell.
  *
  * Each check returns findings `{ level: 'error' | 'warning', check, message }`.
  */
@@ -433,18 +436,89 @@ export function checkReactNativeReference(c, read) {
     if (ref[k] && read(ref[k]) == null) out.push(err(R, `${ref[k]} not found`));
   out.push(...checkSourceApi(c, source, ref.source, R, 'react-native'));
 
-  // Token set: the token map's path literals ↔ what the contract binds.
   const map = ref.styles && read(ref.styles);
-  if (map) {
-    const used = new Set([...map.matchAll(TOKEN_LITERAL)].map((m) => m[1]));
-    const bound = contractTokenSet(c);
-    for (const path of bound)
-      if (!used.has(path))
-        out.push(err(R, `contract token '${path}' is not used by ${ref.styles}`));
-    for (const path of used)
-      if (!bound.has(path))
-        out.push(err(R, `${ref.styles} uses '${path}', which the contract does not bind`));
+  if (map) out.push(...checkTokenLiterals(c, map, ref.styles, R, TOKEN_LITERAL));
+  return out;
+}
+
+/** The token map's path literals ↔ what the contract binds (both directions). */
+function checkTokenLiterals(c, map, file, check, literal) {
+  const out = [];
+  const used = new Set([...map.matchAll(literal)].map((m) => m[1]));
+  const bound = contractTokenSet(c);
+  for (const path of bound)
+    if (!used.has(path)) out.push(err(check, `contract token '${path}' is not used by ${file}`));
+  for (const path of used)
+    if (!bound.has(path))
+      out.push(err(check, `${file} uses '${path}', which the contract does not bind`));
+  return out;
+}
+
+// ---------------------------------------------------------------- 8. ios-reference
+
+const SWIFT_TOKEN_LITERAL =
+  /"((?:color|space|radius|text|icon|motion|elevation|layout)\.[a-z0-9.-]+)"/g;
+
+/**
+ * SwiftUI maps the contract to its idioms (docs/cross-platform/component-contracts.md,
+ * "Platform naming"): enum `DS<Component><Prop>` with the contract's values as cases, enum
+ * defaults as `<prop>: DS<Component><Prop> = .<value>`, `loading` as `isLoading: Bool = false`,
+ * `disabled` as SwiftUI's own disabled modifier (read through the `isEnabled` environment).
+ *
+ * @param read (repoPath) → file text, or null when missing
+ */
+export function checkIosReference(c, read) {
+  const out = [];
+  const I = 'ios-reference';
+  const status = c.status?.ios;
+  if (!IMPLEMENTED.has(status)) return out;
+  const ref = c.references?.ios;
+  if (!ref) return [err(I, `ios is ${status} but references.ios is missing`)];
+
+  const source = read(ref.source);
+  if (source == null) return [err(I, `${ref.source} not found`)];
+  for (const k of ['styles', 'stories'])
+    if (ref[k] && read(ref[k]) == null) out.push(err(I, `${ref[k]} not found`));
+  const map = (ref.styles && read(ref.styles)) || '';
+  const swift = `${source}\n${map}`;
+  const type = `DS${c.component}`;
+
+  for (const [name, p] of enumProps(c)) {
+    const enumName = `${type}${pascal(name)}`;
+    const m = swift.match(new RegExp(`enum\\s+${enumName}\\b[^{]*\\{([\\s\\S]*?)\\n\\}`));
+    if (!m) {
+      out.push(err(I, `no enum ${enumName} for property '${name}'`));
+      continue;
+    }
+    const got = [...m[1].matchAll(/^\s*case\s+`?([A-Za-z0-9]+)`?/gm)].map((x) => x[1]).sort();
+    const want = Object.keys(p.values).sort();
+    if (got.join() !== want.join())
+      out.push(err(I, `${enumName} [${got.join(', ')}] ≠ contract ${name} [${want.join(', ')}]`));
+    const defaults = [
+      ...source.matchAll(new RegExp(`\\b${name}:\\s*${enumName}\\s*=\\s*\\.(\\w+)`, 'g')),
+    ];
+    if (!defaults.length) out.push(err(I, `${ref.source}: no '${name}: ${enumName} = .…' default`));
+    for (const d of defaults)
+      if (d[1] !== String(p.default))
+        out.push(err(I, `default ${name}: ios '.${d[1]}' ≠ contract '${p.default}'`));
   }
+  for (const [name, p] of Object.entries(c.properties ?? {})) {
+    if (p.type !== 'boolean') continue;
+    if (name === 'disabled') {
+      if (!/\\\.isEnabled\b/.test(source))
+        out.push(err(I, `${ref.source}: disabled must follow SwiftUI's isEnabled environment`));
+      continue;
+    }
+    const param = `is${pascal(name)}`;
+    const d = [...source.matchAll(new RegExp(`\\b${param}:\\s*Bool\\s*=\\s*(true|false)`, 'g'))];
+    if (!d.length)
+      out.push(err(I, `${ref.source}: no '${param}: Bool = …' parameter for '${name}'`));
+    for (const x of d)
+      if (x[1] !== String(p.default))
+        out.push(err(I, `default ${name}: ios '${x[1]}' ≠ contract '${p.default}'`));
+  }
+
+  if (map) out.push(...checkTokenLiterals(c, map, ref.styles, I, SWIFT_TOKEN_LITERAL));
   return out;
 }
 
@@ -464,5 +538,6 @@ export function checkContract({ text, contract, validate, irs, snapshots, read, 
     ...checkFigma(contract, snapshots),
     ...checkWebReference(contract, read, irs),
     ...checkReactNativeReference(contract, read),
+    ...checkIosReference(contract, read),
   ];
 }
